@@ -1,3 +1,13 @@
 <resources>
-    <string name="app_name">一方智能</string>
+    <string name="app_name">a</string>
+    <!--<string name="app_name">一方智能</string>-->
+
+    <string name="license_application_reminder">应用激活：通过包名，签名在线申请License 文件至于asset下</string>
+    <string name="license_online_reminder">在线激活：输入序列号，保持设备联网，SDK会自动进行激活</string>
+    <string name="license_offline_reminder">离线激活：将激活文件置于SD卡中，SDK会自动进行激活处理</string>
+    <string name="license_offline">离线激活</string>
+    <string name="license_activate">设备激活</string>
+    <string name="license_application">应用激活</string>
+    <string name="license_online">在线激活</string>
+
 </resources>
