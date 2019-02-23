@@ -208,6 +208,7 @@ public class LockersCommHelper {
                 default:
                     break;
             }
+            reset();
         }
 
 
@@ -243,6 +244,8 @@ public class LockersCommHelper {
     public class LockersCmd {
 
         public static final byte CONTROL_SINGLE_WAY = 0x01;
+
+
 
     }
 }
