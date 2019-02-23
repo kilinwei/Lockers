@@ -47,7 +47,7 @@ public class SplashActivity extends BaseActivity {
 
             @Override
             public void onAnimationEnd(Animation animation) {
-                jump();
+                initLicence();
             }
 
             @Override
@@ -58,11 +58,6 @@ public class SplashActivity extends BaseActivity {
         faceAuth = new FaceAuth();
         // 建议3288板子flagsThreads设置2,3399板子设置4
         faceAuth.setAnakinThreadsConfigure(2, 0);
-    }
-
-    private void jump() {
-        initLicence();
-//        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
     }
 
     private void initLicence() {
