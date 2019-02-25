@@ -12,7 +12,12 @@ import java.security.InvalidParameterException;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import static com.xyf.lockers.common.serialport.LockersCommHelper.LockersCmd.CONTROL_ALL_LIGHT;
+import static com.xyf.lockers.common.serialport.LockersCommHelper.LockersCmd.CONTROL_AUTO_UPLOAD;
+import static com.xyf.lockers.common.serialport.LockersCommHelper.LockersCmd.GET_ALL_LOCK_STATUS;
+import static com.xyf.lockers.common.serialport.LockersCommHelper.LockersCmd.CONTROL_SINGLE_LIGHT;
 import static com.xyf.lockers.common.serialport.LockersCommHelper.LockersCmd.CONTROL_SINGLE_WAY;
+import static com.xyf.lockers.common.serialport.LockersCommHelper.LockersCmd.GET_ALL_LIGHT_STATUS;
 
 /**
  * @项目名： Lockers
@@ -33,7 +38,7 @@ public class LockersCommHelper {
     /**
      * 数据接收超时时间
      */
-    private static final int RECEIVER_DATA_TIMEOUT = 1000*1000;
+    private static final int RECEIVER_DATA_TIMEOUT = 1000 * 1000;
 
     private static LockersCommHelper instance;
 
@@ -225,24 +230,114 @@ public class LockersCommHelper {
     /**
      * 控制单路通断
      *
-     * @param way   线路,十进制
-     * @param staus 01通,00断
+     * @param way    线路,十进制
+     * @param status 01通,00断
      */
-    public void controlSingleLock(int way, int staus) {
+    public void controlSingleLock(int way, int status) {
         if (isOpenDev()) {
             //ab 02 02 01 ba
             String wayHex = Integer.toHexString(way);
-            ComSendBean comSendBean = new ComSendBean(CONTROL_SINGLE_WAY, new byte[]{(byte) 0xAB, 0x02, (byte) way, (byte) staus, (byte) 0xBA});
+            ComSendBean comSendBean = new ComSendBean(CONTROL_SINGLE_WAY, new byte[]{(byte) 0xAB, 0x02, (byte) way, (byte) status, (byte) 0xBA});
             dispatchQueueThread.addComSendBean(comSendBean);
-            Log.i(TAG, "controlSingleLock: 控制单路通断: way: " + way + "  wayHex: " + wayHex + " status: " + staus);
+            Log.i(TAG, "controlSingleLock: 控制单路锁通断: way: " + way + "  wayHex: " + wayHex + " status: " + status);
         } else {
-            Log.w(TAG, "controlSingleLock: 控制单路通断: way: " + way + " status: " + staus);
+            Log.w(TAG, "controlSingleLock: 控制单路锁通断: way: " + way + " status: " + status);
+        }
+    }
+
+    /**
+     * 查询当前 24 路灯控状态
+     */
+    public void getAllLightStatus() {
+        if (isOpenDev()) {
+            //AB 03 A2 01 00 BA
+            ComSendBean comSendBean = new ComSendBean(GET_ALL_LIGHT_STATUS, new byte[]{(byte) 0xAB, 0x03, (byte) 0xA2, 0x01, 0x00, (byte) 0xBA});
+            dispatchQueueThread.addComSendBean(comSendBean);
+            Log.i(TAG, "controlSingleLock: 查询当前 24 路灯控状态");
+        } else {
+            Log.w(TAG, "controlSingleLock: 查询当前 24 路灯控状态");
+        }
+    }
+
+    /**
+     * 控制所有灯
+     *
+     * @param status 01(全开)/00(全关)/02(全闪)
+     */
+    public void controlAllLight(int status) {
+        if (isOpenDev()) {
+            //1b 54 02 0a
+            ComSendBean comSendBean = new ComSendBean(CONTROL_ALL_LIGHT, new byte[]{(byte) 0x1B, 0x54, (byte) status, 0x0A});
+            dispatchQueueThread.addComSendBean(comSendBean);
+            Log.i(TAG, "controlAllLight: 控制所有灯: status: " + status);
+        } else {
+            Log.w(TAG, "controlAllLight: 控制所有灯: status: " + status);
+        }
+    }
+
+    /**
+     * 设置灯控 24 路任何一路工作
+     * 1B 01(全开)/00(全关)/02(全闪) 01（1-18 表示 1 到 24 路） 0A
+     *
+     * @param status 01(开)/00(关)/02(闪)
+     */
+    public void controlSingleLight(int way, int status) {
+        if (isOpenDev()) {
+            String wayHex = Integer.toHexString(way);
+            ComSendBean comSendBean = new ComSendBean(CONTROL_SINGLE_LIGHT, new byte[]{(byte) 0x1B, (byte) status, (byte) way, 0x0A});
+            dispatchQueueThread.addComSendBean(comSendBean);
+            Log.i(TAG, "controlSingleLight: 控制单路灯通断: way: " + way + "  wayHex: " + wayHex + " status: " + status);
+        } else {
+            Log.w(TAG, "controlSingleLight: 控制单路灯通断: way: " + way + " status: " + status);
+        }
+    }
+
+    /**
+     * 设置 24 路采集是否自动上传 (关门是否有反馈)
+     *
+     * @param autoUpload
+     */
+    public void autoUpload(boolean autoUpload) {
+        if (isOpenDev()) {
+            //1B EE 01(自动上传)00(不传) 0B
+            int upload = autoUpload ? 1 : 0;
+            ComSendBean comSendBean = new ComSendBean(CONTROL_AUTO_UPLOAD, new byte[]{(byte) 0x1B, (byte) 0xEE, (byte) upload, 0x0B});
+            dispatchQueueThread.addComSendBean(comSendBean);
+            Log.i(TAG, "autoUpload: 采集是否自动上传: autoUpload: " + autoUpload);
+        } else {
+            Log.w(TAG, "autoUpload: 采集是否自动上传: autoUpload: " + autoUpload);
+        }
+    }
+
+    /**
+     * 查询 24 路采集端口状态
+     */
+    public void getAllLockStatus() {
+        if (isOpenDev()) {
+            //1B FF FF 0A
+            ComSendBean comSendBean = new ComSendBean(GET_ALL_LOCK_STATUS, new byte[]{(byte) 0x1B, (byte) 0xFF, (byte) 0xFF, 0x0A});
+            dispatchQueueThread.addComSendBean(comSendBean);
+            Log.i(TAG, "getAllLockStatus: 查询 24 路采集端口状态");
+        } else {
+            Log.w(TAG, "getAllLockStatus: 查询 24 路采集端口状态");
         }
     }
 
     public class LockersCmd {
 
         public static final byte CONTROL_SINGLE_WAY = 0x01;
+
+        public static final byte GET_ALL_LIGHT_STATUS = 0x02;
+
+        public static final byte CONTROL_LIGHT_STATUS = 0x03;
+
+        public static final byte CONTROL_ALL_LIGHT = 0x04;
+
+        public static final byte CONTROL_SINGLE_LIGHT = 0x05;
+
+        public static final byte CONTROL_AUTO_UPLOAD = 0x06;
+
+        public static final byte GET_ALL_LOCK_STATUS = 0x07;
 
     }
 }
