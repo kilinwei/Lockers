@@ -213,6 +213,7 @@ public class LockersCommHelper {
                 default:
                     break;
             }
+            reset();
         }
 
 
