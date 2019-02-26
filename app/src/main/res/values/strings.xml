@@ -9,5 +9,7 @@
     <string name="license_activate">设备激活</string>
     <string name="license_application">应用激活</string>
     <string name="license_online">在线激活</string>
+    <string name="pass_1_n">1:N 通行</string>
+    <string name="setting">设置</string>
 
 </resources>

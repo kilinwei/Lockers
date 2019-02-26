@@ -1,43 +1,48 @@
 package com.xyf.lockers.ui.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.Button;
 
-import com.tencent.bugly.crashreport.CrashReport;
 import com.xyf.lockers.R;
-import com.xyf.lockers.common.serialport.LockersCommHelper;
+import com.xyf.lockers.base.BaseActivity;
 
-import java.util.concurrent.TimeUnit;
+import butterknife.BindView;
+import butterknife.OnClick;
 
-import io.reactivex.Observable;
-import io.reactivex.observers.DefaultObserver;
-import io.reactivex.schedulers.Schedulers;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
+    private static final String TAG = "MainActivity";
+    @BindView(R.id.btn_storage)
+    Button btnStorage;
+    @BindView(R.id.btn_take)
+    Button btnTake;
+
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        LockersCommHelper.get().init();
-        LockersCommHelper.get().controlSingleLock(24, (int) (2 % 2));
-        Observable.interval(10 * 1000, TimeUnit.MILLISECONDS)
-                .subscribeOn(Schedulers.io())
-                .subscribe(new DefaultObserver<Long>() {
-                    @Override
-                    public void onNext(Long o) {
-                        CrashReport.testJavaCrash();
-                    }
+    protected int getLayout() {
+        return R.layout.activity_main;
+    }
 
-                    @Override
-                    public void onError(Throwable e) {
+    @Override
+    protected void initEventAndData(Bundle savedInstanceState) {
 
-                    }
+    }
 
-                    @Override
-                    public void onComplete() {
 
-                    }
-                });
+    @OnClick({R.id.btn_storage, R.id.btn_take})
+    public void onViewClicked(View view) {
+        Intent intent = null;
+        switch (view.getId()) {
+            case R.id.btn_storage:
+                intent = new Intent(this, PassActivity.class);
+                break;
+            case R.id.btn_take:
+                break;
+        }
+        if (intent != null) {
+            startActivity(intent);
+        }
     }
 }
