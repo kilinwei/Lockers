@@ -14,6 +14,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static com.xyf.lockers.common.serialport.LockersCommHelper.LockersCmd.CONTROL_ALL_LIGHT;
 import static com.xyf.lockers.common.serialport.LockersCommHelper.LockersCmd.CONTROL_AUTO_UPLOAD;
+import static com.xyf.lockers.common.serialport.LockersCommHelper.LockersCmd.CONTROL_LIGHT_STATUS;
 import static com.xyf.lockers.common.serialport.LockersCommHelper.LockersCmd.GET_ALL_LOCK_STATUS;
 import static com.xyf.lockers.common.serialport.LockersCommHelper.LockersCmd.CONTROL_SINGLE_LIGHT;
 import static com.xyf.lockers.common.serialport.LockersCommHelper.LockersCmd.CONTROL_SINGLE_WAY;
@@ -205,17 +206,41 @@ public class LockersCommHelper {
             int cmd = sendData.getCmd();
             switch (cmd) {
                 case CONTROL_SINGLE_WAY:
+                    //收到控制单路的返回结果
                     byte[] bRec = comRecData.bRec;
                     int way = bRec[0];
                     int status = bRec[1];
                     Log.i(TAG, "onDataReceived: way: " + way + "  status: " + status);
+                    break;
+                case GET_ALL_LIGHT_STATUS:
+                    //收到所有灯状态的返回结果
+
+                    break;
+                case CONTROL_LIGHT_STATUS:
+                    //收到控制单路灯状态的返回结果
+
+                    break;
+                case CONTROL_ALL_LIGHT:
+                    //收到控制所有灯的返回结果
+
+                    break;
+                case CONTROL_SINGLE_LIGHT:
+                    //收到控制单个灯的返回结果
+
+                    break;
+                case CONTROL_AUTO_UPLOAD:
+                    //收到设置是否自动上传的返回结果
+
+                    break;
+                case GET_ALL_LOCK_STATUS:
+                    //收到所有锁状态的返回结果
+
                     break;
                 default:
                     break;
             }
             reset();
         }
-
 
         private void reset() {
             synchronized (lock) {
@@ -324,7 +349,7 @@ public class LockersCommHelper {
         }
     }
 
-    public class LockersCmd {
+    public static class LockersCmd {
 
         public static final byte CONTROL_SINGLE_WAY = 0x01;
 
