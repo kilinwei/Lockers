@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              tools:context=".ui.activity.ControlTestActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="24 路采集是否自动上传"/>
+
+        <Button
+            android:id="@+id/btn_auto_upload"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="自动上传"/>
+
+        <Button
+            android:id="@+id/btn_un_upload"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="关闭自动上传"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_marginBottom="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="锁控制"/>
+
+        <TextView
+            android:id="@+id/tv_lock_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="20dp"
+            android:layout_marginStart="10dp"
+            android:text="锁状态 %s"/>
+
+        <EditText
+            android:id="@+id/edit_lock"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:inputType="number"/>
+
+        <Button
+            android:id="@+id/btn_open_lock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="开锁"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_marginBottom="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/btn_get_all_lightstatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="查询24 路灯控"/>
+
+        <Button
+            android:id="@+id/btn_all_light_open"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="所有灯开"/>
+
+        <Button
+            android:id="@+id/btn_all_light_close"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="所有灯关"/>
+
+        <Button
+            android:id="@+id/btn_all_light_flicker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="所有灯闪"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_marginBottom="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="控制单路灯"/>
+
+        <EditText
+            android:id="@+id/edit_light"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:inputType="number"/>
+
+        <Button
+            android:id="@+id/btn_single_light_open"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="单路开"/>
+
+        <Button
+            android:id="@+id/btn_single_light_close"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="单路关"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_marginBottom="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/btn_qurey_all_lock_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="查询24路采集端口状态"/>
+    </LinearLayout>
+</LinearLayout>

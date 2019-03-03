@@ -12,12 +12,15 @@ import butterknife.BindView;
 import butterknife.OnClick;
 
 
-public class MainActivity extends BaseActivity {
+public class MainActivity
+        extends BaseActivity {
     private static final String TAG = "MainActivity";
     @BindView(R.id.btn_storage)
     Button btnStorage;
     @BindView(R.id.btn_take)
     Button btnTake;
+    @BindView(R.id.btn_control_test)
+    Button mBtnControlTest;
 
 
     @Override
@@ -31,7 +34,9 @@ public class MainActivity extends BaseActivity {
     }
 
 
-    @OnClick({R.id.btn_storage, R.id.btn_take})
+    @OnClick({R.id.btn_storage,
+              R.id.btn_take,
+              R.id.btn_control_test})
     public void onViewClicked(View view) {
         Intent intent = null;
         switch (view.getId()) {
@@ -39,6 +44,9 @@ public class MainActivity extends BaseActivity {
                 intent = new Intent(this, PassActivity.class);
                 break;
             case R.id.btn_take:
+                break;
+            case R.id.btn_control_test:
+                intent = new Intent(this, ControlTestActivity.class);
                 break;
         }
         if (intent != null) {
