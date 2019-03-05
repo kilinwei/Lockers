@@ -6,12 +6,9 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.text.TextUtils;
 import android.util.Log;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -26,50 +23,39 @@ import com.xyf.lockers.manager.FaceLiveness;
 import com.xyf.lockers.manager.FaceSDKManager;
 import com.xyf.lockers.model.LivenessModel;
 import com.xyf.lockers.utils.DensityUtil;
-import com.xyf.lockers.utils.FileUtils;
 import com.xyf.lockers.utils.ToastUtils;
-import com.xyf.lockers.utils.Utils;
 import com.xyf.lockers.view.BinocularView;
 import com.xyf.lockers.view.CircleImageView;
 import com.xyf.lockers.view.CirclePercentView;
 import com.xyf.lockers.view.MonocularView;
 
+import butterknife.BindView;
 
-/**
- * Created by litonghui on 2018/11/17.
- */
+public class RegisterTestActivity extends BaseActivity implements ILivenessCallBack {
 
-public class PassActivity extends BaseActivity implements ILivenessCallBack, View.OnClickListener {
-    private static final String TAG = "PassActivity";
+    private static final String TAG = "RegisterTestActivity";
+
+    @BindView(R.id.layout_camera)
+    RelativeLayout mCameraView;
+    @BindView(R.id.image_track)
+    ImageView mImageTrack;
     private Context mContext;
-
-    private RelativeLayout mCameraView;
     private BinocularView mBinocularView;
     private MonocularView mMonocularView;
-
-    private CircleImageView mImage;
-    private TextView mNickNameTv;
-    private TextView mSimilariryTv;
-    private TextView mNumTv;
     private TextView mDetectTv;
     private TextView mFeatureTv;
     private TextView mLiveTv;
     private TextView mAllTv;
-
-    private Bitmap mBitmap;
-    private String mUserName;
-
     private CirclePercentView mRgbCircleView;
     private CirclePercentView mNirCircleView;
     private CirclePercentView mDepthCircleView;
-
-    private RelativeLayout mLayoutInfo;
-    private LinearLayout mLinearTime;
-    private LinearLayout mLinearUp;
-    private ImageView mImageTrack;
-    private boolean mNeedRegister = false;
+    private CircleImageView mImage;
+    private TextView mNickNameTv;
+    private TextView mSimilariryTv;
+    private TextView mNumTv;
     private static final int CHECK_FACE = 0x01;
     private static final int TIME = 3 * 1000;
+    private boolean mNeedRegister = false;
 
     @SuppressLint("HandlerLeak")
     private Handler mHandler = new Handler() {
@@ -87,44 +73,53 @@ public class PassActivity extends BaseActivity implements ILivenessCallBack, Vie
 
     @Override
     protected int getLayout() {
-        return R.layout.activity_pass;
+        return R.layout.activity_test;
     }
 
     @Override
     protected void initEventAndData(Bundle savedInstanceState) {
         mContext = this;
-        initView();
-        initData();
-    }
-
-    private void initView() {
-        mLableTxt = findViewById(R.id.title);
-        mLableTxt.setText(R.string.pass_1_n);
-        mCameraView = findViewById(R.id.layout_camera);
-        mImageTrack = findViewById(R.id.image_track);
-        // 计算并适配显示图像容器的宽高
         calculateCameraView();
-        mImage = findViewById(R.id.image);
-        mNickNameTv = findViewById(R.id.tv_nick_name);
-        mSimilariryTv = findViewById(R.id.tv_similarity);
-        mNumTv = findViewById(R.id.tv_num);
         mDetectTv = findViewById(R.id.tv_detect);
         mFeatureTv = findViewById(R.id.tv_feature);
         mLiveTv = findViewById(R.id.tv_live);
         mAllTv = findViewById(R.id.tv_all);
+        mImage = findViewById(R.id.image);
+        mNickNameTv = findViewById(R.id.tv_nick_name);
+        mSimilariryTv = findViewById(R.id.tv_similarity);
+        mNumTv = findViewById(R.id.tv_num);
 
         mRgbCircleView = findViewById(R.id.circle_rgb_live);
         mNirCircleView = findViewById(R.id.circle_nir_live);
         mDepthCircleView = findViewById(R.id.circle_depth_live);
-
-        mLayoutInfo = findViewById(R.id.layout_info);
-        mLinearTime = findViewById(R.id.linear_time);
-        mLinearUp = findViewById(R.id.linear_up);
-        RelativeLayout relativeDown = findViewById(R.id.relative_down);
-        RelativeLayout relativeUp = findViewById(R.id.relative_up);
-        relativeDown.setOnClickListener(this);
-        relativeUp.setOnClickListener(this);
+        // 注册人脸注册事件
+        FaceSDKManager.getInstance().getFaceLiveness().addRegistCallBack(faceRegistCalllBack);
     }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (GlobalSet.getLiveStatusValue() == GlobalSet.LIVE_STATUS.RGN_NIR) {
+            mBinocularView.onResume();
+        } else {
+            mMonocularView.onResume();
+        }
+        mHandler.sendEmptyMessageDelayed(CHECK_FACE, TIME);
+    }
+
+
+    @Override
+    protected void onStop() {
+        if (GlobalSet.getLiveStatusValue() == GlobalSet.LIVE_STATUS.RGN_NIR) {
+            mBinocularView.onPause();
+        } else {
+            mMonocularView.onPause();
+        }
+        super.onStop();
+        mHandler.removeCallbacksAndMessages(null);
+    }
+
 
     /**
      * 计算并适配显示图像容器的宽高
@@ -152,35 +147,6 @@ public class PassActivity extends BaseActivity implements ILivenessCallBack, Vie
             mMonocularView.setLivenessCallBack(this);
             mCameraView.addView(mMonocularView, layoutParams);
         }
-    }
-
-    private void initData() {
-        int num = FaceSDKManager.getInstance().setFeature();
-        mNumTv.setText(String.format("底库人脸数: %s 个", num));
-        // 注册人脸注册事件
-        FaceSDKManager.getInstance().getFaceLiveness().addRegistCallBack(faceRegistCalllBack);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (GlobalSet.getLiveStatusValue() == GlobalSet.LIVE_STATUS.RGN_NIR) {
-            mBinocularView.onResume();
-        } else {
-            mMonocularView.onResume();
-        }
-//        mHandler.sendEmptyMessageDelayed(CHECK_FACE, TIME);
-    }
-
-    @Override
-    protected void onStop() {
-        if (GlobalSet.getLiveStatusValue() == GlobalSet.LIVE_STATUS.RGN_NIR) {
-            mBinocularView.onPause();
-        } else {
-            mMonocularView.onPause();
-        }
-        super.onStop();
-        mHandler.removeCallbacksAndMessages(null);
     }
 
     @Override
@@ -218,31 +184,18 @@ public class PassActivity extends BaseActivity implements ILivenessCallBack, Vie
                         ? 0 : livenessModel.getDepthLivenessScore());
 
                 if (livenessModel == null) {
-                    mLayoutInfo.setVisibility(View.INVISIBLE);
+//                    mLayoutInfo.setVisibility(View.INVISIBLE);
 
                 } else {
-                    mLayoutInfo.setVisibility(View.VISIBLE);
                     if (code == 0) {
                         Feature feature = livenessModel.getFeature();
                         mSimilariryTv.setText(String.format("相似度: %s", livenessModel.getFeatureScore()));
                         mNickNameTv.setText(String.format("%s，你好!", feature.getUserName()));
 
-                        if (!TextUtils.isEmpty(mUserName) && feature.getUserName().equals(mUserName)) {
-                            mImage.setImageBitmap(mBitmap);
-                        } else {
-                            String imgPath = FileUtils.getFaceCropPicDirectory().getAbsolutePath()
-                                    + "/" + feature.getCropImageName();
-                            Bitmap bitmap = Utils.getBitmapFromFile(imgPath);
-                            mImage.setImageBitmap(bitmap);
-                            mBitmap = bitmap;
-                            mUserName = feature.getUserName();
-                        }
                     } else {
-                        Log.i(TAG, "run: 未匹配到相似人脸");
                         mSimilariryTv.setText("未匹配到相似人脸");
                         mNickNameTv.setText("陌生访客");
                         mImage.setImageResource(R.mipmap.preview_image_angle);
-
                         if (mNeedRegister) {
                             String mNickName = String.valueOf(System.currentTimeMillis() / 1000);
                             String nameResult = FaceApi.getInstance().isValidName(mNickName);
@@ -262,18 +215,6 @@ public class PassActivity extends BaseActivity implements ILivenessCallBack, Vie
         });
     }
 
-    @Override
-    public void onClick(View view) {
-        if (view.getId() == R.id.relative_down) {
-            mLinearTime.setVisibility(View.GONE);
-            mLinearUp.setVisibility(View.VISIBLE);
-        }
-
-        if (view.getId() == R.id.relative_up) {
-            mLinearTime.setVisibility(View.VISIBLE);
-            mLinearUp.setVisibility(View.GONE);
-        }
-    }
 
     @Override
     protected void onDestroy() {
@@ -283,7 +224,6 @@ public class PassActivity extends BaseActivity implements ILivenessCallBack, Vie
         FaceSDKManager.getInstance().getFaceLiveness()
                 .setCurrentTaskType(FaceLiveness.TaskType.TASK_TYPE_ONETON);
     }
-
 
     // 注册结果
     private IFaceRegistCalllBack faceRegistCalllBack = new IFaceRegistCalllBack() {

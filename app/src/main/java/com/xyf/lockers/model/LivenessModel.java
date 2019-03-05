@@ -4,6 +4,8 @@
 package com.xyf.lockers.model;
 import com.baidu.idl.facesdk.model.Feature;
 
+import java.util.Arrays;
+
 public class LivenessModel {
 
     private ImageFrame imageFrame = new ImageFrame();
@@ -180,6 +182,30 @@ public class LivenessModel {
 
     public void setFaceID(int faceID) {
         this.faceID = faceID;
+    }
+
+    @Override
+    public String toString() {
+        return "LivenessModel{" +
+                "imageFrame=" + imageFrame +
+                ", faceDetectCode=" + faceDetectCode +
+                ", rgbDetectDuration=" + rgbDetectDuration +
+                ", rgbLivenessDuration=" + rgbLivenessDuration +
+                ", irLivenessScore=" + irLivenessScore +
+                ", irLivenessDuration=" + irLivenessDuration +
+                ", detphtLivenessDuration=" + detphtLivenessDuration +
+                ", rgbLivenessScore=" + rgbLivenessScore +
+                ", depthLivenessScore=" + depthLivenessScore +
+                ", liveType=" + liveType +
+                ", landmarks=" + Arrays.toString(landmarks) +
+                ", faceID=" + faceID +
+                ", featureScore=" + featureScore +
+                ", featureDuration=" + featureDuration +
+                ", checkDuration=" + checkDuration +
+                ", feature=" + feature +
+                ", featureByte=" + Arrays.toString(featureByte) +
+                ", shape=" + Arrays.toString(shape) +
+                '}';
     }
 }
 

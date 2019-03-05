@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -7,4 +7,179 @@
     android:layout_height="match_parent"
     tools:context=".ui.activity.TestActivity">
 
-</android.support.constraint.ConstraintLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/ic_title">
+        <RelativeLayout
+            android:id="@+id/layout_camera"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"/>
+
+        <ImageView
+            android:visibility="gone"
+            android:id="@+id/image_track"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_alignParentRight="true"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tv_detect"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:layout_marginLeft="43dp"
+            android:layout_marginTop="4dp"
+            android:text="人脸检测耗时：100ms"
+            android:textColor="#FFAAA7C6"
+            android:textSize="10dp" />
+
+        <TextView
+            android:id="@+id/tv_feature"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginBottom="4dp"
+            android:layout_marginRight="43dp"
+            android:layout_marginTop="4dp"
+            android:text="特征提取耗时：50ms"
+            android:textColor="#FFAAA7C6"
+            android:textSize="10dp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:layout_below="@id/tv_detect"
+            android:background="#595F83" />
+
+        <TextView
+            android:id="@+id/tv_live"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_detect"
+            android:layout_marginBottom="4dp"
+            android:layout_marginLeft="43dp"
+            android:layout_marginTop="4dp"
+            android:text="活体检测耗时：40ms"
+            android:textColor="#FFAAA7C6"
+            android:textSize="10dp" />
+
+        <TextView
+            android:id="@+id/tv_all"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_below="@+id/tv_feature"
+            android:layout_marginBottom="4dp"
+            android:layout_marginRight="43dp"
+            android:layout_marginTop="4dp"
+            android:text="人脸检索耗时：60ms"
+            android:textColor="#FFAAA7C6"
+            android:textSize="10dp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:layout_below="@id/tv_live"
+            android:background="#595F83" />
+    </RelativeLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="30dp"
+        android:layout_marginTop="30dp">
+
+        <LinearLayout
+            android:id="@+id/layout_rgb_live"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <com.xyf.lockers.view.CirclePercentView
+                android:id="@+id/circle_rgb_live"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_gravity="center_horizontal"
+                app:arcColor="#6CD6A5"
+                app:arcWidth="1dp"
+                app:circleBg="#14ffffff"
+                app:percentTextColor="#AAA7C6"
+                app:percentTextSize="10sp"
+                app:radius="22dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="7dp"
+                android:text="RGB活体分数"
+                android:textColor="#FFAAA7C6"
+                android:textSize="10dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layout_nir_live"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <com.xyf.lockers.view.CirclePercentView
+                android:id="@+id/circle_nir_live"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_gravity="center_horizontal"
+                app:arcColor="#6CD6A5"
+                app:arcWidth="1dp"
+                app:circleBg="#14ffffff"
+                app:percentTextColor="#AAA7C6"
+                app:percentTextSize="10sp"
+                app:radius="22dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="7dp"
+                android:text="红外活体分数"
+                android:textColor="#FFAAA7C6"
+                android:textSize="10dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layout_depth_live"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <com.xyf.lockers.view.CirclePercentView
+                android:id="@+id/circle_depth_live"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_gravity="center_horizontal"
+                app:arcColor="#6CD6A5"
+                app:arcWidth="1dp"
+                app:circleBg="#14ffffff"
+                app:percentTextColor="#AAA7C6"
+                app:percentTextSize="10sp"
+                app:radius="22dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="7dp"
+                android:text="深度活体分数"
+                android:textColor="#FFAAA7C6"
+                android:textSize="10dp" />
+        </LinearLayout>
+    </LinearLayout>
+</RelativeLayout>

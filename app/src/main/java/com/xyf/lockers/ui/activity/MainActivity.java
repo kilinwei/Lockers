@@ -46,7 +46,7 @@ public class MainActivity
             case R.id.btn_take:
                 break;
             case R.id.btn_control_test:
-                intent = new Intent(this, ControlTestActivity.class);
+                intent = new Intent(this, TestActivity.class);
                 break;
         }
         if (intent != null) {
