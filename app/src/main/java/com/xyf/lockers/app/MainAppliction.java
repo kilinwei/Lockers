@@ -1,17 +1,21 @@
 package com.xyf.lockers.app;
 
 import android.app.Application;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Environment;
 
 import com.baidu.crabsdk.CrabSDK;
 import com.tencent.bugly.beta.Beta;
 import com.tencent.bugly.crashreport.CrashReport;
+import com.xyf.lockers.model.bean.DaoMaster;
+import com.xyf.lockers.model.bean.DaoSession;
 
 public class MainAppliction extends Application {
 
     public static final String BAIDU_APP_KEY = "xhp0k5Fv97eknBYjht7XYwI2";
     private static final String APP_ID = "d4d0ebc9af";//bugly ID
     private static MainAppliction instance;
+    private DaoSession mDaoSession;
 
     public static synchronized MainAppliction getInstance() {
         return instance;
@@ -23,6 +27,18 @@ public class MainAppliction extends Application {
         instance = this;
         CrabSDK.init(this, BAIDU_APP_KEY);
         initBugly();
+        initGreenDao();
+    }
+
+    private void initGreenDao() {
+        DaoMaster.DevOpenHelper devOpenHelper = new DaoMaster.DevOpenHelper(this, "locker.db");
+        SQLiteDatabase db = devOpenHelper.getWritableDatabase();
+        DaoMaster daoMaster = new DaoMaster(db);
+        mDaoSession = daoMaster.newSession();
+    }
+
+    public DaoSession getDaoSession(){
+        return mDaoSession;
     }
 
     private static void initBugly() {

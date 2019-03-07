@@ -37,7 +37,7 @@ public class SplashActivity extends BaseActivity {
     @Override
     protected void initEventAndData(Bundle savedInstanceState) {
         mAnimation = new AlphaAnimation(0.3f, 1.0f);
-        mAnimation.setDuration(2000);
+        mAnimation.setDuration(300);
         ivSplashBg.startAnimation(mAnimation);
         mAnimation.setAnimationListener(new Animation.AnimationListener() {
             @Override

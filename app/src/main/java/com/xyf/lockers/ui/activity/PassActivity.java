@@ -290,7 +290,14 @@ public class PassActivity extends BaseActivity implements ILivenessCallBack, Vie
 
         @Override
         public void onRegistCallBack(int code, LivenessModel livenessModel, final Bitmap cropBitmap) {
-
+            if (mBinocularView != null) {
+                mBinocularView.onPause();
+                mCameraView.removeView(mBinocularView);
+            }
+            if (mMonocularView != null) {
+                mMonocularView.onPause();
+                mCameraView.removeView(mMonocularView);
+            }
             switch (code) {
                 case 0: {
                     // 设置注册信息
