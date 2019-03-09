@@ -21,12 +21,14 @@ import com.xyf.lockers.base.BaseActivity;
 import com.xyf.lockers.callback.IFaceRegistCalllBack;
 import com.xyf.lockers.callback.ILivenessCallBack;
 import com.xyf.lockers.common.GlobalSet;
+import com.xyf.lockers.common.serialport.LockersCommHelper;
 import com.xyf.lockers.manager.FaceLiveness;
 import com.xyf.lockers.manager.FaceSDKManager;
 import com.xyf.lockers.model.LivenessModel;
 import com.xyf.lockers.model.bean.User;
 import com.xyf.lockers.model.bean.UserDao;
 import com.xyf.lockers.utils.DensityUtil;
+import com.xyf.lockers.utils.UserDBManager;
 import com.xyf.lockers.view.BinocularView;
 import com.xyf.lockers.view.MonocularView;
 
@@ -37,7 +39,9 @@ import butterknife.BindView;
 public class StorageActivity extends BaseActivity implements ILivenessCallBack {
     private static final String TAG = "StorageActivity";
     private static final int CHECK_FACE = 0x01;
-    private static final int TIME = 3 * 1000;
+    private static final int MSG_REGISTER_TIME_OUT = 0x02;
+    private static final int PASS_TIME = 3 * 1000;
+    private static final int REGISTER_TIME_OUT = 30 * 1000;
 
     @BindView(R.id.layout_camera)
     RelativeLayout mCameraView;
@@ -56,7 +60,14 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack {
             switch (msg.what) {
                 case CHECK_FACE:
                     mNeedRegister = true;
+                    sendEmptyMessageDelayed(MSG_REGISTER_TIME_OUT, REGISTER_TIME_OUT);
                     removeMessages(CHECK_FACE);
+                    break;
+                case MSG_REGISTER_TIME_OUT:
+                    if (faceRegistCalllBack != null) {
+                        faceRegistCalllBack.onRegistCallBack(1, null, null);
+                    }
+                    removeMessages(MSG_REGISTER_TIME_OUT);
                     break;
                 default:
                     break;
@@ -88,7 +99,7 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack {
         } else {
             mMonocularView.onResume();
         }
-        mHandler.sendEmptyMessageDelayed(CHECK_FACE, TIME);
+        mHandler.sendEmptyMessageDelayed(CHECK_FACE, PASS_TIME);
     }
 
     /**
@@ -153,24 +164,25 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack {
                                 //已存大于等于三个,提示用户需要先取出已存的东西
 
                             } else {
-                                //未大于三个,可以存
+                                //未大于三个,可以存,先打开箱门，然后再把箱位记录到数据库中
 
                             }
                         } else {
-                            //说明无记录,可以存
+                            //说明无记录,可以存,先打开箱门，然后再把箱位记录到数据库中
 
                         }
                     } else {
-                        //说明无记录,可以存
+                        //说明无记录,可以存,先打开箱门，然后再把箱位记录到数据库中
 
                     }
                 } else {
-                    //说明facesdk的数据库里有数据,但是user数据库没有.需要写入user数据库
+                    //说明facesdk的数据库里有数据,但是user数据库没有.需要写入user数据库，再打开箱门，然后再把箱位记录到数据库中
                     long currentTimeMillis = System.currentTimeMillis();
-                    User user = insertUser2DB(String.valueOf(currentTimeMillis / 1000),
+                    User user = UserDBManager.insertUser2DB(String.valueOf(currentTimeMillis / 1000),
                             currentTimeMillis / 1000,
                             currentTimeMillis / 1000,
                             feature.getCropImageName(), feature.getImageName());
+
                 }
             } else {
                 if (mNeedRegister) {
@@ -190,14 +202,33 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack {
 
         @Override
         public void onRegistCallBack(int code, LivenessModel livenessModel, final Bitmap cropBitmap) {
-
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (mBinocularView != null && mCameraView != null) {
+                        mBinocularView.onPause();
+                        mCameraView.removeView(mBinocularView);
+                    }
+                    if (mMonocularView != null && mCameraView != null) {
+                        mMonocularView.onPause();
+                        mCameraView.removeView(mMonocularView);
+                    }
+                }
+            });
             switch (code) {
                 case 0: {
+                    mHandler.removeMessages(MSG_REGISTER_TIME_OUT);
                     // 设置注册信息
-                    Log.i(TAG, "onRegistCallBack: 注册成功");
                     Feature feature = livenessModel.getFeature();
                     String userName = feature.getUserName();
-                    User user = insertUser2DB(userName, Long.parseLong(userName), Long.parseLong(userName), feature.getCropImageName(), feature.getImageName());
+                    User user = UserDBManager.insertUser2DB(userName, Long.parseLong(userName),
+                            Long.parseLong(userName), feature.getCropImageName(), feature.getImageName());
+                    Log.i(TAG, "onRegistCallBack: 注册成功");
+                    LockersCommHelper.get().getAllLockStatus();
+                }
+                break;
+                case 1: {
+                    //注册超时
                 }
                 break;
                 default:
@@ -206,24 +237,4 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack {
         }
     };
 
-    /**
-     * 向user数据库中插入一个新用户
-     *
-     * @param userName
-     * @param firstTime
-     * @param lastTime
-     * @param cropImageName
-     * @param imageName
-     */
-    private User insertUser2DB(String userName, long firstTime, long lastTime, String cropImageName, String imageName) {
-        UserDao userDao = MainAppliction.getInstance().getDaoSession().getUserDao();
-        User user = new User();
-        user.setUserName(userName);
-        user.setFirstTime(firstTime);
-        user.setLastTime(lastTime);
-        user.setCropImageName(cropImageName);
-        user.setImageName(imageName);
-        userDao.insert(user);
-        return user;
-    }
 }

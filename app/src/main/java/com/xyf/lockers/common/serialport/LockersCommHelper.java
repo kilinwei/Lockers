@@ -234,7 +234,8 @@ public class LockersCommHelper {
                     break;
                 case GET_ALL_LOCK_STATUS:
                     //收到所有锁状态的返回结果
-
+                    //08 b0 01
+                    long l = Long.parseLong("08B001L");
                     break;
                 default:
                     break;
