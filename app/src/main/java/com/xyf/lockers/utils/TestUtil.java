@@ -3,6 +3,8 @@ package com.xyf.lockers.utils;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.xyf.lockers.common.serialport.LockersCommHelper.LOCKER_COUNT;
+
 /**
  * @项目名： Lockers
  * @包名： com.xyf.lockers.utils
@@ -17,14 +19,23 @@ public class TestUtil {
         long aLong = Long.parseLong("08B001", 16);
         String s = Long.toBinaryString(aLong);
         int count1 = Long.bitCount(aLong);
-        System.out.println("count1: " + count1);
-        System.out.println("二进制: " + s);
+//        System.out.println("count1: " + count1);
+//        System.out.println("二进制: " + s);
 //        getLockers(aLong);
         System.out.println(checkCanOpen(aLong));
     }
 
-    public static int checkCanOpen(long aLong) {
-        for (int i = 1; i <= 24; i++) {
+    /**
+     * 是否存满,如果存满返回-1
+     *
+     * @param aLong
+     * @return
+     */
+    public static long checkCanOpen(long aLong) {
+        if (Long.bitCount(aLong) >= LOCKER_COUNT) {
+            return -1;
+        }
+        for (int i = 1; i <= LOCKER_COUNT; i++) {
             if ((aLong & 0x01) == 0) {
                 return i;
             }
@@ -32,7 +43,6 @@ public class TestUtil {
         }
         return -1;
     }
-
     public static List<Integer> getLockers(long aLong) {
         List<Integer> list = new ArrayList<>();
         for (int i = 1; i <= 24; i++) {

@@ -4,6 +4,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
+import com.xyf.lockers.listener.OnAllLockersStatusListener;
+import com.xyf.lockers.listener.OnSingleLockerStatusListener;
 import com.xyf.lockers.model.bean.ComRevBean;
 import com.xyf.lockers.model.bean.ComSendBean;
 
@@ -15,10 +17,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import static com.xyf.lockers.common.serialport.LockersCommHelper.LockersCmd.CONTROL_ALL_LIGHT;
 import static com.xyf.lockers.common.serialport.LockersCommHelper.LockersCmd.CONTROL_AUTO_UPLOAD;
 import static com.xyf.lockers.common.serialport.LockersCommHelper.LockersCmd.CONTROL_LIGHT_STATUS;
-import static com.xyf.lockers.common.serialport.LockersCommHelper.LockersCmd.GET_ALL_LOCK_STATUS;
 import static com.xyf.lockers.common.serialport.LockersCommHelper.LockersCmd.CONTROL_SINGLE_LIGHT;
-import static com.xyf.lockers.common.serialport.LockersCommHelper.LockersCmd.CONTROL_SINGLE_WAY;
+import static com.xyf.lockers.common.serialport.LockersCommHelper.LockersCmd.CONTROL_SINGLE_LOCKER;
 import static com.xyf.lockers.common.serialport.LockersCommHelper.LockersCmd.GET_ALL_LIGHT_STATUS;
+import static com.xyf.lockers.common.serialport.LockersCommHelper.LockersCmd.GET_ALL_LOCK_STATUS;
 
 /**
  * @项目名： Lockers
@@ -31,6 +33,8 @@ import static com.xyf.lockers.common.serialport.LockersCommHelper.LockersCmd.GET
 public class LockersCommHelper {
 
     private static final String TAG = "LockersCommHelper";
+
+    public static final int LOCKER_COUNT = 24;
 
     public static final String SERIAL_DEVICE = "/dev/ttyS3";
 
@@ -58,6 +62,8 @@ public class LockersCommHelper {
      * 连续超时次数
      */
     private volatile int timeoutCount = 0;
+    private OnAllLockersStatusListener mOnAllLockersStatusListener;
+    private OnSingleLockerStatusListener mOnSingleLockerStatusListener;
 
     private LockersCommHelper() {
     }
@@ -177,7 +183,7 @@ public class LockersCommHelper {
                 // TODO: 2019/2/23 此处可能空指针,因为sendData此时可能已经被赋值null
                 int cmd = sendData.getCmd();
                 switch (cmd) {
-                    case CONTROL_SINGLE_WAY:
+                    case CONTROL_SINGLE_LOCKER:
                         //控制单路
                         Log.i(TAG, "控制单路超时 cmd : " + cmd);
                         break;
@@ -205,37 +211,43 @@ public class LockersCommHelper {
             }
             int cmd = sendData.getCmd();
             switch (cmd) {
-                case CONTROL_SINGLE_WAY:
-                    //收到控制单路的返回结果
+                case CONTROL_SINGLE_LOCKER:
+                    //1.控制单路锁的返回结果
                     byte[] bRec = comRecData.bRec;
                     int way = bRec[0];
                     int status = bRec[1];
+                    if (mOnSingleLockerStatusListener != null) {
+                        mOnSingleLockerStatusListener.onSingleLockerStatusResponse(way, status);
+                    }
                     Log.i(TAG, "onDataReceived: way: " + way + "  status: " + status);
                     break;
                 case GET_ALL_LIGHT_STATUS:
-                    //收到所有灯状态的返回结果
+                    //2.查询所有灯状态的返回结果
 
                     break;
                 case CONTROL_LIGHT_STATUS:
-                    //收到控制单路灯状态的返回结果
+                    //3.设置灯控闪烁时间,文档暂无
 
                     break;
                 case CONTROL_ALL_LIGHT:
-                    //收到控制所有灯的返回结果
+                    //4.控制所有灯的返回结果,文档暂无
 
                     break;
                 case CONTROL_SINGLE_LIGHT:
-                    //收到控制单个灯的返回结果
+                    //5.控制单路灯状态的返回结果,文档暂无
 
                     break;
                 case CONTROL_AUTO_UPLOAD:
-                    //收到设置是否自动上传的返回结果
+                    //6.设置是否自动上传的返回结果,文档中暂无
 
                     break;
                 case GET_ALL_LOCK_STATUS:
-                    //收到所有锁状态的返回结果
+                    //7.所有锁状态的返回结果
                     //08 b0 01
                     long l = Long.parseLong("08B001L");
+                    if (mOnAllLockersStatusListener != null) {
+                        mOnAllLockersStatusListener.onAllLockersStatusResponse(l);
+                    }
                     break;
                 default:
                     break;
@@ -260,14 +272,18 @@ public class LockersCommHelper {
      * @param way    线路,十进制
      * @param status 01通,00断
      */
-    public void controlSingleLock(int way, int status) {
+    public void controlSingleLock(int way, int status, OnSingleLockerStatusListener listener) {
+        mOnSingleLockerStatusListener = listener;
         if (isOpenDev()) {
             //ab 02 02 01 ba
             String wayHex = Integer.toHexString(way);
-            ComSendBean comSendBean = new ComSendBean(CONTROL_SINGLE_WAY, new byte[]{(byte) 0xAB, 0x02, (byte) way, (byte) status, (byte) 0xBA});
+            ComSendBean comSendBean = new ComSendBean(CONTROL_SINGLE_LOCKER, new byte[]{(byte) 0xAB, 0x02, (byte) way, (byte) status, (byte) 0xBA});
             dispatchQueueThread.addComSendBean(comSendBean);
             Log.i(TAG, "controlSingleLock: 控制单路锁通断: way: " + way + "  wayHex: " + wayHex + " status: " + status);
         } else {
+            if (mOnSingleLockerStatusListener != null) {
+                mOnSingleLockerStatusListener.disConnectDevice();
+            }
             Log.w(TAG, "controlSingleLock: 控制单路锁通断: way: " + way + " status: " + status);
         }
     }
@@ -339,20 +355,24 @@ public class LockersCommHelper {
     /**
      * 查询 24 路采集端口状态
      */
-    public void getAllLockStatus() {
+    public void getAllLockStatus(OnAllLockersStatusListener listener) {
+        mOnAllLockersStatusListener = listener;
         if (isOpenDev()) {
             //1B FF FF 0A
             ComSendBean comSendBean = new ComSendBean(GET_ALL_LOCK_STATUS, new byte[]{(byte) 0x1B, (byte) 0xFF, (byte) 0xFF, 0x0A});
             dispatchQueueThread.addComSendBean(comSendBean);
             Log.i(TAG, "getAllLockStatus: 查询 24 路采集端口状态");
         } else {
+            if (mOnAllLockersStatusListener != null) {
+                mOnAllLockersStatusListener.disConnectDevice();
+            }
             Log.w(TAG, "getAllLockStatus: 查询 24 路采集端口状态");
         }
     }
 
     public static class LockersCmd {
 
-        public static final byte CONTROL_SINGLE_WAY = 0x01;
+        public static final byte CONTROL_SINGLE_LOCKER = 0x01;
 
         public static final byte GET_ALL_LIGHT_STATUS = 0x02;
 
@@ -366,5 +386,13 @@ public class LockersCommHelper {
 
         public static final byte GET_ALL_LOCK_STATUS = 0x07;
 
+    }
+
+    public void setOnAllLockersStatusListener(OnAllLockersStatusListener listener) {
+        mOnAllLockersStatusListener = listener;
+    }
+
+    public void setOnSingleLockerStatusListener(OnSingleLockerStatusListener listener) {
+        mOnSingleLockerStatusListener = listener;
     }
 }

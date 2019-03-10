@@ -34,4 +34,9 @@ public class UserDBManager {
         userDao.insert(user);
         return user;
     }
+
+    public static void update(User user) {
+        UserDao userDao = MainAppliction.getInstance().getDaoSession().getUserDao();
+        userDao.update(user);
+    }
 }

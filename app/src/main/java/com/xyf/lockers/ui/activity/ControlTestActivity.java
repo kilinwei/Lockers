@@ -76,7 +76,7 @@ public class ControlTestActivity
             case R.id.btn_open_lock:
                 String singleLock = mEditLock.getText().toString().trim();
                 if (!TextUtils.isEmpty(singleLock)) {
-                    LockersCommHelper.get().controlSingleLock(Integer.parseInt(singleLock), 1);
+//                    LockersCommHelper.get().controlSingleLock(Integer.parseInt(singleLock), 1);
                 }
                 break;
             case R.id.btn_get_all_lightstatus:
@@ -104,7 +104,7 @@ public class ControlTestActivity
                 }
                 break;
             case R.id.btn_qurey_all_lock_status:
-                LockersCommHelper.get().getAllLockStatus();
+//                LockersCommHelper.get().getAllLockStatus();
                 break;
         }
     }

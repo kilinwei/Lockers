@@ -22,12 +22,15 @@ import com.xyf.lockers.callback.IFaceRegistCalllBack;
 import com.xyf.lockers.callback.ILivenessCallBack;
 import com.xyf.lockers.common.GlobalSet;
 import com.xyf.lockers.common.serialport.LockersCommHelper;
+import com.xyf.lockers.listener.OnAllLockersStatusListener;
+import com.xyf.lockers.listener.OnSingleLockerStatusListener;
 import com.xyf.lockers.manager.FaceLiveness;
 import com.xyf.lockers.manager.FaceSDKManager;
 import com.xyf.lockers.model.LivenessModel;
 import com.xyf.lockers.model.bean.User;
 import com.xyf.lockers.model.bean.UserDao;
 import com.xyf.lockers.utils.DensityUtil;
+import com.xyf.lockers.utils.LockerUtils;
 import com.xyf.lockers.utils.UserDBManager;
 import com.xyf.lockers.view.BinocularView;
 import com.xyf.lockers.view.MonocularView;
@@ -52,6 +55,7 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack {
     private MonocularView mMonocularView;
     private boolean mNeedRegister;
     private String mNickName;
+    private int mCurrentOpenLockerIndex = -1;
 
     @SuppressLint("HandlerLeak")
     private Handler mHandler = new Handler() {
@@ -74,6 +78,7 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack {
             }
         }
     };
+    private User mCurrentUser;
 
     @Override
     protected int getLayout() {
@@ -100,6 +105,13 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack {
             mMonocularView.onResume();
         }
         mHandler.sendEmptyMessageDelayed(CHECK_FACE, PASS_TIME);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        LockersCommHelper.get().setOnAllLockersStatusListener(null);
+        LockersCommHelper.get().setOnSingleLockerStatusListener(null);
     }
 
     /**
@@ -221,14 +233,31 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack {
                     // 设置注册信息
                     Feature feature = livenessModel.getFeature();
                     String userName = feature.getUserName();
-                    User user = UserDBManager.insertUser2DB(userName, Long.parseLong(userName),
+                    mCurrentUser = UserDBManager.insertUser2DB(userName, Long.parseLong(userName),
                             Long.parseLong(userName), feature.getCropImageName(), feature.getImageName());
                     Log.i(TAG, "onRegistCallBack: 注册成功");
-                    LockersCommHelper.get().getAllLockStatus();
+                    LockersCommHelper.get().getAllLockStatus(new OnAllLockersStatusListener() {
+                        @Override
+                        public void onAllLockersStatusResponse(long allLockers) {
+                            int canOpen = LockerUtils.checkCanOpen(allLockers);
+                            if (canOpen != -1) {
+                                mCurrentOpenLockerIndex = canOpen;
+                                openSingleLocker(canOpen);
+                            } else {
+                                // TODO: 2019/3/10 已存满
+                            }
+                        }
+
+                        @Override
+                        public void disConnectDevice() {
+                            // TODO: 2019/3/10 串口未打开
+                        }
+                    });
                 }
                 break;
                 case 1: {
                     //注册超时
+                    // TODO: 2019/3/10 注册超时
                 }
                 break;
                 default:
@@ -236,5 +265,33 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack {
             }
         }
     };
+
+    /**
+     * 打开单个锁
+     *
+     * @param way
+     */
+    private void openSingleLocker(int way) {
+        LockersCommHelper.get().controlSingleLock(way, 1, new OnSingleLockerStatusListener() {
+            @Override
+            public void onSingleLockerStatusResponse(int way, int status) {
+                //锁已打开,此时需要判断是否是我们打开的锁,以及录入user数据库中
+                if (mCurrentOpenLockerIndex != -1 && mCurrentOpenLockerIndex == way) {
+                    if (mCurrentUser != null) {
+                        String storageIndexs = mCurrentUser.getStorageIndexs();
+                        JSONArray jsonArray = JSON.parseArray(storageIndexs);
+                        jsonArray.add(way);
+                        mCurrentUser.setStorageIndexs(JSON.toJSONString(jsonArray));
+                        UserDBManager.update(mCurrentUser);
+                    }
+                }
+            }
+
+            @Override
+            public void disConnectDevice() {
+                // TODO: 2019/3/10 串口未打开
+            }
+        });
+    }
 
 }

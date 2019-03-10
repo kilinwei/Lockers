@@ -14,6 +14,7 @@ import com.xyf.lockers.base.BaseActivity;
 import com.xyf.lockers.model.bean.User;
 import com.xyf.lockers.model.bean.UserDao;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -56,7 +57,12 @@ public class MainActivity
                 User user = new User();
                 user.setUserName(String.valueOf(System.currentTimeMillis() / 1000));
                 user.setLastTime(System.currentTimeMillis() / 1000);
-                user.setStorageIndexs("");
+                List list = new ArrayList();
+                for (int i = 0; i < 3; i++) {
+                    list.add(i);
+                }
+                String s = JSON.toJSONString(list);
+                user.setStorageIndexs(s);
                 userDao.insert(user);
                 break;
             case R.id.btn_control_test:
@@ -65,12 +71,13 @@ public class MainActivity
                 List<User> users = userDao2.loadAll();
                 for (User user1 : users) {
                     String storageIndexs = user1.getStorageIndexs();
+                    Log.i(TAG, "onViewClicked: storageIndexs:" + storageIndexs);
                     JSONArray objects = JSON.parseArray(storageIndexs);
-                    Log.i(TAG, "onViewClicked: " + objects.size());
-                    for (int i = 0; i < objects.size(); i++) {
-                        Object o = objects.get(i);
-                        Log.i(TAG, "onViewClicked: o: " + o);
-                    }
+//                    Log.i(TAG, "onViewClicked: " + objects.size());
+//                    for (int i = 0; i < objects.size(); i++) {
+//                        Object o = objects.get(i);
+//                        Log.i(TAG, "onViewClicked: o: " + o);
+//                    }
                 }
                 break;
         }
