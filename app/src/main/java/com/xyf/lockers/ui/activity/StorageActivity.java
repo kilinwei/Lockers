@@ -115,7 +115,6 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack {
     @Override
     protected void onPause() {
         super.onPause();
-        LockersCommHelper.get().setOnAllLockersStatusListener(null);
         LockersCommHelper.get().setOnSingleLockerStatusListener(null);
     }
 
@@ -172,34 +171,25 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack {
                 List<User> users = userDao.queryRaw("where user_name=?", userName);
                 if (users.size() > 0) {
                     User user = users.get(0);
-                    String storageIndexs = user.getStorageIndexs();
-                    JSONArray jsonArray;
-                    if (!TextUtils.isEmpty(storageIndexs)) {
-                        jsonArray = JSON.parseArray(storageIndexs);
-                        if (jsonArray != null) {
-                            if (jsonArray.size() >= 3) {
-                                //已存大于等于三个,提示用户需要先取出已存的东西
-
-                            } else {
-                                //未大于三个,可以存,先打开箱门，然后再把箱位记录到数据库中
-
-                            }
-                        } else {
-                            //说明无记录,可以存,先打开箱门，然后再把箱位记录到数据库中
-
-                        }
+                    int storageIndexs = user.getStorageIndexs();
+                    int count = Integer.bitCount(storageIndexs);
+                    if (count < 3) {
+                        //未大于三个,可以存,先打开箱门，然后再把箱位记录到数据库中
+                        mCurrentUser = user;
+                        openSingleLocker();
                     } else {
-                        //说明无记录,可以存,先打开箱门，然后再把箱位记录到数据库中
+                        // TODO: 2019/3/12  已存大于等于三个,提示用户需要先取出已存的东西
+                        Log.i(TAG, "onCallback: 已存大于等于三个");
 
                     }
                 } else {
                     //说明facesdk的数据库里有数据,但是user数据库没有.需要写入user数据库，再打开箱门，然后再把箱位记录到数据库中
                     long currentTimeMillis = System.currentTimeMillis();
-                    User user = UserDBManager.insertUser2DB(String.valueOf(currentTimeMillis / 1000),
+                    mCurrentUser = UserDBManager.insertUser2DB(String.valueOf(currentTimeMillis / 1000),
                             currentTimeMillis / 1000,
                             currentTimeMillis / 1000,
                             feature.getCropImageName(), feature.getImageName());
-
+                    openSingleLocker();
                 }
             } else {
                 if (mNeedRegister) {
@@ -241,12 +231,13 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack {
                     mCurrentUser = UserDBManager.insertUser2DB(userName, Long.parseLong(userName),
                             Long.parseLong(userName), feature.getCropImageName(), feature.getImageName());
                     Log.i(TAG, "onRegistCallBack: 注册成功");
-                    getAllLockerStatus();
+                    openSingleLocker();
                 }
                 break;
                 case 1: {
                     //注册超时
                     // TODO: 2019/3/10 注册超时
+                    Log.i(TAG, "onRegistCallBack: 注册超时");
                 }
                 break;
                 default:
@@ -255,39 +246,37 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack {
         }
     };
 
-    /**
-     * 获取所有锁的状态
-     */
-    private void getAllLockerStatus() {
-        int allLockersStatus = SharedPreferenceUtil.getAllLockersStatus();
-        int canOpen = LockerUtils.checkCanOpen(allLockersStatus);
-        if (canOpen != -1) {
-            mCurrentOpenLockerIndex = canOpen;
-            openSingleLocker(canOpen);
-        } else {
-            // TODO: 2019/3/10 已存满
-        }
-    }
 
     /**
      * 打开单个锁
-     *
-     * @param way
      */
-    private void openSingleLocker(int way) {
+    private void openSingleLocker() {
+        int allLockersStatus = SharedPreferenceUtil.getAllLockersStatus();
+        int way = LockerUtils.checkCanOpen(allLockersStatus);
+        if (way == -1) {
+            // TODO: 2019/3/10 已存满
+            Log.i(TAG, "openSingleLocker: 已存满");
+            return;
+        }
+        mCurrentOpenLockerIndex = way;
         LockersCommHelper.get().controlSingleLock(way, 1, new OnSingleLockerStatusListener() {
             @Override
             public void onSingleLockerStatusResponse(int way, int status) {
                 //锁已打开,此时需要判断是否是我们打开的锁,以及录入user数据库中
                 if (mCurrentOpenLockerIndex != -1 && mCurrentOpenLockerIndex == way) {
                     if (mCurrentUser != null) {
-                        String storageIndexs = mCurrentUser.getStorageIndexs();
-                        JSONArray jsonArray = JSON.parseArray(storageIndexs);
-                        jsonArray.add(way);
-                        mCurrentUser.setStorageIndexs(JSON.toJSONString(jsonArray));
-                        UserDBManager.update(mCurrentUser);
-                        way = 1 << way;
+                        //获取当前打开的箱位
+                        int wayBinary = 1 << (way - 1);
+                        int allLockersStatus = SharedPreferenceUtil.getAllLockersStatus();
+                        //用原来以保存的箱位或上现保存的箱位,然后记录所有已存东西的箱位索引
+                        allLockersStatus |= wayBinary;
+                        SharedPreferenceUtil.setAllLockersStatus(allLockersStatus);
 
+                        //更新当前用户储存的箱位索引
+                        int storageIndexs = mCurrentUser.getStorageIndexs();
+                        storageIndexs |= wayBinary;
+                        mCurrentUser.setStorageIndexs(storageIndexs);
+                        UserDBManager.update(mCurrentUser);
                         //此时需要post一个定时任务,假如到时间用户未关门,那么闪灯
                         mHandler.sendEmptyMessageDelayed(MSG_NOT_CLOSE_DOOR, CLOSE_DOOR_TIME_OUT);
                     }
@@ -297,6 +286,7 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack {
             @Override
             public void disConnectDevice() {
                 // TODO: 2019/3/10 串口未打开
+                Log.e(TAG, "disConnectDevice: 串口未打开" );
             }
         });
     }

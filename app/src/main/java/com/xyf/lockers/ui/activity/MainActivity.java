@@ -61,8 +61,8 @@ public class MainActivity
                 for (int i = 0; i < 3; i++) {
                     list.add(i);
                 }
-                String s = JSON.toJSONString(list);
-                user.setStorageIndexs(s);
+//                String s = JSON.toJSONString(list);
+//                user.setStorageIndexs(s);
                 userDao.insert(user);
                 break;
             case R.id.btn_control_test:
@@ -70,9 +70,9 @@ public class MainActivity
                 UserDao userDao2 = MainAppliction.getInstance().getDaoSession().getUserDao();
                 List<User> users = userDao2.loadAll();
                 for (User user1 : users) {
-                    String storageIndexs = user1.getStorageIndexs();
-                    Log.i(TAG, "onViewClicked: storageIndexs:" + storageIndexs);
-                    JSONArray objects = JSON.parseArray(storageIndexs);
+//                    String storageIndexs = user1.getStorageIndexs();
+//                    Log.i(TAG, "onViewClicked: storageIndexs:" + storageIndexs);
+//                    JSONArray objects = JSON.parseArray(storageIndexs);
 //                    Log.i(TAG, "onViewClicked: " + objects.size());
 //                    for (int i = 0; i < objects.size(); i++) {
 //                        Object o = objects.get(i);

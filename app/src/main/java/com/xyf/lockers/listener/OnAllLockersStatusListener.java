@@ -10,6 +10,6 @@ package com.xyf.lockers.listener;
  */
 public interface OnAllLockersStatusListener extends BaseSerialportInterface {
 
-    void onAllLockersStatusResponse(int allLockers);
+    void onAllLockersStatusResponse(long allLockers);
 
 }

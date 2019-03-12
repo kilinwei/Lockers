@@ -41,7 +41,7 @@ public class User {
      * 储存在柜子的索引,可能有多个
      */
     @Property(nameInDb = "storage_indexs")
-    private String storageIndexs;
+    private int storageIndexs;
 
 
     /**
@@ -58,9 +58,9 @@ public class User {
     private String cropImageName;
 
 
-    @Generated(hash = 832745353)
+    @Generated(hash = 1785989590)
     public User(Long id, String userName, long firstTime, long lastTime,
-            String storageIndexs, String imageName, String cropImageName) {
+            int storageIndexs, String imageName, String cropImageName) {
         this.id = id;
         this.userName = userName;
         this.firstTime = firstTime;
@@ -69,66 +69,81 @@ public class User {
         this.imageName = imageName;
         this.cropImageName = cropImageName;
     }
+
 
     @Generated(hash = 586692638)
     public User() {
     }
 
+
     public Long getId() {
         return this.id;
     }
+
 
     public void setId(Long id) {
         this.id = id;
     }
 
+
     public String getUserName() {
         return this.userName;
     }
+
 
     public void setUserName(String userName) {
         this.userName = userName;
     }
 
+
     public long getFirstTime() {
         return this.firstTime;
     }
+
 
     public void setFirstTime(long firstTime) {
         this.firstTime = firstTime;
     }
 
+
     public long getLastTime() {
         return this.lastTime;
     }
+
 
     public void setLastTime(long lastTime) {
         this.lastTime = lastTime;
     }
 
-    public String getStorageIndexs() {
+
+    public int getStorageIndexs() {
         return this.storageIndexs;
     }
 
-    public void setStorageIndexs(String storageIndexs) {
+
+    public void setStorageIndexs(int storageIndexs) {
         this.storageIndexs = storageIndexs;
     }
 
-    public String getCropImageName() {
-        return this.cropImageName;
-    }
-
-    public void setCropImageName(String cropImageName) {
-        this.cropImageName = cropImageName;
-    }
 
     public String getImageName() {
         return this.imageName;
     }
 
+
     public void setImageName(String imageName) {
         this.imageName = imageName;
     }
 
+
+    public String getCropImageName() {
+        return this.cropImageName;
+    }
+
+
+    public void setCropImageName(String cropImageName) {
+        this.cropImageName = cropImageName;
+    }
+    
 
 }
