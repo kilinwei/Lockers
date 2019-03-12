@@ -19,17 +19,17 @@ public class LockerUtils {
     /**
      * 获取所有锁的状态,16进制转2进制,从右到左,第一位为1,然后获取哪一位是1,返回包含1的集合
      *
-     * @param aLong
+     * @param allLockers
      * @return
      */
-    public static List<Integer> getLockers(long aLong) {
+    public static List<Integer> getLockers(int allLockers) {
         List<Integer> list = new ArrayList<>();
         for (int i = 1; i <= LOCKER_COUNT; i++) {
-            System.out.println(Long.toBinaryString(aLong));
-            if ((aLong & 0x01) == 1) {
+            System.out.println(Long.toBinaryString(allLockers));
+            if ((allLockers & 0x01) == 1) {
                 list.add(i);
             }
-            aLong >>>= 1;
+            allLockers >>>= 1;
         }
         System.out.println(list);
         return list;
@@ -38,18 +38,18 @@ public class LockerUtils {
     /**
      * 是否存满,如果存满返回-1,不满,可以存的话,返回可存的索引
      *
-     * @param aLong
+     * @param allLockers
      * @return
      */
-    public static int checkCanOpen(long aLong) {
-        if (Long.bitCount(aLong) >= LOCKER_COUNT) {
+    public static int checkCanOpen(int allLockers) {
+        if (Integer.bitCount(allLockers) >= LOCKER_COUNT) {
             return -1;
         }
         for (int i = 1; i <= LOCKER_COUNT; i++) {
-            if ((aLong & 0x01) == 0) {
+            if ((allLockers & 0x01) == 0) {
                 return i;
             }
-            aLong >>>= 1;
+            allLockers >>>= 1;
         }
         return -1;
     }

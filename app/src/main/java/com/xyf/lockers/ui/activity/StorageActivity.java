@@ -22,7 +22,6 @@ import com.xyf.lockers.callback.IFaceRegistCalllBack;
 import com.xyf.lockers.callback.ILivenessCallBack;
 import com.xyf.lockers.common.GlobalSet;
 import com.xyf.lockers.common.serialport.LockersCommHelper;
-import com.xyf.lockers.listener.OnAllLockersStatusListener;
 import com.xyf.lockers.listener.OnSingleLockerStatusListener;
 import com.xyf.lockers.manager.FaceLiveness;
 import com.xyf.lockers.manager.FaceSDKManager;
@@ -31,6 +30,7 @@ import com.xyf.lockers.model.bean.User;
 import com.xyf.lockers.model.bean.UserDao;
 import com.xyf.lockers.utils.DensityUtil;
 import com.xyf.lockers.utils.LockerUtils;
+import com.xyf.lockers.utils.SharedPreferenceUtil;
 import com.xyf.lockers.utils.UserDBManager;
 import com.xyf.lockers.view.BinocularView;
 import com.xyf.lockers.view.MonocularView;
@@ -41,10 +41,12 @@ import butterknife.BindView;
 
 public class StorageActivity extends BaseActivity implements ILivenessCallBack {
     private static final String TAG = "StorageActivity";
-    private static final int CHECK_FACE = 0x01;
+    private static final int MSG_CHECK_FACE = 0x01;
     private static final int MSG_REGISTER_TIME_OUT = 0x02;
+    private static final int MSG_NOT_CLOSE_DOOR = 0x03;
     private static final int PASS_TIME = 3 * 1000;
     private static final int REGISTER_TIME_OUT = 30 * 1000;
+    private static final int CLOSE_DOOR_TIME_OUT = 60 * 1000;
 
     @BindView(R.id.layout_camera)
     RelativeLayout mCameraView;
@@ -56,16 +58,17 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack {
     private boolean mNeedRegister;
     private String mNickName;
     private int mCurrentOpenLockerIndex = -1;
+    private User mCurrentUser;
 
     @SuppressLint("HandlerLeak")
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
-                case CHECK_FACE:
+                case MSG_CHECK_FACE:
                     mNeedRegister = true;
                     sendEmptyMessageDelayed(MSG_REGISTER_TIME_OUT, REGISTER_TIME_OUT);
-                    removeMessages(CHECK_FACE);
+                    removeMessages(MSG_CHECK_FACE);
                     break;
                 case MSG_REGISTER_TIME_OUT:
                     if (faceRegistCalllBack != null) {
@@ -73,12 +76,14 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack {
                     }
                     removeMessages(MSG_REGISTER_TIME_OUT);
                     break;
+                case MSG_NOT_CLOSE_DOOR:
+                    LockersCommHelper.get().controlSingleLight(mCurrentOpenLockerIndex, 2);
+                    break;
                 default:
                     break;
             }
         }
     };
-    private User mCurrentUser;
 
     @Override
     protected int getLayout() {
@@ -104,7 +109,7 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack {
         } else {
             mMonocularView.onResume();
         }
-        mHandler.sendEmptyMessageDelayed(CHECK_FACE, PASS_TIME);
+        mHandler.sendEmptyMessageDelayed(MSG_CHECK_FACE, PASS_TIME);
     }
 
     @Override
@@ -236,23 +241,7 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack {
                     mCurrentUser = UserDBManager.insertUser2DB(userName, Long.parseLong(userName),
                             Long.parseLong(userName), feature.getCropImageName(), feature.getImageName());
                     Log.i(TAG, "onRegistCallBack: 注册成功");
-                    LockersCommHelper.get().getAllLockStatus(new OnAllLockersStatusListener() {
-                        @Override
-                        public void onAllLockersStatusResponse(long allLockers) {
-                            int canOpen = LockerUtils.checkCanOpen(allLockers);
-                            if (canOpen != -1) {
-                                mCurrentOpenLockerIndex = canOpen;
-                                openSingleLocker(canOpen);
-                            } else {
-                                // TODO: 2019/3/10 已存满
-                            }
-                        }
-
-                        @Override
-                        public void disConnectDevice() {
-                            // TODO: 2019/3/10 串口未打开
-                        }
-                    });
+                    getAllLockerStatus();
                 }
                 break;
                 case 1: {
@@ -265,6 +254,20 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack {
             }
         }
     };
+
+    /**
+     * 获取所有锁的状态
+     */
+    private void getAllLockerStatus() {
+        int allLockersStatus = SharedPreferenceUtil.getAllLockersStatus();
+        int canOpen = LockerUtils.checkCanOpen(allLockersStatus);
+        if (canOpen != -1) {
+            mCurrentOpenLockerIndex = canOpen;
+            openSingleLocker(canOpen);
+        } else {
+            // TODO: 2019/3/10 已存满
+        }
+    }
 
     /**
      * 打开单个锁
@@ -283,6 +286,10 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack {
                         jsonArray.add(way);
                         mCurrentUser.setStorageIndexs(JSON.toJSONString(jsonArray));
                         UserDBManager.update(mCurrentUser);
+                        way = 1 << way;
+
+                        //此时需要post一个定时任务,假如到时间用户未关门,那么闪灯
+                        mHandler.sendEmptyMessageDelayed(MSG_NOT_CLOSE_DOOR, CLOSE_DOOR_TIME_OUT);
                     }
                 }
             }
