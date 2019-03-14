@@ -17,19 +17,18 @@ public class LockerUtils {
 
 
     /**
-     * 获取所有锁的状态,16进制转2进制,从右到左,第一位为1,然后获取哪一位是1,返回包含1的集合
+     * 返回32位二进制第几位是1的集合,从右到左,第一位为1,然后获取哪一位是1,返回包含1的索引的集合,例如5返回的集合为{1,3}
      *
-     * @param allLockers
+     * @param storageIndexs
      * @return
      */
-    public static List<Integer> getLockers(int allLockers) {
+    public static List<Integer> getStorageIndexs(long storageIndexs) {
         List<Integer> list = new ArrayList<>();
         for (int i = 1; i <= LOCKER_COUNT; i++) {
-            System.out.println(Long.toBinaryString(allLockers));
-            if ((allLockers & 0x01) == 1) {
+            if ((storageIndexs & 0x01) == 1) {
                 list.add(i);
             }
-            allLockers >>>= 1;
+            storageIndexs >>>= 1;
         }
         System.out.println(list);
         return list;

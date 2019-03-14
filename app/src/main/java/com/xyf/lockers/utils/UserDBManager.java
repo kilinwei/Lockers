@@ -36,6 +36,9 @@ public class UserDBManager {
     }
 
     public static void update(User user) {
+        if (user == null) {
+            return;
+        }
         UserDao userDao = MainAppliction.getInstance().getDaoSession().getUserDao();
         userDao.update(user);
     }

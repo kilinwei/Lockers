@@ -21,7 +21,7 @@ public class TestUtil {
         int count1 = Long.bitCount(aLong);
 //        System.out.println("count1: " + count1);
 //        System.out.println("二进制: " + s);
-//        getLockers(aLong);
+//        getStorageIndexs(aLong);
         System.out.println(checkCanOpen(aLong));
     }
 

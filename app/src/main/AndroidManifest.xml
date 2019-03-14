@@ -38,6 +38,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
+        <activity android:name=".ui.activity.TakeActivity">
+        </activity>
         <activity android:name=".ui.activity.StorageActivity">
         </activity>
         <activity android:name=".ui.activity.RegisterTestActivity">

@@ -6,16 +6,14 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.baidu.idl.facesdk.model.Feature;
 import com.xyf.lockers.R;
+import com.xyf.lockers.app.Constants;
 import com.xyf.lockers.app.MainAppliction;
 import com.xyf.lockers.base.BaseActivity;
 import com.xyf.lockers.callback.IFaceRegistCalllBack;
@@ -59,6 +57,10 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack {
     private String mNickName;
     private int mCurrentOpenLockerIndex = -1;
     private User mCurrentUser;
+    /**
+     * 已识别到已注册用户
+     */
+    private boolean mIsRecognized;
 
     @SuppressLint("HandlerLeak")
     private Handler mHandler = new Handler() {
@@ -77,6 +79,7 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack {
                     removeMessages(MSG_REGISTER_TIME_OUT);
                     break;
                 case MSG_NOT_CLOSE_DOOR:
+                    // TODO: 2019/3/13 用户未关门,此时控制闪灯,当用户关门时有没有关门回调?还是需要手动去查询门有没有关?
                     LockersCommHelper.get().controlSingleLight(mCurrentOpenLockerIndex, 2);
                     break;
                 default:
@@ -158,13 +161,20 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack {
 
     @Override
     public void onCallback(final int code, final LivenessModel livenessModel) {
+        if (mIsRecognized) {
+            return;
+        }
         //子线程
         if (livenessModel != null) {
             if (code == 0) {
                 //匹配到相似人脸,说明这个人已经存过东西,检测是否已经存>=3,如果是,提示先取出
-                Feature feature = livenessModel.getFeature();
                 //相似度
                 float featureScore = livenessModel.getFeatureScore();
+                if (featureScore < Constants.PASS_SCORE) {
+                    return;
+                }
+                mIsRecognized = true;
+                Feature feature = livenessModel.getFeature();
                 //储存的名字,
                 String userName = feature.getUserName();
                 UserDao userDao = MainAppliction.getInstance().getDaoSession().getUserDao();
@@ -262,31 +272,37 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack {
         LockersCommHelper.get().controlSingleLock(way, 1, new OnSingleLockerStatusListener() {
             @Override
             public void onSingleLockerStatusResponse(int way, int status) {
-                //锁已打开,此时需要判断是否是我们打开的锁,以及录入user数据库中
-                if (mCurrentOpenLockerIndex != -1 && mCurrentOpenLockerIndex == way) {
-                    if (mCurrentUser != null) {
-                        //获取当前打开的箱位
-                        int wayBinary = 1 << (way - 1);
-                        int allLockersStatus = SharedPreferenceUtil.getAllLockersStatus();
-                        //用原来以保存的箱位或上现保存的箱位,然后记录所有已存东西的箱位索引
-                        allLockersStatus |= wayBinary;
-                        SharedPreferenceUtil.setAllLockersStatus(allLockersStatus);
+                if (status == 1) {
+                    //锁已打开,此时需要判断是否是我们打开的锁,以及录入user数据库中
+                    if (mCurrentOpenLockerIndex != -1 && mCurrentOpenLockerIndex == way) {
+                        if (mCurrentUser != null) {
+                            //获取当前打开的箱位
+                            int wayBinary = 1 << (way - 1);
+                            int allLockersStatus = SharedPreferenceUtil.getAllLockersStatus();
+                            //用原来以保存的箱位或上现保存的箱位,然后记录所有已存东西的箱位索引
+                            allLockersStatus |= wayBinary;
+                            SharedPreferenceUtil.setAllLockersStatus(allLockersStatus);
 
-                        //更新当前用户储存的箱位索引
-                        int storageIndexs = mCurrentUser.getStorageIndexs();
-                        storageIndexs |= wayBinary;
-                        mCurrentUser.setStorageIndexs(storageIndexs);
-                        UserDBManager.update(mCurrentUser);
-                        //此时需要post一个定时任务,假如到时间用户未关门,那么闪灯
-                        mHandler.sendEmptyMessageDelayed(MSG_NOT_CLOSE_DOOR, CLOSE_DOOR_TIME_OUT);
+                            //更新当前用户储存的箱位索引
+                            int storageIndexs = mCurrentUser.getStorageIndexs();
+                            storageIndexs |= wayBinary;
+                            mCurrentUser.setStorageIndexs(storageIndexs);
+                            UserDBManager.update(mCurrentUser);
+                            //此时需要post一个定时任务,假如到时间用户未关门,那么闪灯
+                            mHandler.sendEmptyMessageDelayed(MSG_NOT_CLOSE_DOOR, CLOSE_DOOR_TIME_OUT);
+                        }
                     }
+                } else {
+                    // TODO: 2019/3/15 锁已关闭
+                    mHandler.removeMessages(MSG_NOT_CLOSE_DOOR);
+                    LockersCommHelper.get().controlSingleLight(mCurrentOpenLockerIndex, 2);
                 }
             }
 
             @Override
             public void disConnectDevice() {
                 // TODO: 2019/3/10 串口未打开
-                Log.e(TAG, "disConnectDevice: 串口未打开" );
+                Log.e(TAG, "disConnectDevice: 串口未打开");
             }
         });
     }

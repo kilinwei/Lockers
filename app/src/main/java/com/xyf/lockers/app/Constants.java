@@ -10,4 +10,8 @@ package com.xyf.lockers.app;
  */
 public interface Constants {
     String SP_ALL_LOCKERS_STATUS = "sp_all_lockers_status";
+    /**
+     * 超过这个分数,认定是同一个人
+     */
+    int PASS_SCORE = 90;
 }

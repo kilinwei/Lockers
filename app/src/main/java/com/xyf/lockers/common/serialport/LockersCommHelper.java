@@ -320,8 +320,8 @@ public class LockersCommHelper {
 
     /**
      * 设置灯控 24 路任何一路工作
-     * 1B 01(全开)/00(全关)/02(全闪) 01（1-18 表示 1 到 24 路） 0A
      *
+     * @param way    传入十进制   （1-18 表示 1 到 24 路）
      * @param status 01(开)/00(关)/02(闪)
      */
     public void controlSingleLight(int way, int status) {
