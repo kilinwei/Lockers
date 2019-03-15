@@ -118,7 +118,13 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack {
     @Override
     protected void onPause() {
         super.onPause();
+        if (GlobalSet.getLiveStatusValue() == GlobalSet.LIVE_STATUS.RGN_NIR) {
+            mBinocularView.onPause();
+        } else {
+            mMonocularView.onPause();
+        }
         LockersCommHelper.get().setOnSingleLockerStatusListener(null);
+        mHandler.removeCallbacksAndMessages(null);
     }
 
     /**

@@ -34,7 +34,7 @@ public class LockersCommHelper {
 
     private static final String TAG = "LockersCommHelper";
 
-    public static final int LOCKER_COUNT = 24;
+    public static final int LOCKER_COUNT = 32;
 
     public static final String SERIAL_DEVICE = "/dev/ttyS3";
 
@@ -244,7 +244,7 @@ public class LockersCommHelper {
                 case GET_ALL_LOCK_STATUS:
                     //7.所有锁状态的返回结果
                     //08 b0 01
-                    long l = Long.parseLong("08B001L");
+                    int l = Integer.parseInt("08B001");
                     if (mOnAllLockersStatusListener != null) {
                         mOnAllLockersStatusListener.onAllLockersStatusResponse(l);
                     }

@@ -67,9 +67,9 @@ public class MainActivity
                 break;
             case R.id.btn_control_test:
 //                intent = new Intent(this, TestActivity.class);
-                UserDao userDao2 = MainAppliction.getInstance().getDaoSession().getUserDao();
-                List<User> users = userDao2.loadAll();
-                for (User user1 : users) {
+//                UserDao userDao2 = MainAppliction.getInstance().getDaoSession().getUserDao();
+//                List<User> users = userDao2.loadAll();
+//                for (User user1 : users) {
 //                    String storageIndexs = user1.getStorageIndexs();
 //                    Log.i(TAG, "onViewClicked: storageIndexs:" + storageIndexs);
 //                    JSONArray objects = JSON.parseArray(storageIndexs);
@@ -78,7 +78,8 @@ public class MainActivity
 //                        Object o = objects.get(i);
 //                        Log.i(TAG, "onViewClicked: o: " + o);
 //                    }
-                }
+//                }
+                intent = new Intent(this, AdminActivity.class);
                 break;
         }
         if (intent != null) {

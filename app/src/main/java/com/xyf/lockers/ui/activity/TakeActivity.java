@@ -1,7 +1,10 @@
 package com.xyf.lockers.ui.activity;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.ViewGroup;
@@ -35,7 +38,11 @@ import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnSingleLockerStatusListener {
+    // TODO: 2019/3/15  待写功能：判断用户取出所有物品之后，关闭本界面
+
     private static final String TAG = "TakeActivity";
+    public static final int MSG_PASS_TIME_OUT = 0x03;
+    public static final int PASS_OUT_TIME = 30*1000;
     @BindView(R.id.layout_camera)
     RelativeLayout mCameraView;
     @BindView(R.id.image_track)
@@ -57,6 +64,24 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
      */
     private User mCurrentUser;
 
+    @SuppressLint("HandlerLeak")
+    private Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case MSG_PASS_TIME_OUT:
+                    if (mIsRecognized) {
+
+                    }else{
+                        // TODO: 2019/3/15 取出超时，提示用户，关闭界面
+
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
 
     @Override
     protected int getLayout() {
@@ -105,11 +130,13 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
         } else {
             mMonocularView.onResume();
         }
-//        mHandler.sendEmptyMessageDelayed(CHECK_FACE, TIME);
+        mHandler.sendEmptyMessageDelayed(MSG_PASS_TIME_OUT, PASS_OUT_TIME);
     }
 
+
     @Override
-    protected void onStop() {
+    protected void onPause() {
+        super.onPause();
         if (GlobalSet.getLiveStatusValue() == GlobalSet.LIVE_STATUS.RGN_NIR) {
             mBinocularView.onPause();
         } else {
@@ -118,7 +145,7 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
         if (mSubscribe != null && !mSubscribe.isDisposed()) {
             mSubscribe.dispose();
         }
-        super.onStop();
+        mHandler.removeCallbacksAndMessages(null);
     }
 
     @Override
@@ -140,6 +167,11 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
             if (featureScore < Constants.PASS_SCORE) {
                 return;
             }
+            if (mIsRecognized) {
+                // TODO: 2019/3/15 请等待上一个用户取完物品再取
+                Log.i(TAG, "onCallback: 请等待上一个用户取完物品再取");
+                return;
+            }
             Feature feature = livenessModel.getFeature();
             //储存的名字,
             String userName = feature.getUserName();
@@ -153,8 +185,11 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
                     //说明已存物品,需要开箱
                     //获取到需要开箱的集合
                     List<Integer> storageList = LockerUtils.getStorageIndexs(storageIndexs);
-                    openLockers(storageList);
-                    mCurrentUser = user;
+                    if (storageList != null && !storageList.isEmpty()) {
+                        mCurrentUser = user;
+                        mIsRecognized = true;
+                        openLockers(storageList);
+                    }
                 } else {
                     //说明没有存物品,提醒用户没有存物品
                     Log.i(TAG, "onCallback: 已存大于等于三个");
@@ -168,9 +203,6 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
     }
 
     private void openLockers(final List<Integer> storageList) {
-        if (storageList == null || storageList.isEmpty()) {
-            return;
-        }
         mCurrentStorageList = storageList;
         mSubscribe = Observable.just(1).subscribeOn(Schedulers.io())
                 .subscribe(new Consumer<Integer>() {

@@ -58,7 +58,7 @@ public class User {
     private String cropImageName;
 
 
-    @Generated(hash = 845847584)
+    @Generated(hash = 1785989590)
     public User(Long id, String userName, long firstTime, long lastTime,
             int storageIndexs, String imageName, String cropImageName) {
         this.id = id;
@@ -144,6 +144,5 @@ public class User {
     public void setCropImageName(String cropImageName) {
         this.cropImageName = cropImageName;
     }
-
 
 }
