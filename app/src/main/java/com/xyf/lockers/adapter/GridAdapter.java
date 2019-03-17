@@ -8,18 +8,18 @@ import com.bumptech.glide.Glide;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.xyf.lockers.R;
-import com.xyf.lockers.model.bean.User;
+import com.xyf.lockers.model.bean.GridBean;
 
 import java.util.List;
 
-public class GridAdapter extends BaseQuickAdapter<User, BaseViewHolder> {
+public class GridAdapter extends BaseQuickAdapter<GridBean, BaseViewHolder> {
 
-    public GridAdapter(int layoutResId, @Nullable List<User> data) {
+    public GridAdapter(int layoutResId, @Nullable List<GridBean> data) {
         super(layoutResId, data);
     }
 
     @Override
-    protected void convert(BaseViewHolder helper, User item) {
+    protected void convert(BaseViewHolder helper, GridBean item) {
         ImageView imageView = helper.getView(R.id.iv_user);
         Glide.with(imageView.getContext()).load(R.mipmap.ic_launcher).into(imageView);
         helper.addOnClickListener(R.id.btn_open_lock)

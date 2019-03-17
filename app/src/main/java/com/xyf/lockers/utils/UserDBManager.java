@@ -4,6 +4,10 @@ import com.xyf.lockers.app.MainAppliction;
 import com.xyf.lockers.model.bean.User;
 import com.xyf.lockers.model.bean.UserDao;
 
+import org.greenrobot.greendao.query.QueryBuilder;
+
+import java.util.List;
+
 /**
  * @项目名： Lockers
  * @包名： com.xyf.lockers.utils
@@ -41,5 +45,14 @@ public class UserDBManager {
         }
         UserDao userDao = MainAppliction.getInstance().getDaoSession().getUserDao();
         userDao.update(user);
+    }
+
+    public static List<User> getAllStorageUser() {
+        UserDao userDao = MainAppliction.getInstance().getDaoSession().getUserDao();
+        QueryBuilder<User> userQueryBuilder = userDao.queryBuilder();
+        //查询大于1的
+        List<User> storageUsers = userQueryBuilder.where(UserDao.Properties.StorageIndexs.gt(0)).list();
+        return storageUsers;
+
     }
 }
