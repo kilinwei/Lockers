@@ -43,7 +43,7 @@ public class LockersCommHelper {
     /**
      * 数据接收超时时间
      */
-    private static final int RECEIVER_DATA_TIMEOUT = 1000 * 1000;
+    private static final int RECEIVER_DATA_TIMEOUT =  1000;
 
     private static LockersCommHelper instance;
 

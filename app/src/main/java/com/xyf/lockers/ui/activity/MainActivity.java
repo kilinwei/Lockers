@@ -2,12 +2,9 @@ package com.xyf.lockers.ui.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.xyf.lockers.R;
 import com.xyf.lockers.app.MainAppliction;
 import com.xyf.lockers.base.BaseActivity;
@@ -66,7 +63,7 @@ public class MainActivity
                 userDao.insert(user);
                 break;
             case R.id.btn_control_test:
-//                intent = new Intent(this, TestActivity.class);
+                intent = new Intent(this, ControlTestActivityNew.class);
 //                UserDao userDao2 = MainAppliction.getInstance().getDaoSession().getUserDao();
 //                List<User> users = userDao2.loadAll();
 //                for (User user1 : users) {
@@ -79,7 +76,7 @@ public class MainActivity
 //                        Log.i(TAG, "onViewClicked: o: " + o);
 //                    }
 //                }
-                intent = new Intent(this, AdminActivity.class);
+//                intent = new Intent(this, AdminActivity.class);
                 break;
         }
         if (intent != null) {

@@ -22,7 +22,18 @@ public class TestUtil {
 //        System.out.println("count1: " + count1);
 //        System.out.println("二进制: " + s);
 //        getStorageIndexs(aLong);
-        System.out.println(checkCanOpen(aLong));
+        System.out.println(Integer.toBinaryString(getSendData(5)));
+    }
+
+    /**
+     * 将十进制的数据,转化为发送的数据
+     *
+     * @param locker
+     */
+    private static byte getSendData(int locker) {
+        byte binary = (byte) (1 << (locker - 1));
+        //二进制取反,比如00001000变成111110111
+        return (byte) ~binary;
     }
 
     /**
@@ -43,6 +54,7 @@ public class TestUtil {
         }
         return -1;
     }
+
     public static List<Integer> getLockers(long aLong) {
         List<Integer> list = new ArrayList<>();
         for (int i = 1; i <= 24; i++) {
