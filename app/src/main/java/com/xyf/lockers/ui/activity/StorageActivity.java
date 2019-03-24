@@ -306,6 +306,12 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack {
             }
 
             @Override
+            public void onSingleLockerStatusResponse(byte[] bRec) {
+                byte ban = bRec[1];//板子序号
+                byte lockerStatus = bRec[2];//这块板子的锁状态
+            }
+
+            @Override
             public void disConnectDevice() {
                 // TODO: 2019/3/10 串口未打开
                 Log.e(TAG, "disConnectDevice: 串口未打开");

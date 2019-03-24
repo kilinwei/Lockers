@@ -240,6 +240,11 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
     }
 
     @Override
+    public void onSingleLockerStatusResponse(byte[] bRec) {
+
+    }
+
+    @Override
     public void disConnectDevice() {
         // TODO: 2019/3/10 串口未打开
         Log.e(TAG, "disConnectDevice: 串口未打开");

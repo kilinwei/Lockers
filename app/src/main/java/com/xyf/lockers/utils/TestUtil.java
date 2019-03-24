@@ -22,7 +22,26 @@ public class TestUtil {
 //        System.out.println("count1: " + count1);
 //        System.out.println("二进制: " + s);
 //        getStorageIndexs(aLong);
-        System.out.println(Integer.toBinaryString(getSendData(5)));
+        byte[] bytes = {0x5A, 0x01, (byte) 0xFE, (byte) 0xFE, (byte) 0xFE};
+        String bcc = getBCC(bytes);
+        int i = Integer.parseInt(bcc, 16);
+        byte b = (byte) (i);
+        b &= 0xff;
+        System.out.println(b);
+    }
+
+    public static String getBCC(byte[] data) {
+        String ret = "";
+        byte BCC[] = new byte[1];
+        for (int i = 0; i < data.length; i++) {
+            BCC[0] = (byte) (BCC[0] ^ data[i]);
+        }
+        String hex = Integer.toHexString(BCC[0] & 0xFF);
+        if (hex.length() == 1) {
+            hex = '0' + hex;
+        }
+        ret += hex.toUpperCase();
+        return ret;
     }
 
     /**
