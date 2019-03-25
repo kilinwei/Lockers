@@ -43,7 +43,7 @@ public class ControlTestActivityNew
 
     @Override
     protected void initEventAndData(Bundle savedInstanceState) {
-
+        LockersCommHelperNew.get().init();
     }
 
     @OnClick({R.id.btn_open_locker, R.id.btn_query_circuit_board, R.id.btn_query_all, R.id.btn_auto_light})
@@ -75,7 +75,7 @@ public class ControlTestActivityNew
                 lightSend = getSendData(light);
                 sonsorSend = getSendData(sonsor);
                 Log.i(TAG, "onViewClicked: btn_open_locker: circuitBoardSend: " + Integer.toHexString(circuitBoardSend)
-                        + " lockerSend: " + Integer.toHexString(lockerSend)
+                        + " lockerSend: " + Integer.toHexString(lockerSend& 0x000000FF | 0xFFFFFF00).substring(6).toUpperCase()
                         + " lightSend: " + Integer.toHexString(lightSend)
                         + " sonsorSend: " + Integer.toHexString(sonsorSend));
                 LockersCommHelperNew.get().controlSingleLock(circuitBoardSend, lockerSend, lightSend, sonsorSend);
