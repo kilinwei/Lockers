@@ -258,7 +258,7 @@ public class LockersCommHelperNew {
      * 控制单路
      */
     public void controlSingleLock(byte circuitBoard, byte locker, byte light, byte sensor) {
-        if (!isOpenDev()) {
+        if (isOpenDev()) {
             byte[] bytes = {0x5A, circuitBoard, locker, light, sensor};
             String bcc = getBCC(bytes);
             int b = Integer.parseInt(bcc, 16);
