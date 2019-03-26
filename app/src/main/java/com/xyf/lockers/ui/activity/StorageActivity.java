@@ -33,6 +33,7 @@ import com.xyf.lockers.utils.UserDBManager;
 import com.xyf.lockers.view.BinocularView;
 import com.xyf.lockers.view.MonocularView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -80,7 +81,7 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack {
                     break;
                 case MSG_NOT_CLOSE_DOOR:
                     // TODO: 2019/3/13 用户未关门,此时控制闪灯,当用户关门时有没有关门回调?还是需要手动去查询门有没有关?
-                    LockersCommHelper.get().controlSingleLight(mCurrentOpenLockerIndex, 2);
+//                    LockersCommHelper.get().controlSingleLight(mCurrentOpenLockerIndex, 2);
                     break;
                 default:
                     break;
@@ -100,7 +101,7 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack {
         FaceSDKManager.getInstance().getFaceLiveness().addRegistCallBack(faceRegistCalllBack);
         //进入界面首先设置为通行,确保同一用户不会被注册两次
         FaceSDKManager.getInstance().getFaceLiveness().setCurrentTaskType(FaceLiveness.TaskType.TASK_TYPE_ONETON);
-
+        calculateCameraView();
     }
 
 
@@ -281,22 +282,7 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack {
                 if (status == 1) {
                     //锁已打开,此时需要判断是否是我们打开的锁,以及录入user数据库中
                     if (mCurrentOpenLockerIndex != -1 && mCurrentOpenLockerIndex == way) {
-                        if (mCurrentUser != null) {
-                            //获取当前打开的箱位
-                            int wayBinary = 1 << (way - 1);
-                            int allLockersStatus = SharedPreferenceUtil.getAllLockersStatus();
-                            //用原来以保存的箱位或上现保存的箱位,然后记录所有已存东西的箱位索引
-                            allLockersStatus |= wayBinary;
-                            SharedPreferenceUtil.setAllLockersStatus(allLockersStatus);
-
-                            //更新当前用户储存的箱位索引
-                            int storageIndexs = mCurrentUser.getStorageIndexs();
-                            storageIndexs |= wayBinary;
-                            mCurrentUser.setStorageIndexs(storageIndexs);
-                            UserDBManager.update(mCurrentUser);
-                            //此时需要post一个定时任务,假如到时间用户未关门,那么闪灯
-                            mHandler.sendEmptyMessageDelayed(MSG_NOT_CLOSE_DOOR, CLOSE_DOOR_TIME_OUT);
-                        }
+                        updateStorageStatus(way);
                     }
                 } else {
                     // TODO: 2019/3/15 锁已关闭
@@ -307,8 +293,20 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack {
 
             @Override
             public void onSingleLockerStatusResponse(byte[] bRec) {
-                byte ban = bRec[1];//板子序号
-                byte lockerStatus = bRec[2];//这块板子的锁状态
+                int boardBinary = bRec[1];
+                byte lockerBinary = bRec[2];
+                ArrayList<Integer> openingLockesIndexs = LockerUtils.getOpeningLockesIndexs(boardBinary, lockerBinary);
+                if (openingLockesIndexs == null || openingLockesIndexs.isEmpty()) {
+                    return;
+                }
+
+                for (int i = 1; i <= openingLockesIndexs.size(); i++) {
+                    Integer openingLockesIndex = openingLockesIndexs.get(i);
+                    if (mCurrentOpenLockerIndex != -1 && mCurrentOpenLockerIndex == openingLockesIndex) {
+                        updateStorageStatus(openingLockesIndex);
+                    }
+                    Log.i(TAG, "onSingleLockerStatusResponse: 开了 " + i + "个柜门,当前开的柜门为:　" + openingLockesIndex);
+                }
             }
 
             @Override
@@ -317,6 +315,30 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack {
                 Log.e(TAG, "disConnectDevice: 串口未打开");
             }
         });
+    }
+
+    /**
+     * 获取到用户保存的柜子索引,更新状态
+     *
+     * @param currentOpeningLocker
+     */
+    private void updateStorageStatus(Integer currentOpeningLocker) {
+        if (mCurrentUser != null) {
+            //获取当前打开的箱位
+            int wayBinary = 1 << (currentOpeningLocker - 1);
+            int allLockersStatus = SharedPreferenceUtil.getAllLockersStatus();
+            //用原来以保存的箱位或上现保存的箱位,然后记录所有已存东西的箱位索引
+            allLockersStatus |= wayBinary;
+            SharedPreferenceUtil.setAllLockersStatus(allLockersStatus);
+
+            //更新当前用户储存的箱位索引
+            int storageIndexs = mCurrentUser.getStorageIndexs();
+            storageIndexs |= wayBinary;
+            mCurrentUser.setStorageIndexs(storageIndexs);
+            UserDBManager.update(mCurrentUser);
+            //此时需要post一个定时任务,假如到时间用户未关门,那么闪灯
+            mHandler.sendEmptyMessageDelayed(MSG_NOT_CLOSE_DOOR, CLOSE_DOOR_TIME_OUT);
+        }
     }
 
 }

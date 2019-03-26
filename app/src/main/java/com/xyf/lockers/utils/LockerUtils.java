@@ -1,6 +1,7 @@
 package com.xyf.lockers.utils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static com.xyf.lockers.common.serialport.LockersCommHelper.LOCKER_COUNT;
@@ -32,6 +33,36 @@ public class LockerUtils {
         }
         System.out.println(list);
         return list;
+    }
+
+    private static List<Integer> getOpeningLocker(byte b) {
+        List<Integer> list = new ArrayList<>();
+        byte help = 0x01;
+        for (int i = 0; i < 8; i++) {
+            if ((b & help) == 0) {
+                list.add(i);
+            }
+            help = (byte) (help << 1);
+        }
+        System.out.println(list);
+        return list;
+    }
+
+    public static ArrayList<Integer> getOpeningLockesIndexs(int boardBinary, byte lockerBinary) {
+        ArrayList<Integer> openLockers = null;
+        List<Integer> openingLocker = LockerUtils.getOpeningLocker(lockerBinary);
+        if (openingLocker != null && !openingLocker.isEmpty()) {
+            Integer[] integers = (Integer[]) openingLocker.toArray();
+            while (boardBinary > 1) {
+                boardBinary = boardBinary >>> 1;
+                for (int i = 0; i < openingLocker.size(); i++) {
+                    integers[i] = integers[i] + 8;
+                }
+            }
+            openLockers = new ArrayList<>(integers.length);
+            Collections.addAll(openLockers, integers);
+        }
+        return openLockers;
     }
 
     /**

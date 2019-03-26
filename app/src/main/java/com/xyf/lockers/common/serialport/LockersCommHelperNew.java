@@ -219,8 +219,11 @@ public class LockersCommHelperNew {
                         handler.removeCallbacks(mDelayResetRunnable);
                         mDelayResetRunnable = null;
                     }
+                    //先走resetRunnable,再走timeoutRunnable
                     mDelayResetRunnable = new DelayResetRunnable();
                     handler.postDelayed(mDelayResetRunnable, DELAY);
+                    handler.removeCallbacks(timeoutRunnable);
+                    handler.postDelayed(timeoutRunnable, RECEIVER_DATA_TIMEOUT);
                     break;
                 case LockersCmd.QUERY_ALL:
                     reset();

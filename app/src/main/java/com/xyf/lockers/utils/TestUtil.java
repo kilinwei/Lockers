@@ -16,7 +16,35 @@ import static com.xyf.lockers.common.serialport.LockersCommHelper.LOCKER_COUNT;
 public class TestUtil {
 
     public static void main(String[] args) {
-        test2();
+        getOpeningLocker((byte) 254);
+    }
+
+    public static List<Integer> getStorageIndexs(long storageIndexs) {
+        List<Integer> list = new ArrayList<>();
+        for (int i = 1; i <= LOCKER_COUNT; i++) {
+            if ((storageIndexs & 0x01) == 1) {
+                list.add(i);
+            }
+            storageIndexs >>>= 1;
+        }
+        System.out.println(list);
+        return list;
+    }
+
+
+    public static List<Integer> getOpeningLocker(byte b) {
+        List<Integer> list = new ArrayList<>();
+        int help = 0x01;
+        for (int i = 1; i <= 8; i++) {
+            System.out.println(Integer.toBinaryString(b));
+            System.out.println(Integer.toBinaryString(help));
+            if ((b & help) == 0) {
+                list.add(i);
+            }
+            help = (help << 1);
+        }
+        System.out.println(list);
+        return list;
     }
 
     public static void test2() {
@@ -26,7 +54,7 @@ public class TestUtil {
                 byte[] pre = {0x5A, (byte) ban, getSendDataConversion(j), 0x00, 0x00};
                 String bcc = getBCC(pre);
                 System.out.println("第" + i + "块板子,第" + j + "把锁,开锁命令:      5A 0"
-                        + Integer.toHexString( ban) + " " + Integer.toHexString((getSendDataConversion(j) & 0x000000FF) | 0xFFFFFF00).substring(6).toUpperCase() + " 00 00 " + bcc);
+                        + Integer.toHexString(ban) + " " + Integer.toHexString((getSendDataConversion(j) & 0x000000FF) | 0xFFFFFF00).substring(6).toUpperCase() + " 00 00 " + bcc);
             }
         }
     }

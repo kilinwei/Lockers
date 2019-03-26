@@ -25,10 +25,12 @@ import com.xyf.lockers.model.bean.User;
 import com.xyf.lockers.model.bean.UserDao;
 import com.xyf.lockers.utils.DensityUtil;
 import com.xyf.lockers.utils.LockerUtils;
+import com.xyf.lockers.utils.SharedPreferenceUtil;
 import com.xyf.lockers.utils.UserDBManager;
 import com.xyf.lockers.view.BinocularView;
 import com.xyf.lockers.view.MonocularView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -42,7 +44,8 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
 
     private static final String TAG = "TakeActivity";
     public static final int MSG_PASS_TIME_OUT = 0x03;
-    public static final int PASS_OUT_TIME = 30*1000;
+    public static final int PASS_OUT_TIME = 30 * 1000;
+    public static final int OPEN_LOCKER_INTEVAL = 2 * 1000;
     @BindView(R.id.layout_camera)
     RelativeLayout mCameraView;
     @BindView(R.id.image_track)
@@ -53,7 +56,7 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
     /**
      * 已识别到已注册用户
      */
-    private boolean mIsRecognized;
+    private boolean mIsRecognizing;
     private Disposable mSubscribe;
     /**
      * 当前开门的集合
@@ -70,9 +73,9 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case MSG_PASS_TIME_OUT:
-                    if (mIsRecognized) {
+                    if (mIsRecognizing) {
 
-                    }else{
+                    } else {
                         // TODO: 2019/3/15 取出超时，提示用户，关闭界面
 
                     }
@@ -167,7 +170,7 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
             if (featureScore < Constants.PASS_SCORE) {
                 return;
             }
-            if (mIsRecognized) {
+            if (mIsRecognizing) {
                 // TODO: 2019/3/15 请等待上一个用户取完物品再取
                 Log.i(TAG, "onCallback: 请等待上一个用户取完物品再取");
                 return;
@@ -187,7 +190,7 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
                     List<Integer> storageList = LockerUtils.getStorageIndexs(storageIndexs);
                     if (storageList != null && !storageList.isEmpty()) {
                         mCurrentUser = user;
-                        mIsRecognized = true;
+                        mIsRecognizing = true;
                         openLockers(storageList);
                     }
                 } else {
@@ -195,7 +198,7 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
                     Log.i(TAG, "onCallback: 已存大于等于三个");
                 }
             } else {
-                //说明facesdk的数据库里有数据,但是user数据库没有,说明user已被删除,没有存东西
+                //说明facesdk的数据库里有数据,但是user数据库没有,说明user已被删除,没有存东西,不需要处理
             }
         } else {
             Log.i(TAG, "run: 未匹配到相似人脸");
@@ -210,8 +213,8 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
                     public void accept(Integer integer) throws Exception {
                         for (Integer index : storageList) {
                             LockersCommHelper.get().controlSingleLock(index, 1, TakeActivity.this);
-                            //延迟开门,是因为如果同一时间开门,用户可能没有听到两个门的声音,将声音分开
-                            SystemClock.sleep(500);
+                            //延迟开门,是因为如果同一时间开门,用户可能没有听到两个门的声音,将声音分开,以及电流不够同时开几把锁
+                            SystemClock.sleep(OPEN_LOCKER_INTEVAL);
                         }
                     }
                 });
@@ -239,9 +242,43 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
         }
     }
 
+    /**
+     * *bRec[1] 板子序号 01:1号板 02:2号板 04:3号板
+     * *bRec[2];这块板子的锁状态 11111110:代表1号锁开启,2到8号锁闭合
+     *
+     * @param bRec
+     */
     @Override
     public void onSingleLockerStatusResponse(byte[] bRec) {
+        if (mCurrentStorageList == null || mCurrentStorageList.isEmpty() || mCurrentUser == null) {
+            Log.e(TAG, "onSingleLockerStatusResponse: 门意外打开!!!!!!!!!!!!");
+            return;
+        }
+        int boardBinary = bRec[1];
+        byte lockerBinary = bRec[2];
+        ArrayList<Integer> lockers = LockerUtils.getOpeningLockesIndexs(boardBinary, lockerBinary);
+        if (lockers != null) {
+            int storageIndexs = mCurrentUser.getStorageIndexs();
+            for (Integer locker : lockers) {
+                //获取当前打开的箱位
+                int wayBinary = 1 << (locker - 1);
+                //二进制取反,比如00001000变成111110111
+                int i = ~wayBinary;
+                //将指定位数的1抹去
+                storageIndexs &= i;
 
+                int allLockersStatus = SharedPreferenceUtil.getAllLockersStatus();
+                //用原来以保存的箱位或上现保存的箱位,然后记录所有已存东西的箱位索引
+                allLockersStatus &= i;
+
+                SharedPreferenceUtil.setAllLockersStatus(allLockersStatus);
+                mCurrentUser.setStorageIndexs(storageIndexs);
+                //更新数据库信息
+                UserDBManager.update(mCurrentUser);
+            }
+        } else {
+            Log.i(TAG, "onSingleLockerStatusResponse: 没有打开任何柜门");
+        }
     }
 
     @Override
