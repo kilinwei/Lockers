@@ -44,7 +44,7 @@ public class LockersCommHelperNew {
     /**
      * 发送的消息包
      */
-    private volatile ComSendBean sendData = null;
+    private volatile ComSendBean mCurrentSendData = null;
     /**
      * 线程同步锁，消息分发线程，等待返回后再分发。
      */
@@ -57,6 +57,7 @@ public class LockersCommHelperNew {
     private volatile int timeoutCount = 0;
     private OnAllLockersStatusListener mOnAllLockersStatusListener;
     private OnSingleLockerStatusListener mOnSingleLockerStatusListener;
+
 
     private LockersCommHelperNew() {
     }
@@ -136,11 +137,11 @@ public class LockersCommHelperNew {
         public void run() {
             super.run();
             while (!isExit && !isInterrupted()) {
-                while ((sendData = dataQueue.poll()) != null) {
+                while ((mCurrentSendData = dataQueue.poll()) != null) {
                     synchronized (lock) {
                         handler.postDelayed(timeoutRunnable, RECEIVER_DATA_TIMEOUT);
                         try {
-                            mSerialHelper.send(sendData.getSendData());
+                            mSerialHelper.send(mCurrentSendData.getSendData());
                             lock.wait();
                         } catch (InterruptedException e) {
                             e.printStackTrace();
@@ -172,9 +173,9 @@ public class LockersCommHelperNew {
         public void run() {
             timeoutCount++;
             Log.e(TAG, "发送指令后，接受数据响应超时，请检查设备！+timeoutCount = " + timeoutCount);
-            if (sendData != null) {
+            if (mCurrentSendData != null) {
                 // TODO: 2019/2/23 此处可能空指针,因为sendData此时可能已经被赋值null
-                int cmd = sendData.getCmd();
+                int cmd = mCurrentSendData.getCmd();
                 switch (cmd) {
                     case LockersCmd.CONTROL_SINGLE_LOCKER:
                         //控制单路
@@ -191,6 +192,8 @@ public class LockersCommHelperNew {
     };
 
     private class LockersSerialHelperNew extends SerialHelper {
+        private static final long DELAY = 400;
+        private DelayResetRunnable mDelayResetRunnable;
 
         public LockersSerialHelperNew(String sPort, int iBaudRate) {
             super(sPort, iBaudRate);
@@ -198,11 +201,11 @@ public class LockersCommHelperNew {
 
         @Override
         protected void onDataReceived(ComRevBean comRecData) {
-            if (sendData == null) {
-                Log.i(TAG, "onDataReceived: sendData is Null");
+            if (mCurrentSendData == null) {
+                Log.i(TAG, "onDataReceived: mCurrentSendData is Null");
                 return;
             }
-            int cmd = sendData.getCmd();
+            int cmd = mCurrentSendData.getCmd();
             byte[] bRec = comRecData.bRec;
             switch (cmd) {
                 case LockersCmd.CONTROL_SINGLE_LOCKER:
@@ -212,8 +215,12 @@ public class LockersCommHelperNew {
                     reset();
                     break;
                 case LockersCmd.QUERY_CIRCUIT_BOARD:
-                    // TODO: 2019/3/24 只有全部的板子都返回之后,才能复位,目前返回4次
-                    reset();
+                    if (mDelayResetRunnable != null) {
+                        handler.removeCallbacks(mDelayResetRunnable);
+                        mDelayResetRunnable = null;
+                    }
+                    mDelayResetRunnable = new DelayResetRunnable();
+                    handler.postDelayed(mDelayResetRunnable, DELAY);
                     break;
                 case LockersCmd.QUERY_ALL:
                     reset();
@@ -235,6 +242,16 @@ public class LockersCommHelperNew {
                 lock.notify();
             }
         }
+
+
+        public class DelayResetRunnable implements Runnable {
+
+            @Override
+            public void run() {
+                reset();
+            }
+        }
+
     }
 
     /**
