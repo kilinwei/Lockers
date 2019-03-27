@@ -17,7 +17,6 @@ import android.widget.Toast;
 import com.baidu.idl.facesdk.FaceAuth;
 import com.baidu.idl.facesdk.callback.AuthCallback;
 import com.baidu.idl.facesdk.callback.Callback;
-import com.baidu.idl.facesdk.utils.PreferencesUtil;
 import com.xyf.lockers.R;
 import com.xyf.lockers.base.BaseActivity;
 import com.xyf.lockers.common.GlobalSet;
@@ -109,7 +108,8 @@ public class LicenseActivity extends BaseActivity implements View.OnClickListene
         btOnLineActive.setOnTouchListener(this);
         btOnLineActive.setOnTouchListener(this);
         deviceId = faceAuth.getDeviceId(this);
-        etKey.setText(PreferencesUtil.getString("activate_on_key", ""));
+//        etKey.setText(PreferencesUtil.getString("activate_on_key", ""));
+        etKey.setText("7AWP-DJEH-ZDJH-TPRF");
         tvDevice.setText("设备指纹：" + deviceId);
         addLisenter();
 

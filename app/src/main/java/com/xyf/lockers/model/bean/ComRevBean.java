@@ -1,6 +1,7 @@
 package com.xyf.lockers.model.bean;
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Locale;
 
 public class ComRevBean {
@@ -18,5 +19,15 @@ public class ComRevBean {
         }
         SimpleDateFormat sDateFormat = new SimpleDateFormat("hh:mm:ss", Locale.CHINA);
         sRecTime = sDateFormat.format(new java.util.Date());
+    }
+
+    @Override
+    public String toString() {
+        return "ComRevBean{" +
+                "bRec=" + Arrays.toString(bRec) +
+                ", sRecTime='" + sRecTime + '\'' +
+                ", sComPort='" + sComPort + '\'' +
+                ", length=" + length +
+                '}';
     }
 }

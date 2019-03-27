@@ -1,6 +1,8 @@
 package com.xyf.lockers.common.serialport;
 
 
+import android.util.Log;
+
 import com.xyf.lockers.model.bean.ComRevBean;
 
 import java.io.File;
@@ -8,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.InvalidParameterException;
+import java.util.Arrays;
 
 import android_serialport_api.SerialPort;
 
@@ -119,6 +122,7 @@ public abstract class SerialHelper {
                     int size = mInputStream.read(buffer);
                     if (size > 0) {
                         ComRevBean ComRecData = new ComRevBean(sPort, buffer, size);
+                        Log.i("kilin", "run: buffer: "+ Arrays.asList(buffer));
                         onDataReceived(ComRecData);
                     }
                     try {

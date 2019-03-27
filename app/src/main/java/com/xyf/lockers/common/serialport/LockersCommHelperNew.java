@@ -25,18 +25,18 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class LockersCommHelperNew {
 
-    private static final String TAG = "LockersCommHelper";
+    private static final String TAG = "LockersCommHelperNew";
 
     public static final int LOCKER_COUNT = 32;
 
     public static final String SERIAL_DEVICE = "/dev/ttyS3";
 
-    //    public static final int SERIAL_RATE = 9600;
-    public static final int SERIAL_RATE = 115200;
+    public static final int SERIAL_RATE = 9600;
+//    public static final int SERIAL_RATE = 115200;
     /**
      * 数据接收超时时间 todo 记得把时间回去
      */
-    private static final int RECEIVER_DATA_TIMEOUT = 1000 * 1000;
+    private static final int RECEIVER_DATA_TIMEOUT = 1 * 1000;
 
     private static LockersCommHelperNew instance;
 
@@ -209,6 +209,11 @@ public class LockersCommHelperNew {
             byte[] bRec = comRecData.bRec;
             switch (cmd) {
                 case LockersCmd.CONTROL_SINGLE_LOCKER:
+                    Log.i(TAG, "onDataReceived: "+comRecData);
+//                    int boardBinary = bRec[1];
+//                    byte lockerBinary = bRec[2];
+//                    ArrayList<Integer> lockers = LockerUtils.getOpeningLockesIndexs(boardBinary, lockerBinary);
+//                    Log.i(TAG, "onDataReceived: 已打开的柜门: " + lockers);
                     if (mOnSingleLockerStatusListener != null) {
                         mOnSingleLockerStatusListener.onSingleLockerStatusResponse(bRec);
                     }
