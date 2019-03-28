@@ -20,6 +20,7 @@ import com.xyf.lockers.callback.IFaceRegistCalllBack;
 import com.xyf.lockers.callback.ILivenessCallBack;
 import com.xyf.lockers.common.GlobalSet;
 import com.xyf.lockers.common.serialport.LockersCommHelper;
+import com.xyf.lockers.common.serialport.LockersCommHelperNew;
 import com.xyf.lockers.listener.OnSingleLockerStatusListener;
 import com.xyf.lockers.manager.FaceLiveness;
 import com.xyf.lockers.manager.FaceSDKManager;
@@ -38,7 +39,7 @@ import java.util.List;
 
 import butterknife.BindView;
 
-public class StorageActivity extends BaseActivity implements ILivenessCallBack {
+public class StorageActivity extends BaseActivity implements ILivenessCallBack, OnSingleLockerStatusListener {
     private static final String TAG = "StorageActivity";
     private static final int MSG_CHECK_FACE = 0x01;
     private static final int MSG_REGISTER_TIME_OUT = 0x02;
@@ -59,9 +60,14 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack {
     private int mCurrentOpenLockerIndex = -1;
     private User mCurrentUser;
     /**
+     * 是否发送了检测关门命令
+     */
+    private boolean mCheckLockerClose;
+    /**
      * 已识别到已注册用户
      */
     private boolean mIsRecognized;
+    private byte[] mCurrentOpenLockerBytes;
 
     @SuppressLint("HandlerLeak")
     private Handler mHandler = new Handler() {
@@ -82,12 +88,18 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack {
                 case MSG_NOT_CLOSE_DOOR:
                     // TODO: 2019/3/13 用户未关门,此时控制闪灯,当用户关门时有没有关门回调?还是需要手动去查询门有没有关?
 //                    LockersCommHelper.get().controlSingleLight(mCurrentOpenLockerIndex, 2);
+                    if (mCurrentOpenLockerBytes != null) {
+                        mCheckLockerClose = true;
+                        LockersCommHelperNew.get().queryAll(mCurrentOpenLockerBytes[0], mCurrentOpenLockerBytes[1], mCurrentOpenLockerBytes[2], mCurrentOpenLockerBytes[3]);
+                        Log.i(TAG, "handleMessage: 判断,如果此时用户未关门,控制闪灯");
+                    }
                     break;
                 default:
                     break;
             }
         }
     };
+
 
     @Override
     protected int getLayout() {
@@ -102,6 +114,7 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack {
         //进入界面首先设置为通行,确保同一用户不会被注册两次
         FaceSDKManager.getInstance().getFaceLiveness().setCurrentTaskType(FaceLiveness.TaskType.TASK_TYPE_ONETON);
         calculateCameraView();
+        LockersCommHelperNew.get().init();
     }
 
 
@@ -113,7 +126,6 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack {
         } else {
             mMonocularView.onResume();
         }
-        mHandler.sendEmptyMessageDelayed(MSG_CHECK_FACE, PASS_TIME);
     }
 
     @Override
@@ -126,6 +138,12 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack {
         }
         LockersCommHelper.get().setOnSingleLockerStatusListener(null);
         mHandler.removeCallbacksAndMessages(null);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        LockersCommHelperNew.get().uninit();
     }
 
     /**
@@ -168,6 +186,7 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack {
 
     @Override
     public void onCallback(final int code, final LivenessModel livenessModel) {
+        Log.i(TAG, "onCallback: code: " + code + "  livenessModel:" + livenessModel);
         if (mIsRecognized) {
             return;
         }
@@ -180,6 +199,7 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack {
                 if (featureScore < Constants.PASS_SCORE) {
                     return;
                 }
+                mHandler.removeMessages(MSG_CHECK_FACE);
                 mIsRecognized = true;
                 Feature feature = livenessModel.getFeature();
                 //储存的名字,
@@ -192,12 +212,14 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack {
                     int count = Integer.bitCount(storageIndexs);
                     if (count < 3) {
                         //未大于三个,可以存,先打开箱门，然后再把箱位记录到数据库中
+                        Log.i(TAG, "onCallback: 识别到老用户,存物品未大于三个,可以存");
                         mCurrentUser = user;
+                        removeCameraView();
                         openSingleLocker();
                     } else {
                         // TODO: 2019/3/12  已存大于等于三个,提示用户需要先取出已存的东西
-                        Log.i(TAG, "onCallback: 已存大于等于三个");
-
+                        Log.i(TAG, "onCallback: 识别到老用户,已存大于等于三个");
+                        removeCameraView();
                     }
                 } else {
                     //说明facesdk的数据库里有数据,但是user数据库没有.需要写入user数据库，再打开箱门，然后再把箱位记录到数据库中
@@ -206,9 +228,15 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack {
                             currentTimeMillis / 1000,
                             currentTimeMillis / 1000,
                             feature.getCropImageName(), feature.getImageName());
+                    removeCameraView();
                     openSingleLocker();
                 }
             } else {
+                Log.i(TAG, "onCallback: 未匹配到相似人脸");
+                if (!mHandler.hasMessages(MSG_CHECK_FACE)) {
+                    mHandler.sendEmptyMessageDelayed(MSG_CHECK_FACE, PASS_TIME);
+                    Log.i(TAG, "onCallback: 开始注册倒计时,还有3s开启注册");
+                }
                 if (mNeedRegister) {
                     mNeedRegister = false;
                     mNickName = String.valueOf(System.currentTimeMillis() / 1000);
@@ -216,6 +244,7 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack {
                     FaceSDKManager.getInstance().getFaceLiveness().setRegistNickName(mNickName);
                     //设置为注册模式
                     FaceSDKManager.getInstance().getFaceLiveness().setCurrentTaskType(FaceLiveness.TaskType.TASK_TYPE_REGIST);
+                    Log.i(TAG, "onCallback: 已设置为注册模式");
                 }
             }
         }
@@ -226,19 +255,7 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack {
 
         @Override
         public void onRegistCallBack(int code, LivenessModel livenessModel, final Bitmap cropBitmap) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if (mBinocularView != null && mCameraView != null) {
-                        mBinocularView.onPause();
-                        mCameraView.removeView(mBinocularView);
-                    }
-                    if (mMonocularView != null && mCameraView != null) {
-                        mMonocularView.onPause();
-                        mCameraView.removeView(mMonocularView);
-                    }
-                }
-            });
+            removeCameraView();
             switch (code) {
                 case 0: {
                     mHandler.removeMessages(MSG_REGISTER_TIME_OUT);
@@ -263,58 +280,40 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack {
         }
     };
 
+    private void removeCameraView() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (mBinocularView != null && mCameraView != null) {
+                    mBinocularView.onPause();
+                    mCameraView.removeView(mBinocularView);
+                }
+                if (mMonocularView != null && mCameraView != null) {
+                    mMonocularView.onPause();
+                    mCameraView.removeView(mMonocularView);
+                }
+            }
+        });
+    }
+
 
     /**
      * 打开单个锁
      */
     private void openSingleLocker() {
         int allLockersStatus = SharedPreferenceUtil.getAllLockersStatus();
-        int way = LockerUtils.checkCanOpen(allLockersStatus);
-        if (way == -1) {
+        int canOpenWay = LockerUtils.checkCanOpen(allLockersStatus);
+        Log.i(TAG, "updateStorageStatus: 更新之前所有柜子物品的状态:　"+Integer.toBinaryString(allLockersStatus));
+        Log.i(TAG, "openSingleLocker: canOpenWay: " + canOpenWay);
+        if (canOpenWay == -1) {
             // TODO: 2019/3/10 已存满
             Log.i(TAG, "openSingleLocker: 已存满");
             return;
         }
-        mCurrentOpenLockerIndex = way;
-        LockersCommHelper.get().controlSingleLock(way, 1, new OnSingleLockerStatusListener() {
-            @Override
-            public void onSingleLockerStatusResponse(int way, int status) {
-                if (status == 1) {
-                    //锁已打开,此时需要判断是否是我们打开的锁,以及录入user数据库中
-                    if (mCurrentOpenLockerIndex != -1 && mCurrentOpenLockerIndex == way) {
-                        updateStorageStatus(way);
-                    }
-                } else {
-                    // TODO: 2019/3/15 锁已关闭
-                    mHandler.removeMessages(MSG_NOT_CLOSE_DOOR);
-                    LockersCommHelper.get().controlSingleLight(mCurrentOpenLockerIndex, 2);
-                }
-            }
-
-            @Override
-            public void onSingleLockerStatusResponse(byte[] bRec) {
-                int boardBinary = bRec[1];
-                byte lockerBinary = bRec[2];
-                ArrayList<Integer> openingLockesIndexs = LockerUtils.getOpeningLockesIndexs(boardBinary, lockerBinary);
-                if (openingLockesIndexs == null || openingLockesIndexs.isEmpty()) {
-                    return;
-                }
-
-                for (int i = 1; i <= openingLockesIndexs.size(); i++) {
-                    Integer openingLockesIndex = openingLockesIndexs.get(i);
-                    if (mCurrentOpenLockerIndex != -1 && mCurrentOpenLockerIndex == openingLockesIndex) {
-                        updateStorageStatus(openingLockesIndex);
-                    }
-                    Log.i(TAG, "onSingleLockerStatusResponse: 开了 " + i + "个柜门,当前开的柜门为:　" + openingLockesIndex);
-                }
-            }
-
-            @Override
-            public void disConnectDevice() {
-                // TODO: 2019/3/10 串口未打开
-                Log.e(TAG, "disConnectDevice: 串口未打开");
-            }
-        });
+        mCurrentOpenLockerIndex = canOpenWay-1;
+        LockersCommHelperNew.get().setOnSingleLockerStatusListener(this);
+        mCurrentOpenLockerBytes = LockerUtils.getOpenSingleLockerBytes(canOpenWay);
+        LockersCommHelperNew.get().controlSingleLock(mCurrentOpenLockerBytes[0], mCurrentOpenLockerBytes[1], mCurrentOpenLockerBytes[2], mCurrentOpenLockerBytes[3]);
     }
 
     /**
@@ -324,13 +323,14 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack {
      */
     private void updateStorageStatus(Integer currentOpeningLocker) {
         if (mCurrentUser != null) {
+            Log.i(TAG, "updateStorageStatus: 更新用户状态+ mCurrentUser: "+mCurrentUser);
             //获取当前打开的箱位
             int wayBinary = 1 << (currentOpeningLocker - 1);
             int allLockersStatus = SharedPreferenceUtil.getAllLockersStatus();
             //用原来以保存的箱位或上现保存的箱位,然后记录所有已存东西的箱位索引
             allLockersStatus |= wayBinary;
             SharedPreferenceUtil.setAllLockersStatus(allLockersStatus);
-
+            Log.i(TAG, "updateStorageStatus: 更新之后所有柜子物品的状态:　"+Integer.toBinaryString(allLockersStatus));
             //更新当前用户储存的箱位索引
             int storageIndexs = mCurrentUser.getStorageIndexs();
             storageIndexs |= wayBinary;
@@ -341,4 +341,48 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack {
         }
     }
 
+    @Override
+    public void onSingleLockerStatusResponse(int way, int status) {
+//        if (status == 1) {
+//            //锁已打开,此时需要判断是否是我们打开的锁,以及录入user数据库中
+//            if (mCurrentOpenLockerIndex != -1 && mCurrentOpenLockerIndex == way) {
+//                updateStorageStatus(way);
+//            }
+//        } else {
+//            // TODO: 2019/3/15 锁已关闭
+//            mHandler.removeMessages(MSG_NOT_CLOSE_DOOR);
+//            LockersCommHelper.get().controlSingleLight(mCurrentOpenLockerIndex, 2);
+//        }
+    }
+
+    @Override
+    public void onSingleLockerStatusResponse(byte[] bRec) {
+        int boardBinary = bRec[1];
+        byte lockerBinary = bRec[2];
+        ArrayList<Integer> openingLockesIndexs = LockerUtils.getOpeningLockesIndexs(boardBinary, lockerBinary);
+        if (mCheckLockerClose) {
+            if (openingLockesIndexs == null || openingLockesIndexs.isEmpty()) {
+                Log.i(TAG, "onSingleLockerStatusResponse: 门已全部关闭");
+            }
+        } else {
+            if (openingLockesIndexs == null || openingLockesIndexs.isEmpty()) {
+                return;
+            }
+            for (int i = 0; i < openingLockesIndexs.size(); i++) {
+                Integer openingLockesIndex = openingLockesIndexs.get(i);
+                if (mCurrentOpenLockerIndex != -1 && mCurrentOpenLockerIndex == openingLockesIndex) {
+                    updateStorageStatus(openingLockesIndex);
+                }
+                Log.i(TAG, "onSingleLockerStatusResponse: 当前开的柜门索引为:　" + openingLockesIndex);
+            }
+            Log.i(TAG, "onSingleLockerStatusResponse: mCurrentOpenLockerIndex: " + mCurrentOpenLockerIndex + "  openingLockesIndexs: " + openingLockesIndexs);
+            Log.i(TAG, "onSingleLockerStatusResponse: 开了 " + openingLockesIndexs.size() + "个柜门");
+        }
+    }
+
+    @Override
+    public void disConnectDevice() {
+        // TODO: 2019/3/10 串口未打开
+        Log.e(TAG, "disConnectDevice: 串口未打开");
+    }
 }

@@ -7,6 +7,7 @@ import android.widget.Button;
 
 import com.xyf.lockers.R;
 import com.xyf.lockers.base.BaseActivity;
+import com.xyf.lockers.common.serialport.LockersCommHelperNew;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -41,10 +42,10 @@ public class MainActivity
         Intent intent = null;
         switch (view.getId()) {
             case R.id.btn_storage:
-                intent = new Intent(this, PassActivity.class);
+                intent = new Intent(this, StorageActivity.class);
                 break;
             case R.id.btn_take:
-                intent = new Intent(this, StorageActivity.class);
+                intent = new Intent(this, TakeActivity.class);
                 break;
             case R.id.btn_control_test:
                 intent = new Intent(this, ControlTestActivityNew.class);

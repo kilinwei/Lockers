@@ -35,6 +35,12 @@ public class LockerUtils {
         return list;
     }
 
+    /**
+     * 获取8bit中哪一位是0
+     *
+     * @param b
+     * @return
+     */
     private static List<Integer> getOpeningLocker(byte b) {
         List<Integer> list = new ArrayList<>();
         byte help = 0x01;
@@ -44,7 +50,6 @@ public class LockerUtils {
             }
             help = (byte) (help << 1);
         }
-        System.out.println(list);
         return list;
     }
 
@@ -52,15 +57,23 @@ public class LockerUtils {
         ArrayList<Integer> openLockers = null;
         List<Integer> openingLocker = LockerUtils.getOpeningLocker(lockerBinary);
         if (openingLocker != null && !openingLocker.isEmpty()) {
-            Integer[] integers = (Integer[]) openingLocker.toArray();
-            while (boardBinary > 1) {
-                boardBinary = boardBinary >>> 1;
-                for (int i = 0; i < openingLocker.size(); i++) {
-                    integers[i] = integers[i] + 8;
+            Object[] objects = openingLocker.toArray();
+            if (objects != null) {
+                Integer[] integers = new Integer[objects.length];
+                for (int i = 0; i < objects.length; i++) {
+                    integers[i] = (Integer) objects[i];
                 }
+                while (boardBinary > 1) {
+                    boardBinary = boardBinary >>> 1;
+                    for (int i = 0; i < openingLocker.size(); i++) {
+                        integers[i] = integers[i] + 8;
+                    }
+                }
+                openLockers = new ArrayList<>(integers.length);
+                Collections.addAll(openLockers, integers);
+//                System.out.println(Arrays.toString(integers));
             }
-            openLockers = new ArrayList<>(integers.length);
-            Collections.addAll(openLockers, integers);
+
         }
         return openLockers;
     }
@@ -82,5 +95,37 @@ public class LockerUtils {
             allLockers >>>= 1;
         }
         return -1;
+    }
+
+
+    public static byte[] getOpenSingleLockerBytes(int way) {
+        byte[] bytes = new byte[4];
+        if (way <= 8) {
+            bytes[0] = 0x01;
+            bytes[1] = getSendDataConversion(way);
+        } else if (8 < way && way <= 16) {
+            bytes[0] = 0x02;
+            bytes[1] = getSendDataConversion(way - 8);
+        } else if (16 < way && way <= 24) {
+            bytes[1] = getSendDataConversion(way - 16);
+            bytes[0] = 0x04;
+        } else if (24 < way && way <= 32) {
+            bytes[1] = getSendDataConversion(way - 24);
+            bytes[0] = 0x08;
+        }
+        bytes[2] = 0;
+        bytes[3] = 0;
+        return bytes;
+    }
+
+    /**
+     * 将十进制的数据,取反为发送的数据
+     *
+     * @param locker
+     */
+    private static byte getSendDataConversion(int locker) {
+        byte binary = (byte) (1 << (locker - 1));
+        //二进制取反,比如00001000变成111110111
+        return (byte) ~binary;
     }
 }

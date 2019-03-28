@@ -8,9 +8,12 @@ import com.xyf.lockers.listener.OnAllLockersStatusListener;
 import com.xyf.lockers.listener.OnSingleLockerStatusListener;
 import com.xyf.lockers.model.bean.ComRevBean;
 import com.xyf.lockers.model.bean.ComSendBean;
+import com.xyf.lockers.utils.LockerUtils;
+import com.xyf.lockers.utils.ProtConvert;
 
 import java.io.IOException;
 import java.security.InvalidParameterException;
+import java.util.ArrayList;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -36,7 +39,7 @@ public class LockersCommHelperNew {
     /**
      * 数据接收超时时间 todo 记得把时间回去
      */
-    private static final int RECEIVER_DATA_TIMEOUT = 1 * 1000;
+    private static final int RECEIVER_DATA_TIMEOUT = 3 * 1000;
 
     private static LockersCommHelperNew instance;
 
@@ -209,11 +212,10 @@ public class LockersCommHelperNew {
             byte[] bRec = comRecData.bRec;
             switch (cmd) {
                 case LockersCmd.CONTROL_SINGLE_LOCKER:
-                    Log.i(TAG, "onDataReceived: "+comRecData);
-//                    int boardBinary = bRec[1];
-//                    byte lockerBinary = bRec[2];
-//                    ArrayList<Integer> lockers = LockerUtils.getOpeningLockesIndexs(boardBinary, lockerBinary);
-//                    Log.i(TAG, "onDataReceived: 已打开的柜门: " + lockers);
+                    int boardBinary = bRec[1];
+                    byte lockerBinary = bRec[2];
+                    ArrayList<Integer> lockers = LockerUtils.getOpeningLockesIndexs(boardBinary, lockerBinary);
+                    Log.i(TAG, "onDataReceived: 已打开的柜门: " + lockers);
                     if (mOnSingleLockerStatusListener != null) {
                         mOnSingleLockerStatusListener.onSingleLockerStatusResponse(bRec);
                     }
@@ -231,6 +233,9 @@ public class LockersCommHelperNew {
                     handler.postDelayed(timeoutRunnable, RECEIVER_DATA_TIMEOUT);
                     break;
                 case LockersCmd.QUERY_ALL:
+                    if (mOnSingleLockerStatusListener != null) {
+                        mOnSingleLockerStatusListener.onSingleLockerStatusResponse(bRec);
+                    }
                     reset();
                     break;
                 case LockersCmd.AUTO_LIGHT:
@@ -270,7 +275,9 @@ public class LockersCommHelperNew {
             byte[] bytes = {0x5A, circuitBoard, locker, light, sensor};
             String bcc = getBCC(bytes);
             int b = Integer.parseInt(bcc, 16);
-            ComSendBean comSendBean = new ComSendBean(LockersCmd.CONTROL_SINGLE_LOCKER, new byte[]{0x5A, circuitBoard, locker, light, sensor, (byte) b});
+            byte[] bytesSend = {0x5A, circuitBoard, locker, light, sensor, (byte) b};
+            Log.i(TAG, "controlSingleLock: " + ProtConvert.ByteArrToHex(bytesSend));
+            ComSendBean comSendBean = new ComSendBean(LockersCmd.CONTROL_SINGLE_LOCKER,bytesSend);
             dispatchQueueThread.addComSendBean(comSendBean);
         } else {
             Log.w(TAG, "controlSingleLock: 控制单路锁通断: 串口未连接");

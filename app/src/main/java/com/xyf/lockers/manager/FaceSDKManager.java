@@ -71,7 +71,6 @@ public class FaceSDKManager {
                     @Override
                     public void onResponse(int code, String response) {
                         ToastUtils.toast(context, code + "  " + response);
-                        ;
                     }
                 });
         faceLiveness.initModel(context, "liveness_rgb_anakin_2.0.0.bin",

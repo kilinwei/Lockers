@@ -529,6 +529,7 @@ public class FaceLiveness {
 
                 logBuilder.append(registNickName + "\t" + picFile + "\t" + "成功\n");
                 if (FaceApi.getInstance().featureAdd(feature)) {
+                    livenessModel.setFeature(feature);
                     returnRegistResult(0, livenessModel, cropBitmap);
                 }
                 return;

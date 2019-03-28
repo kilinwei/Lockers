@@ -4,13 +4,13 @@ package com.xyf.lockers.common.serialport;
 import android.util.Log;
 
 import com.xyf.lockers.model.bean.ComRevBean;
+import com.xyf.lockers.utils.ProtConvert;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.InvalidParameterException;
-import java.util.Arrays;
 
 import android_serialport_api.SerialPort;
 
@@ -25,6 +25,8 @@ public abstract class SerialHelper {
     private String sPort = "/dev/";
     private int iBaudRate = 9600;
     private boolean _isOpen = false;
+    private byte[] mCacheBytes;
+
 
     public SerialHelper() {
         this("/dev/", 9600);
@@ -49,6 +51,7 @@ public abstract class SerialHelper {
             mReadThread.exit();
             mReadThread = null;
         }
+
         if (mSerialPort != null) {
             mSerialPort.close();
             mSerialPort = null;
@@ -121,12 +124,15 @@ public abstract class SerialHelper {
                     byte[] buffer = new byte[128];
                     int size = mInputStream.read(buffer);
                     if (size > 0) {
-                        ComRevBean ComRecData = new ComRevBean(sPort, buffer, size);
-                        Log.i("kilin", "run: buffer: "+ Arrays.asList(buffer));
-                        onDataReceived(ComRecData);
+                        byte[] bRec = new byte[size];
+                        for (int i = 0; i < size; i++) {
+                            bRec[i] = buffer[i];
+                        }
+                        Log.i("kilin", "串口收到未拼接之前数据: " + ProtConvert.ByteArrToHex(bRec));
+                        appendByte(bRec);
                     }
                     try {
-                        sleep(80);//延时80ms
+                        sleep(50);//延时50ms
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -139,6 +145,35 @@ public abstract class SerialHelper {
 
         public void exit() {
             isExit = true;
+        }
+    }
+
+
+    private void appendByte(byte[] bytes) {
+        if (mCacheBytes == null) {
+            if (bytes.length == 6) {
+                ComRevBean ComRecData = new ComRevBean(sPort, bytes, bytes.length);
+                Log.i("kilin", "串口收到数据: " + ProtConvert.ByteArrToHex(ComRecData.bRec));
+                onDataReceived(ComRecData);
+                mCacheBytes = null;
+            } else if (bytes.length < 6) {
+                mCacheBytes = bytes;
+            }
+        } else {
+            int lenth = mCacheBytes.length + bytes.length;
+            byte[] lastBytes = new byte[lenth];
+            System.arraycopy(mCacheBytes, 0, lastBytes, 0, mCacheBytes.length);
+            System.arraycopy(bytes, 0, lastBytes, mCacheBytes.length, bytes.length);
+            mCacheBytes = lastBytes;
+            if (lenth == 6) {
+                ComRevBean ComRecData = new ComRevBean(sPort, mCacheBytes, lenth);
+                Log.i("kilin", "串口拼接之后的数据: " + ProtConvert.ByteArrToHex(mCacheBytes));
+                onDataReceived(ComRecData);
+                mCacheBytes = null;
+            } else if (lenth > 6) {
+                //大于六,说明已出错,清空数据
+                mCacheBytes = null;
+            }
         }
     }
 

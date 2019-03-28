@@ -74,10 +74,6 @@ public class ControlTestActivityNew
                 lockerSend = getSendDataConversion(locker);
                 lightSend = getSendData(light);
                 sonsorSend = getSendData(sonsor);
-                Log.i(TAG, "onViewClicked: btn_open_locker: circuitBoardSend: " + Integer.toHexString(circuitBoardSend)
-                        + " lockerSend: " + Integer.toHexString(lockerSend& 0x000000FF | 0xFFFFFF00).substring(6).toUpperCase()
-                        + " lightSend: " + Integer.toHexString(lightSend)
-                        + " sonsorSend: " + Integer.toHexString(sonsorSend));
                 LockersCommHelperNew.get().controlSingleLock(circuitBoardSend, lockerSend, lightSend, sonsorSend);
                 break;
             case R.id.btn_query_circuit_board:
@@ -131,7 +127,6 @@ public class ControlTestActivityNew
      */
     private static byte getSendData(int locker) {
         byte binary = (byte) (1 << (locker - 1));
-        //二进制取反,比如00001000变成111110111
         return binary;
     }
 
