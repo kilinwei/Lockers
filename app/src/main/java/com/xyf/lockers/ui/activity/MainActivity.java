@@ -31,8 +31,15 @@ public class MainActivity
 
     @Override
     protected void initEventAndData(Bundle savedInstanceState) {
-
+        LockersCommHelperNew.get().init();
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        LockersCommHelperNew.get().uninit();
+    }
+
 
 
     @OnClick({R.id.btn_storage,

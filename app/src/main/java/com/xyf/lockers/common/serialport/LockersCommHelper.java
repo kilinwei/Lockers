@@ -98,7 +98,10 @@ public class LockersCommHelper {
             handler.removeCallbacksAndMessages(null);
             handler = null;
         }
-        mSerialHelper = null;
+        if (mSerialHelper != null) {
+            mSerialHelper.close();
+            mSerialHelper = null;
+        }
         instance = null;
     }
 

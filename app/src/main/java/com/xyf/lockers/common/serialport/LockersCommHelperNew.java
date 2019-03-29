@@ -39,7 +39,7 @@ public class LockersCommHelperNew {
     /**
      * 数据接收超时时间 todo 记得把时间回去
      */
-    private static final int RECEIVER_DATA_TIMEOUT = 3 * 1000;
+    private static final int RECEIVER_DATA_TIMEOUT = 60 * 1000;
 
     private static LockersCommHelperNew instance;
 
@@ -90,12 +90,14 @@ public class LockersCommHelperNew {
             dispatchQueueThread.exit();
             dispatchQueueThread = null;
         }
-        closeSerial();
         if (handler != null) {
             handler.removeCallbacksAndMessages(null);
             handler = null;
         }
-        mSerialHelper = null;
+        if (mSerialHelper != null) {
+            mSerialHelper.close();
+            mSerialHelper = null;
+        }
         instance = null;
     }
 
@@ -120,6 +122,7 @@ public class LockersCommHelperNew {
     private void closeSerial() {
         if (mSerialHelper != null) {
             mSerialHelper.close();
+            mSerialHelper.reset();
         }
     }
 
@@ -276,8 +279,8 @@ public class LockersCommHelperNew {
             String bcc = getBCC(bytes);
             int b = Integer.parseInt(bcc, 16);
             byte[] bytesSend = {0x5A, circuitBoard, locker, light, sensor, (byte) b};
-            Log.i(TAG, "controlSingleLock: " + ProtConvert.ByteArrToHex(bytesSend));
-            ComSendBean comSendBean = new ComSendBean(LockersCmd.CONTROL_SINGLE_LOCKER,bytesSend);
+            Log.i(TAG, "开单个门 controlSingleLock: " + ProtConvert.ByteArrToHex(bytesSend));
+            ComSendBean comSendBean = new ComSendBean(LockersCmd.CONTROL_SINGLE_LOCKER, bytesSend);
             dispatchQueueThread.addComSendBean(comSendBean);
         } else {
             Log.w(TAG, "controlSingleLock: 控制单路锁通断: 串口未连接");

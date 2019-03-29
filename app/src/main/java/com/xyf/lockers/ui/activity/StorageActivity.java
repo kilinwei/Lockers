@@ -46,7 +46,7 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
     private static final int MSG_NOT_CLOSE_DOOR = 0x03;
     private static final int PASS_TIME = 3 * 1000;
     private static final int REGISTER_TIME_OUT = 30 * 1000;
-    private static final int CLOSE_DOOR_TIME_OUT = 60 * 1000;
+    private static final int CLOSE_DOOR_TIME_OUT = 30 * 1000;
 
     @BindView(R.id.layout_camera)
     RelativeLayout mCameraView;
@@ -55,7 +55,7 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
     private Context mContext;
     private BinocularView mBinocularView;
     private MonocularView mMonocularView;
-    private boolean mNeedRegister;
+    private boolean mNeedRegister = false;
     private String mNickName;
     private int mCurrentOpenLockerIndex = -1;
     private User mCurrentUser;
@@ -110,11 +110,11 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
     protected void initEventAndData(Bundle savedInstanceState) {
         mContext = this;
         // 注册人脸注册事件
+        FaceSDKManager.getInstance().getFaceLiveness().removeRegistCallBack(faceRegistCalllBack);
         FaceSDKManager.getInstance().getFaceLiveness().addRegistCallBack(faceRegistCalllBack);
         //进入界面首先设置为通行,确保同一用户不会被注册两次
         FaceSDKManager.getInstance().getFaceLiveness().setCurrentTaskType(FaceLiveness.TaskType.TASK_TYPE_ONETON);
         calculateCameraView();
-        LockersCommHelperNew.get().init();
     }
 
 
@@ -143,7 +143,7 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        LockersCommHelperNew.get().uninit();
+        FaceSDKManager.getInstance().getFaceLiveness().removeRegistCallBack(faceRegistCalllBack);
     }
 
     /**
@@ -186,68 +186,73 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
 
     @Override
     public void onCallback(final int code, final LivenessModel livenessModel) {
-        Log.i(TAG, "onCallback: code: " + code + "  livenessModel:" + livenessModel);
+        //子线程
+        Log.i(TAG, "onCallback: code: " + code + "  livenessModel为空吗:" + (livenessModel == null));
         if (mIsRecognized) {
             return;
         }
-        //子线程
-        if (livenessModel != null) {
-            if (code == 0) {
-                //匹配到相似人脸,说明这个人已经存过东西,检测是否已经存>=3,如果是,提示先取出
-                //相似度
-                float featureScore = livenessModel.getFeatureScore();
-                if (featureScore < Constants.PASS_SCORE) {
-                    return;
-                }
-                mHandler.removeMessages(MSG_CHECK_FACE);
-                mIsRecognized = true;
-                Feature feature = livenessModel.getFeature();
-                //储存的名字,
-                String userName = feature.getUserName();
-                UserDao userDao = MainAppliction.getInstance().getDaoSession().getUserDao();
-                List<User> users = userDao.queryRaw("where user_name=?", userName);
-                if (users.size() > 0) {
-                    User user = users.get(0);
-                    int storageIndexs = user.getStorageIndexs();
-                    int count = Integer.bitCount(storageIndexs);
-                    if (count < 3) {
-                        //未大于三个,可以存,先打开箱门，然后再把箱位记录到数据库中
-                        Log.i(TAG, "onCallback: 识别到老用户,存物品未大于三个,可以存");
-                        mCurrentUser = user;
-                        removeCameraView();
-                        openSingleLocker();
-                    } else {
-                        // TODO: 2019/3/12  已存大于等于三个,提示用户需要先取出已存的东西
-                        Log.i(TAG, "onCallback: 识别到老用户,已存大于等于三个");
-                        removeCameraView();
-                    }
-                } else {
-                    //说明facesdk的数据库里有数据,但是user数据库没有.需要写入user数据库，再打开箱门，然后再把箱位记录到数据库中
-                    long currentTimeMillis = System.currentTimeMillis();
-                    mCurrentUser = UserDBManager.insertUser2DB(String.valueOf(currentTimeMillis / 1000),
-                            currentTimeMillis / 1000,
-                            currentTimeMillis / 1000,
-                            feature.getCropImageName(), feature.getImageName());
+        if (livenessModel == null) {
+            return;
+        }
+        if (code == 0) {
+            //匹配到相似人脸,说明这个人已经存过东西,检测是否已经存>=3,如果是,提示先取出
+            //相似度
+            float featureScore = livenessModel.getFeatureScore();
+            if (featureScore < Constants.PASS_SCORE) {
+                return;
+            }
+            mHandler.removeMessages(MSG_CHECK_FACE);
+            mHandler.removeMessages(MSG_REGISTER_TIME_OUT);
+            Log.i(TAG, "onCallback: 识别到相似用户,去掉注册倒计时消息");
+            mIsRecognized = true;
+            Feature feature = livenessModel.getFeature();
+            //储存的名字,
+            String userName = feature.getUserName();
+            UserDao userDao = MainAppliction.getInstance().getDaoSession().getUserDao();
+            List<User> users = userDao.queryRaw("where user_name=?", userName);
+            if (users.size() > 0) {
+                User user = users.get(0);
+                int storageIndexs = user.getStorageIndexs();
+                int count = Integer.bitCount(storageIndexs);
+                if (count < 3) {
+                    //未大于三个,可以存,先打开箱门，然后再把箱位记录到数据库中
+                    Log.i(TAG, "onCallback: 识别到老用户,存物品未大于三个,可以存");
+                    mCurrentUser = user;
                     removeCameraView();
                     openSingleLocker();
+                } else {
+                    // TODO: 2019/3/12  已存大于等于三个,提示用户需要先取出已存的东西
+                    Log.i(TAG, "onCallback: 识别到老用户,已存大于等于三个");
+                    removeCameraView();
                 }
             } else {
-                Log.i(TAG, "onCallback: 未匹配到相似人脸");
-                if (!mHandler.hasMessages(MSG_CHECK_FACE)) {
-                    mHandler.sendEmptyMessageDelayed(MSG_CHECK_FACE, PASS_TIME);
-                    Log.i(TAG, "onCallback: 开始注册倒计时,还有3s开启注册");
-                }
-                if (mNeedRegister) {
-                    mNeedRegister = false;
-                    mNickName = String.valueOf(System.currentTimeMillis() / 1000);
-                    Log.i(TAG, "run: mNickName: " + mNickName);
-                    FaceSDKManager.getInstance().getFaceLiveness().setRegistNickName(mNickName);
-                    //设置为注册模式
-                    FaceSDKManager.getInstance().getFaceLiveness().setCurrentTaskType(FaceLiveness.TaskType.TASK_TYPE_REGIST);
-                    Log.i(TAG, "onCallback: 已设置为注册模式");
-                }
+                //说明facesdk的数据库里有数据,但是user数据库没有.需要写入user数据库，再打开箱门，然后再把箱位记录到数据库中
+                long currentTimeMillis = System.currentTimeMillis();
+                mCurrentUser = UserDBManager.insertUser2DB(String.valueOf(currentTimeMillis / 1000),
+                        currentTimeMillis / 1000,
+                        currentTimeMillis / 1000,
+                        feature.getCropImageName(), feature.getImageName());
+                removeCameraView();
+                openSingleLocker();
+            }
+        } else {
+            Log.i(TAG, "onCallback: 未匹配到相似人脸");
+            if (!mHandler.hasMessages(MSG_CHECK_FACE)) {
+                mHandler.sendEmptyMessageDelayed(MSG_CHECK_FACE, PASS_TIME);
+                Log.i(TAG, "onCallback: 开始注册倒计时,还有3s开启注册");
+                mNeedRegister = false;
+            }
+            if (mNeedRegister) {
+                mNeedRegister = false;
+                mNickName = String.valueOf(System.currentTimeMillis() / 1000);
+                Log.i(TAG, "run: mNickName: " + mNickName);
+                FaceSDKManager.getInstance().getFaceLiveness().setRegistNickName(mNickName);
+                //设置为注册模式
+                FaceSDKManager.getInstance().getFaceLiveness().setCurrentTaskType(FaceLiveness.TaskType.TASK_TYPE_REGIST);
+                Log.i(TAG, "onCallback: 已设置为注册模式");
             }
         }
+
     }
 
     // 注册结果
@@ -264,7 +269,8 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
                     String userName = feature.getUserName();
                     mCurrentUser = UserDBManager.insertUser2DB(userName, Long.parseLong(userName),
                             Long.parseLong(userName), feature.getCropImageName(), feature.getImageName());
-                    Log.i(TAG, "onRegistCallBack: 注册成功");
+                    mHandler.removeMessages(MSG_REGISTER_TIME_OUT);
+                    Log.i(TAG, "onRegistCallBack: 注册成功,注册人为: " + userName);
                     openSingleLocker();
                 }
                 break;
@@ -303,14 +309,13 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
     private void openSingleLocker() {
         int allLockersStatus = SharedPreferenceUtil.getAllLockersStatus();
         int canOpenWay = LockerUtils.checkCanOpen(allLockersStatus);
-        Log.i(TAG, "updateStorageStatus: 更新之前所有柜子物品的状态:　"+Integer.toBinaryString(allLockersStatus));
         Log.i(TAG, "openSingleLocker: canOpenWay: " + canOpenWay);
         if (canOpenWay == -1) {
             // TODO: 2019/3/10 已存满
             Log.i(TAG, "openSingleLocker: 已存满");
             return;
         }
-        mCurrentOpenLockerIndex = canOpenWay-1;
+        mCurrentOpenLockerIndex = canOpenWay - 1;
         LockersCommHelperNew.get().setOnSingleLockerStatusListener(this);
         mCurrentOpenLockerBytes = LockerUtils.getOpenSingleLockerBytes(canOpenWay);
         LockersCommHelperNew.get().controlSingleLock(mCurrentOpenLockerBytes[0], mCurrentOpenLockerBytes[1], mCurrentOpenLockerBytes[2], mCurrentOpenLockerBytes[3]);
@@ -322,15 +327,18 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
      * @param currentOpeningLocker
      */
     private void updateStorageStatus(Integer currentOpeningLocker) {
+        Log.i(TAG, "updateStorageStatus: currentOpeningLocker: " + currentOpeningLocker);
         if (mCurrentUser != null) {
-            Log.i(TAG, "updateStorageStatus: 更新用户状态+ mCurrentUser: "+mCurrentUser);
+            Log.i(TAG, "updateStorageStatus: 更新用户状态 mCurrentUser: " + mCurrentUser.getUserName());
             //获取当前打开的箱位
-            int wayBinary = 1 << (currentOpeningLocker - 1);
+            int wayBinary = 1 << currentOpeningLocker;
+            Log.i(TAG, "updateStorageStatus: wayBinary: " + Integer.toBinaryString(wayBinary));
             int allLockersStatus = SharedPreferenceUtil.getAllLockersStatus();
+            Log.i(TAG, "updateStorageStatus: 更新之前所有柜子物品的状态:　" + Integer.toBinaryString(allLockersStatus));
             //用原来以保存的箱位或上现保存的箱位,然后记录所有已存东西的箱位索引
             allLockersStatus |= wayBinary;
             SharedPreferenceUtil.setAllLockersStatus(allLockersStatus);
-            Log.i(TAG, "updateStorageStatus: 更新之后所有柜子物品的状态:　"+Integer.toBinaryString(allLockersStatus));
+            Log.i(TAG, "updateStorageStatus: 更新之后所有柜子物品的状态:　" + Integer.toBinaryString(allLockersStatus));
             //更新当前用户储存的箱位索引
             int storageIndexs = mCurrentUser.getStorageIndexs();
             storageIndexs |= wayBinary;
@@ -375,7 +383,7 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
                 }
                 Log.i(TAG, "onSingleLockerStatusResponse: 当前开的柜门索引为:　" + openingLockesIndex);
             }
-            Log.i(TAG, "onSingleLockerStatusResponse: mCurrentOpenLockerIndex: " + mCurrentOpenLockerIndex + "  openingLockesIndexs: " + openingLockesIndexs);
+            Log.i(TAG, "onSingleLockerStatusResponse: 当前用户开门的索引为 mCurrentOpenLockerIndex: " + mCurrentOpenLockerIndex + " 当前已开的所有门索引为 openingLockesIndexs: " + openingLockesIndexs);
             Log.i(TAG, "onSingleLockerStatusResponse: 开了 " + openingLockesIndexs.size() + "个柜门");
         }
     }

@@ -18,6 +18,7 @@ import android_serialport_api.SerialPort;
  * 串口辅助工具类
  */
 public abstract class SerialHelper {
+    private static final String TAG = "SerialHelper";
     private SerialPort mSerialPort;
     private OutputStream mOutputStream;
     private InputStream mInputStream;
@@ -25,7 +26,7 @@ public abstract class SerialHelper {
     private String sPort = "/dev/";
     private int iBaudRate = 9600;
     private boolean _isOpen = false;
-    private byte[] mCacheBytes;
+    private static byte[] sCacheBytes;
 
 
     public SerialHelper() {
@@ -117,6 +118,7 @@ public abstract class SerialHelper {
         public void run() {
             super.run();
             while (!isExit && !isInterrupted()) {
+                Log.i(TAG, "run: ReadThread还存活着");
                 try {
                     if (mInputStream == null) {
                         return;
@@ -128,7 +130,7 @@ public abstract class SerialHelper {
                         for (int i = 0; i < size; i++) {
                             bRec[i] = buffer[i];
                         }
-                        Log.i("kilin", "串口收到未拼接之前数据: " + ProtConvert.ByteArrToHex(bRec));
+                        Log.i(TAG, "串口ReadThread收到数据: " + ProtConvert.ByteArrToHex(bRec));
                         appendByte(bRec);
                     }
                     try {
@@ -138,41 +140,54 @@ public abstract class SerialHelper {
                     }
                 } catch (Throwable e) {
                     e.printStackTrace();
+                    Log.i(TAG, "run: ReadThread已结束");
                     return;
                 }
             }
+            Log.i(TAG, "run: ReadThread已结束");
         }
 
         public void exit() {
+            Log.i(TAG, "run: ReadThread 执行exit");
             isExit = true;
+            interrupt();
         }
     }
 
 
     private void appendByte(byte[] bytes) {
-        if (mCacheBytes == null) {
+        if (sCacheBytes == null) {
             if (bytes.length == 6) {
                 ComRevBean ComRecData = new ComRevBean(sPort, bytes, bytes.length);
-                Log.i("kilin", "串口收到数据: " + ProtConvert.ByteArrToHex(ComRecData.bRec));
+                Log.i(TAG, "串口收到一条长度为6的完整数据: " + ProtConvert.ByteArrToHex(ComRecData.bRec));
                 onDataReceived(ComRecData);
-                mCacheBytes = null;
+                sCacheBytes = null;
             } else if (bytes.length < 6) {
-                mCacheBytes = bytes;
+                String first = ProtConvert.Byte2Hex(bytes[0]);
+                if ("6A".equalsIgnoreCase(first) || "8A".equalsIgnoreCase(first)) {
+                    sCacheBytes = bytes;
+                    Log.i(TAG, "sCacheBytes:首次被赋值: " + ProtConvert.ByteArrToHex(sCacheBytes));
+                }else{
+                    Log.i(TAG, "串口收到一条无效字符: " + ProtConvert.ByteArrToHex(bytes));
+                }
             }
         } else {
-            int lenth = mCacheBytes.length + bytes.length;
+            int lenth = sCacheBytes.length + bytes.length;
             byte[] lastBytes = new byte[lenth];
-            System.arraycopy(mCacheBytes, 0, lastBytes, 0, mCacheBytes.length);
-            System.arraycopy(bytes, 0, lastBytes, mCacheBytes.length, bytes.length);
-            mCacheBytes = lastBytes;
+            System.arraycopy(sCacheBytes, 0, lastBytes, 0, sCacheBytes.length);
+            System.arraycopy(bytes, 0, lastBytes, sCacheBytes.length, bytes.length);
+            sCacheBytes = lastBytes;
             if (lenth == 6) {
-                ComRevBean ComRecData = new ComRevBean(sPort, mCacheBytes, lenth);
-                Log.i("kilin", "串口拼接之后的数据: " + ProtConvert.ByteArrToHex(mCacheBytes));
+                ComRevBean ComRecData = new ComRevBean(sPort, sCacheBytes, lenth);
+                Log.i(TAG, "串口拼接数据已拼接为一条完整的数据: " + ProtConvert.ByteArrToHex(sCacheBytes));
                 onDataReceived(ComRecData);
-                mCacheBytes = null;
+                sCacheBytes = null;
             } else if (lenth > 6) {
                 //大于六,说明已出错,清空数据
-                mCacheBytes = null;
+                Log.i(TAG, "串口拼接后的数据长度已大于6,舍弃: " + ProtConvert.ByteArrToHex(sCacheBytes));
+                sCacheBytes = null;
+            } else {
+                Log.i(TAG, "串口拼接中的数据: " + ProtConvert.ByteArrToHex(sCacheBytes));
             }
         }
     }
