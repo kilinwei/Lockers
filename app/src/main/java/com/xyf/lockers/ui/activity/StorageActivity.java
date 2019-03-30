@@ -308,16 +308,16 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
      */
     private void openSingleLocker() {
         int allLockersStatus = SharedPreferenceUtil.getAllLockersStatus();
-        int canOpenWay = LockerUtils.checkCanOpen(allLockersStatus);
-        Log.i(TAG, "openSingleLocker: canOpenWay: " + canOpenWay);
-        if (canOpenWay == -1) {
+        int canOpenWayIndex = LockerUtils.checkCanOpen(allLockersStatus);
+        Log.i(TAG, "openSingleLocker: canOpenWayIndex: " + canOpenWayIndex);
+        if (canOpenWayIndex == -1) {
             // TODO: 2019/3/10 已存满
             Log.i(TAG, "openSingleLocker: 已存满");
             return;
         }
-        mCurrentOpenLockerIndex = canOpenWay - 1;
+        mCurrentOpenLockerIndex = canOpenWayIndex;
         LockersCommHelperNew.get().setOnSingleLockerStatusListener(this);
-        mCurrentOpenLockerBytes = LockerUtils.getOpenSingleLockerBytes(canOpenWay);
+        mCurrentOpenLockerBytes = LockerUtils.getOpenSingleLockerBytes(canOpenWayIndex);
         LockersCommHelperNew.get().controlSingleLock(mCurrentOpenLockerBytes[0], mCurrentOpenLockerBytes[1], mCurrentOpenLockerBytes[2], mCurrentOpenLockerBytes[3]);
     }
 

@@ -10,6 +10,7 @@ import android.widget.EditText;
 import com.xyf.lockers.R;
 import com.xyf.lockers.base.BaseActivity;
 import com.xyf.lockers.common.serialport.LockersCommHelperNew;
+import com.xyf.lockers.utils.LockerUtils;
 import com.xyf.lockers.utils.ToastUtils;
 
 import butterknife.BindView;
@@ -43,7 +44,9 @@ public class ControlTestActivityNew
 
     @Override
     protected void initEventAndData(Bundle savedInstanceState) {
-        LockersCommHelperNew.get().init();
+        if (!LockersCommHelperNew.get().isOpenDev()) {
+            LockersCommHelperNew.get().init();
+        }
     }
 
     @OnClick({R.id.btn_open_locker, R.id.btn_query_circuit_board, R.id.btn_query_all, R.id.btn_auto_light})
@@ -71,7 +74,7 @@ public class ControlTestActivityNew
                 light = Integer.parseInt(lightStr);
                 sonsor = Integer.parseInt(sonsorStr);
                 circuitBoardSend = getSendData(circuitBoard);
-                lockerSend = getSendDataConversion(locker);
+                lockerSend = LockerUtils.getSendDataConversion(locker);
                 lightSend = getSendData(light);
                 sonsorSend = getSendData(sonsor);
                 LockersCommHelperNew.get().controlSingleLock(circuitBoardSend, lockerSend, lightSend, sonsorSend);
@@ -89,7 +92,7 @@ public class ControlTestActivityNew
                 light = Integer.parseInt(lightStr);
                 sonsor = Integer.parseInt(sonsorStr);
                 circuitBoardSend = getSendData(circuitBoard);
-                lockerSend = getSendDataConversion(locker);
+                lockerSend = LockerUtils.getSendDataConversion(locker);
                 lightSend = getSendData(light);
                 sonsorSend = getSendData(sonsor);
                 Log.i(TAG, "onViewClicked: btn_query_circuit_board: circuitBoardSend: " + Integer.toHexString(circuitBoardSend)
@@ -108,7 +111,7 @@ public class ControlTestActivityNew
                 light = Integer.parseInt(lightStr);
                 sonsor = Integer.parseInt(sonsorStr);
                 circuitBoardSend = getSendData(circuitBoard);
-                lockerSend = getSendDataConversion(locker);
+                lockerSend = LockerUtils.getSendDataConversion(locker);
                 lightSend = getSendData(light);
                 sonsorSend = getSendData(sonsor);
                 Log.i(TAG, "onViewClicked: btn_auto_light: circuitBoardSend: " + Integer.toHexString(circuitBoardSend)
@@ -128,16 +131,5 @@ public class ControlTestActivityNew
     private static byte getSendData(int locker) {
         byte binary = (byte) (1 << (locker - 1));
         return binary;
-    }
-
-    /**
-     * 将十进制的数据,取反为发送的数据
-     *
-     * @param locker
-     */
-    private static byte getSendDataConversion(int locker) {
-        byte binary = (byte) (1 << (locker - 1));
-        //二进制取反,比如00001000变成111110111
-        return (byte) ~binary;
     }
 }

@@ -88,7 +88,7 @@ public class LockerUtils {
         if (Integer.bitCount(allLockers) >= LOCKER_COUNT) {
             return -1;
         }
-        for (int i = 1; i <= LOCKER_COUNT; i++) {
+        for (int i = 0; i < LOCKER_COUNT; i++) {
             if ((allLockers & 0x01) == 0) {
                 return i;
             }
@@ -100,16 +100,16 @@ public class LockerUtils {
 
     public static byte[] getOpenSingleLockerBytes(int way) {
         byte[] bytes = new byte[4];
-        if (way <= 8) {
+        if (way < 8) {
             bytes[0] = 0x01;
             bytes[1] = getSendDataConversion(way);
-        } else if (8 < way && way <= 16) {
+        } else if (8 <= way && way < 16) {
             bytes[0] = 0x02;
             bytes[1] = getSendDataConversion(way - 8);
-        } else if (16 < way && way <= 24) {
+        } else if (16 <= way && way < 24) {
             bytes[1] = getSendDataConversion(way - 16);
             bytes[0] = 0x04;
-        } else if (24 < way && way <= 32) {
+        } else if (24 <= way && way < 32) {
             bytes[1] = getSendDataConversion(way - 24);
             bytes[0] = 0x08;
         }
@@ -123,8 +123,8 @@ public class LockerUtils {
      *
      * @param locker
      */
-    private static byte getSendDataConversion(int locker) {
-        byte binary = (byte) (1 << (locker - 1));
+    public static byte getSendDataConversion(int locker) {
+        byte binary = (byte) (1 << locker);
         //二进制取反,比如00001000变成111110111
         return (byte) ~binary;
     }
