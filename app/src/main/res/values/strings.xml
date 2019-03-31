@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">a</string>
+    <string name="app_name">XYF</string>
     <!--<string name="app_name">一方智能</string>-->
 
     <string name="license_application_reminder">应用激活：通过包名，签名在线申请License 文件至于asset下</string>
