@@ -16,7 +16,7 @@ import static com.xyf.lockers.common.serialport.LockersCommHelper.LOCKER_COUNT;
  */
 public class LockerUtils {
 
-
+    public static final int OPEN_LOCKER_INTEVAL = 2 * 1000;
     /**
      * 返回32位二进制第几位是1的集合,从右到左,第一位为0,然后获取哪一位是1,返回包含1的索引的集合,例如5返回的集合为{0,2}
      *

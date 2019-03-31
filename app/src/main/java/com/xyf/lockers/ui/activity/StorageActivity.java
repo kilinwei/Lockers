@@ -148,12 +148,20 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (mBinocularView != null) {
+            mBinocularView.setLivenessCallBack(null);
+            mBinocularView = null;
+        }
+        if (mMonocularView != null) {
+            mMonocularView.setLivenessCallBack(null);
+            mMonocularView = null;
+        }
         mHandler.removeCallbacksAndMessages(null);
         //进入界面首先设置为通行,确保同一用户不会被注册两次
         FaceSDKManager.getInstance().getFaceLiveness().setCurrentTaskType(FaceLiveness.TaskType.TASK_TYPE_ONETON);
         FaceSDKManager.getInstance().getFaceLiveness().removeRegistCallBack(faceRegistCalllBack);
         LockersCommHelperNew.get().setOnSingleLockerStatusListener(null);
-        faceRegistCalllBack =null;
+        faceRegistCalllBack = null;
     }
 
     /**

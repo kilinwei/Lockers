@@ -1,6 +1,7 @@
 package com.xyf.lockers.ui.activity;
 
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -145,6 +146,7 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
                         for (int i = 0; i < 32; i++) {
                             byte[] openSingleLockerBytes = LockerUtils.getOpenSingleLockerBytes(i);
                             LockersCommHelperNew.get().controlSingleLock(openSingleLockerBytes[0], openSingleLockerBytes[1], openSingleLockerBytes[2], openSingleLockerBytes[3]);
+                            SystemClock.sleep(LockerUtils.OPEN_LOCKER_INTEVAL);
                         }
                     }
                 });

@@ -45,7 +45,6 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
     private static final String TAG = "TakeActivity";
     public static final int MSG_PASS_TIME_OUT = 0x04;
     public static final int PASS_OUT_TIME = 30 * 1000;
-    public static final int OPEN_LOCKER_INTEVAL = 2 * 1000;
     @BindView(R.id.layout_camera)
     RelativeLayout mCameraView;
     @BindView(R.id.image_track)
@@ -217,7 +216,7 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
                             byte[] openSingleLockerBytes = LockerUtils.getOpenSingleLockerBytes(index);
                             LockersCommHelperNew.get().controlSingleLock(openSingleLockerBytes[0], openSingleLockerBytes[1], openSingleLockerBytes[2], openSingleLockerBytes[3]);
                             //延迟开门,是因为如果同一时间开门,用户可能没有听到两个门的声音,将声音分开,以及电流不够同时开几把锁
-                            SystemClock.sleep(OPEN_LOCKER_INTEVAL);
+                            SystemClock.sleep(LockerUtils.OPEN_LOCKER_INTEVAL);
                         }
                     }
                 });
