@@ -9,7 +9,6 @@ import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
@@ -26,6 +25,7 @@ public class BaseCameraView extends RelativeLayout implements IFaceDetectCallBac
     private int mSizeFour;
     private int mSizeThirty;
     private int leftDisparity = 0;
+    private PostRunnable mPostRunnable;
 
     public BaseCameraView(Context context) {
         this(context, null, 0);
@@ -64,73 +64,101 @@ public class BaseCameraView extends RelativeLayout implements IFaceDetectCallBac
     public void onFaceDetectCallback(final boolean isDetect, final int faceWidth, final int faceHeight,
                                      final int faceCenterX, final int faceCenterY, final int imgWidth,
                                      final int imgHeight) {
-        post(new Runnable() {
-            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-            @Override
-            public void run() {
-                // 显示人脸框
-                if (isDetect) {
-                    // faceFrameImg.setVisibility(VISIBLE);
-                    long timeStart = System.currentTimeMillis();
-                    int viewWidht = getWidth()-leftDisparity*2;
-                    int viewHeght = getHeight();
-                    int frameX = (viewWidht * faceCenterX) / imgWidth;
-                    int frameY = (viewHeght * faceCenterY) / imgHeight;
-                    int frameW = (viewWidht * faceWidth) / imgWidth;
-                    int frameH = (viewHeght * faceHeight) / imgHeight;
+        mPostRunnable = new PostRunnable(isDetect, faceWidth, faceHeight, faceCenterX, faceCenterY, imgWidth, imgHeight);
+        post(mPostRunnable);
+    }
 
-                    Bitmap canvasImg = Bitmap.createBitmap(viewWidht, viewHeght, Bitmap.Config.ARGB_8888);
-                    Canvas canvas = new Canvas(canvasImg);
+    public class PostRunnable implements Runnable {
 
-                    int topLeftX = frameX - frameW / 2;
-                    int topLeftY = frameY - frameH / 2;
-                    int topRightX = frameX + frameW / 2;
-                    int topRightY = frameY - frameH / 2;
-                    int bottomLeftX = frameX - frameW / 2;
-                    int bottomLeftY = frameY + frameH / 2;
-                    int bottomRightX = frameX + frameW / 2;
-                    int bottomRightY = frameY + frameH / 2;
+        boolean isDetect;
+        int faceWidth;
+        int faceHeight;
+        int faceCenterX;
+        int faceCenterY;
+        int imgWidth;
+        int imgHeight;
 
-                    // 上
-                    canvas.drawLine(topLeftX, topLeftY, topRightX, topRightY, mPaint);
-                    // 下
-                    canvas.drawLine(bottomLeftX, bottomLeftY, bottomRightX, bottomRightY, mPaint);
-                    // 左
-                    canvas.drawLine(topLeftX, topLeftY, bottomLeftX, bottomLeftY, mPaint);
-                    // 右
-                    canvas.drawLine(topRightX, topRightY, bottomRightX, bottomRightY, mPaint);
+        public PostRunnable(boolean isDetect, int faceWidth, int faceHeight, int faceCenterX, int faceCenterY, int imgWidth, int imgHeight) {
+            this.isDetect = isDetect;
+            this.faceWidth = faceWidth;
+            this.faceHeight = faceHeight;
+            this.faceCenterX = faceCenterX;
+            this.faceCenterY = faceCenterY;
+            this.imgWidth = imgWidth;
+            this.imgHeight = imgHeight;
+        }
 
-                    // 绘制左上竖
-                    canvas.drawRoundRect(topLeftX - mSizeFour, topLeftY - mSizeFour, topLeftX,
-                            topLeftY + mSizeThirty, 10, 10, mPaintHorn);
-                    // 绘制左上横
-                    canvas.drawRoundRect(topLeftX - mSizeFour, topLeftY - mSizeFour,
-                            topLeftX + mSizeThirty, topLeftY, 10, 10, mPaintHorn);
-                    // 绘制左下竖
-                    canvas.drawRoundRect(bottomLeftX - mSizeFour, bottomLeftY - mSizeThirty, bottomLeftX,
-                            bottomLeftY + mSizeFour, 10, 10, mPaintHorn);
-                    // 绘制左下横
-                    canvas.drawRoundRect(bottomLeftX - mSizeFour, bottomLeftY, bottomLeftX + mSizeThirty,
-                            bottomLeftY + mSizeFour, 10, 10, mPaintHorn);
-                    // 绘制右上竖
-                    canvas.drawRoundRect(topRightX, topRightY - mSizeFour, topRightX + mSizeFour,
-                            topRightY + mSizeThirty, 10, 10, mPaintHorn);
-                    // 绘制右上横
-                    canvas.drawRoundRect(topRightX - mSizeThirty, topRightY - mSizeFour,
-                            topRightX + mSizeFour, topRightY, 10, 10, mPaintHorn);
-                    // 绘制右下竖
-                    canvas.drawRoundRect(bottomRightX, bottomRightY - mSizeThirty, bottomRightX + mSizeFour,
-                            bottomRightY + mSizeFour, 10, 10, mPaintHorn);
-                    // 绘制右下横
-                    canvas.drawRoundRect(bottomRightX - mSizeThirty, bottomRightY, bottomRightX + mSizeFour,
-                            bottomRightY + mSizeFour, 10, 10, mPaintHorn);
+        @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+        @Override
+        public void run() {
+            // 显示人脸框
+            if (isDetect) {
+                // faceFrameImg.setVisibility(VISIBLE);
+                long timeStart = System.currentTimeMillis();
+                int viewWidht = getWidth() - leftDisparity * 2;
+                int viewHeght = getHeight();
+                int frameX = (viewWidht * faceCenterX) / imgWidth;
+                int frameY = (viewHeght * faceCenterY) / imgHeight;
+                int frameW = (viewWidht * faceWidth) / imgWidth;
+                int frameH = (viewHeght * faceHeight) / imgHeight;
 
-                    faceFrameImg.setImageBitmap(canvasImg);
-                    Log.i("yangrui", (System.currentTimeMillis() - timeStart) + "");
-                } else {
-                    faceFrameImg.setImageBitmap(null);
-                }
+                Bitmap canvasImg = Bitmap.createBitmap(viewWidht, viewHeght, Bitmap.Config.ARGB_8888);
+                Canvas canvas = new Canvas(canvasImg);
+
+                int topLeftX = frameX - frameW / 2;
+                int topLeftY = frameY - frameH / 2;
+                int topRightX = frameX + frameW / 2;
+                int topRightY = frameY - frameH / 2;
+                int bottomLeftX = frameX - frameW / 2;
+                int bottomLeftY = frameY + frameH / 2;
+                int bottomRightX = frameX + frameW / 2;
+                int bottomRightY = frameY + frameH / 2;
+
+                // 上
+                canvas.drawLine(topLeftX, topLeftY, topRightX, topRightY, mPaint);
+                // 下
+                canvas.drawLine(bottomLeftX, bottomLeftY, bottomRightX, bottomRightY, mPaint);
+                // 左
+                canvas.drawLine(topLeftX, topLeftY, bottomLeftX, bottomLeftY, mPaint);
+                // 右
+                canvas.drawLine(topRightX, topRightY, bottomRightX, bottomRightY, mPaint);
+
+                // 绘制左上竖
+                canvas.drawRoundRect(topLeftX - mSizeFour, topLeftY - mSizeFour, topLeftX,
+                        topLeftY + mSizeThirty, 10, 10, mPaintHorn);
+                // 绘制左上横
+                canvas.drawRoundRect(topLeftX - mSizeFour, topLeftY - mSizeFour,
+                        topLeftX + mSizeThirty, topLeftY, 10, 10, mPaintHorn);
+                // 绘制左下竖
+                canvas.drawRoundRect(bottomLeftX - mSizeFour, bottomLeftY - mSizeThirty, bottomLeftX,
+                        bottomLeftY + mSizeFour, 10, 10, mPaintHorn);
+                // 绘制左下横
+                canvas.drawRoundRect(bottomLeftX - mSizeFour, bottomLeftY, bottomLeftX + mSizeThirty,
+                        bottomLeftY + mSizeFour, 10, 10, mPaintHorn);
+                // 绘制右上竖
+                canvas.drawRoundRect(topRightX, topRightY - mSizeFour, topRightX + mSizeFour,
+                        topRightY + mSizeThirty, 10, 10, mPaintHorn);
+                // 绘制右上横
+                canvas.drawRoundRect(topRightX - mSizeThirty, topRightY - mSizeFour,
+                        topRightX + mSizeFour, topRightY, 10, 10, mPaintHorn);
+                // 绘制右下竖
+                canvas.drawRoundRect(bottomRightX, bottomRightY - mSizeThirty, bottomRightX + mSizeFour,
+                        bottomRightY + mSizeFour, 10, 10, mPaintHorn);
+                // 绘制右下横
+                canvas.drawRoundRect(bottomRightX - mSizeThirty, bottomRightY, bottomRightX + mSizeFour,
+                        bottomRightY + mSizeFour, 10, 10, mPaintHorn);
+
+                faceFrameImg.setImageBitmap(canvasImg);
+                Log.i("yangrui", (System.currentTimeMillis() - timeStart) + "");
+            } else {
+                faceFrameImg.setImageBitmap(null);
             }
-        });
+        }
+    }
+
+    public void removePostRunnable() {
+        if (mPostRunnable != null) {
+            removeCallbacks(mPostRunnable);
+        }
     }
 }
