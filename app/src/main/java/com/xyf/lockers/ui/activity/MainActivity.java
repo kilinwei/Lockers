@@ -15,9 +15,6 @@ import com.xyf.lockers.common.GlobalSet;
 import com.xyf.lockers.common.serialport.LockersCommHelperNew;
 import com.xyf.lockers.db.DBManager;
 import com.xyf.lockers.manager.UserInfoManager;
-import com.xyf.lockers.model.bean.User;
-import com.xyf.lockers.utils.SharedPreferenceUtil;
-import com.xyf.lockers.utils.UserDBManager;
 
 import java.util.List;
 
@@ -35,8 +32,6 @@ public class MainActivity
     Button btnTake;
     @BindView(R.id.btn_control_test)
     Button mBtnControlTest;
-    @BindView(R.id.btn_control_delete_all)
-    Button mBtnControlDeleteAll;
     @BindView(R.id.btn_control_query)
     Button mBtnQuery;
     @BindView(R.id.fl_hide)
@@ -76,7 +71,6 @@ public class MainActivity
 
     @OnClick({R.id.btn_storage,
             R.id.btn_take,
-            R.id.btn_control_delete_all,
             R.id.btn_control_query,
             R.id.btn_control_test})
     public void onViewClicked(View view) {
@@ -93,21 +87,6 @@ public class MainActivity
                 break;
             case R.id.btn_control_query:
                 intent = new Intent(this, UserActivity.class);
-                break;
-            case R.id.btn_control_delete_all:
-                if (mListFeatureInfo == null) {
-                    return;
-                }
-                Log.i(TAG, "onViewClicked: 删除之前的百度人脸库数量: " + mListFeatureInfo.size());
-                for (Feature feature : mListFeatureInfo) {
-                    feature.setChecked(true);
-                }
-                UserInfoManager.getInstance().batchRemoveFeatureInfo(mListFeatureInfo, mUserInfoListener, mListFeatureInfo.size());
-                SharedPreferenceUtil.setAllLockersStatus(0);
-                List<User> allStorageUser = UserDBManager.getAllStorageUser();
-                for (User user : allStorageUser) {
-                    user.setStorageIndexs(0);
-                }
                 break;
         }
         if (intent != null) {

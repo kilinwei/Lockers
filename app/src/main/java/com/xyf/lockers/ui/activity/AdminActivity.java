@@ -8,15 +8,18 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import com.baidu.idl.facesdk.model.Feature;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.xyf.lockers.R;
 import com.xyf.lockers.adapter.GridAdapter;
 import com.xyf.lockers.base.BaseActivity;
 import com.xyf.lockers.common.serialport.LockersCommHelper;
 import com.xyf.lockers.common.serialport.LockersCommHelperNew;
+import com.xyf.lockers.manager.UserInfoManager;
 import com.xyf.lockers.model.bean.GridBean;
 import com.xyf.lockers.model.bean.User;
 import com.xyf.lockers.utils.LockerUtils;
+import com.xyf.lockers.utils.SharedPreferenceUtil;
 import com.xyf.lockers.utils.ToastUtil;
 import com.xyf.lockers.utils.UserDBManager;
 
@@ -51,10 +54,13 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
     List<GridBean> mGridBeans;
     @BindView(R.id.btn_open_all)
     Button mBtnOpenAll;
+    @BindView(R.id.btn_control_delete_all)
+    Button mBtnControlDeleteAll;
     private Map<Integer, User> mCacheMap;
     private int mCurrentOpenLockerIndex;
     private Disposable mSubscribe;
-
+    private List<Feature> mListFeatureInfo;
+    private UserInfoManager.UserInfoListener mUserInfoListener;
 
     @Override
     protected int getLayout() {
@@ -69,6 +75,8 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
             user.setUserName("" + 1);
             list.add(user);
         }
+        mUserInfoListener = new UserListener();
+        UserInfoManager.getInstance().getFeatureInfo(null, mUserInfoListener);
         Disposable subscribe = Observable.just(1)
                 .subscribeOn(Schedulers.io())
                 .map(new Function<Integer, List<GridBean>>() {
@@ -136,27 +144,107 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
         ToastUtil.showMessage(position + "被点击");
     }
 
-
-    @OnClick(R.id.btn_open_all)
-    public void onViewClicked() {
-        mSubscribe = Observable.just(1).subscribeOn(Schedulers.io())
-                .subscribe(new Consumer<Integer>() {
-                    @Override
-                    public void accept(Integer integer) throws Exception {
-                        for (int i = 0; i < 32; i++) {
-                            byte[] openSingleLockerBytes = LockerUtils.getOpenSingleLockerBytes(i);
-                            LockersCommHelperNew.get().controlSingleLock(openSingleLockerBytes[0], openSingleLockerBytes[1], openSingleLockerBytes[2], openSingleLockerBytes[3]);
-                            SystemClock.sleep(LockerUtils.OPEN_LOCKER_INTEVAL);
-                        }
-                    }
-                });
-    }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
         if (mSubscribe != null && !mSubscribe.isDisposed()) {
             mSubscribe.dispose();
+        }
+    }
+
+
+    @OnClick({R.id.btn_open_all, R.id.btn_control_delete_all})
+    public void onViewClicked(View view) {
+        switch (view.getId()) {
+            case R.id.btn_open_all:
+                mSubscribe = Observable.just(1).subscribeOn(Schedulers.io())
+                        .subscribe(new Consumer<Integer>() {
+                            @Override
+                            public void accept(Integer integer) throws Exception {
+                                for (int i = 0; i < 32; i++) {
+                                    byte[] openSingleLockerBytes = LockerUtils.getOpenSingleLockerBytes(i);
+                                    LockersCommHelperNew.get().controlSingleLock(openSingleLockerBytes[0], openSingleLockerBytes[1], openSingleLockerBytes[2], openSingleLockerBytes[3]);
+                                    SystemClock.sleep(LockerUtils.OPEN_LOCKER_INTEVAL);
+                                }
+                            }
+                        });
+                break;
+            case R.id.btn_control_delete_all:
+                if (mListFeatureInfo == null) {
+                    return;
+                }
+                Log.i(TAG, "onViewClicked: 删除之前的百度人脸库数量: " + mListFeatureInfo.size());
+                for (Feature feature : mListFeatureInfo) {
+                    feature.setChecked(true);
+                }
+                UserInfoManager.getInstance().batchRemoveFeatureInfo(mListFeatureInfo, mUserInfoListener, mListFeatureInfo.size());
+                SharedPreferenceUtil.setAllLockersStatus(0);
+                List<User> allStorageUser = UserDBManager.getAllStorageUser();
+                for (User user : allStorageUser) {
+                    user.setStorageIndexs(0);
+                }
+                break;
+        }
+    }
+
+
+    // 用于返回读取数据库的结果
+    private class UserListener extends UserInfoManager.UserInfoListener {
+
+        // 人脸库信息查找成功
+        @Override
+        public void featureQuerySuccess(final List<Feature> listFeatureInfo) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (listFeatureInfo == null || listFeatureInfo.size() == 0) {
+                        mListFeatureInfo = null;
+                        Log.i(TAG, "run: 查询到百度人脸库数量为空");
+                    } else {
+                        mListFeatureInfo = listFeatureInfo;
+                        for (Feature feature : mListFeatureInfo) {
+                            Log.i(TAG, "run: feature：　" + feature.getUserName());
+                        }
+                        Log.i(TAG, "run: 查询到百度人脸库数量为: " + listFeatureInfo.size());
+                    }
+                }
+            });
+        }
+
+        // 人脸库信息查找失败
+        @Override
+        public void featureQueryFailure(final String message) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+
+                }
+            });
+        }
+
+        // 显示删除进度条
+        @Override
+        public void showDeleteProgressDialog(final float progress) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+
+                }
+            });
+        }
+
+        // 删除成功
+        @Override
+        public void deleteSuccess() {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Log.i(TAG, "run: 百度人脸库删除成功");
+                    // 读取数据库信息
+                    UserInfoManager.getInstance().getFeatureInfo(null, mUserInfoListener);
+                }
+            });
+
         }
     }
 }
