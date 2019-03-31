@@ -18,14 +18,14 @@ public class LockerUtils {
 
 
     /**
-     * 返回32位二进制第几位是1的集合,从右到左,第一位为1,然后获取哪一位是1,返回包含1的索引的集合,例如5返回的集合为{1,3}
+     * 返回32位二进制第几位是1的集合,从右到左,第一位为0,然后获取哪一位是1,返回包含1的索引的集合,例如5返回的集合为{0,2}
      *
      * @param storageIndexs
      * @return
      */
     public static List<Integer> getStorageIndexs(long storageIndexs) {
         List<Integer> list = new ArrayList<>();
-        for (int i = 1; i <= LOCKER_COUNT; i++) {
+        for (int i = 0; i < LOCKER_COUNT; i++) {
             if ((storageIndexs & 0x01) == 1) {
                 list.add(i);
             }

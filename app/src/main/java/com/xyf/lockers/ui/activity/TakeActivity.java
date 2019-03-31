@@ -45,7 +45,7 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
     // TODO: 2019/3/15  待写功能：判断用户取出所有物品之后，关闭本界面
 
     private static final String TAG = "TakeActivity";
-    public static final int MSG_PASS_TIME_OUT = 0x03;
+    public static final int MSG_PASS_TIME_OUT = 0x04;
     public static final int PASS_OUT_TIME = 30 * 1000;
     public static final int OPEN_LOCKER_INTEVAL = 2 * 1000;
     @BindView(R.id.layout_camera)
@@ -96,9 +96,8 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
     @Override
     protected void initEventAndData(Bundle savedInstanceState) {
         mContext = this;
-        calculateCameraView();
         //设置为注册模式
-        FaceSDKManager.getInstance().getFaceLiveness().setCurrentTaskType(FaceLiveness.TaskType.TASK_TYPE_ONETON);
+        calculateCameraView();
     }
 
     /**
