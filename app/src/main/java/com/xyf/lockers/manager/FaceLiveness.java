@@ -461,8 +461,10 @@ public class FaceLiveness {
      * @param livenessModel
      */
     public void registFace(LivenessModel livenessModel) {
+        Log.i(TAG, "registFace: 开始注册人脸");
         long sTime = System.currentTimeMillis();
         if (!TextUtils.isEmpty(mLastRegistName) && mLastRegistName.equals(registNickName)) {
+            Log.i(TAG, "registFace: 同一用户注册两次，已拦截");
             return;
         }
         if ((GlobalSet.getLiveStatusValue() == GlobalSet.LIVE_STATUS.NO)
@@ -537,6 +539,7 @@ public class FaceLiveness {
 
                 logBuilder.append(registNickName + "\t" + picFile + "\t" + "成功\n");
                 if (FaceApi.getInstance().featureAdd(feature)) {
+                    Log.i(TAG, "registFace: 百度数据库已保存："+ registNickName);
                     mLastRegistName = registNickName;
                     livenessModel.setFeature(feature);
                     returnRegistResult(0, livenessModel, cropBitmap);

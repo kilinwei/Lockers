@@ -157,6 +157,7 @@ public class BaseCameraView extends RelativeLayout implements IFaceDetectCallBac
     }
 
     public void removePostRunnable() {
+        FaceSDKManager.getInstance().getFaceLiveness().setLivenessCallBack(null);
         FaceSDKManager.getInstance().getFaceLiveness().setIFaceDetectCallBack(null);
         if (mPostRunnable != null) {
             removeCallbacks(mPostRunnable);

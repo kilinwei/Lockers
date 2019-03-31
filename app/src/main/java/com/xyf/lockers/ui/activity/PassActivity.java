@@ -263,23 +263,26 @@ public class PassActivity extends BaseActivity implements ILivenessCallBack, Vie
                         UserDao userDao = MainAppliction.getInstance().getDaoSession().getUserDao();
                         List<User> users = userDao.queryRaw("where user_name=?", userName);
                         if (users.size() > 0) {
-                            User user = users.get(0);
-                            long storageIndexs = user.getStorageIndexs();
-                            int count = Long.bitCount(storageIndexs);
-                            if (count > 0) {
-                                //说明已存物品,需要开箱
-                                //获取到需要开箱的集合
-                                ToastUtil.showMessage("说明已存物品,需要开箱");
-                                List<Integer> storageList = LockerUtils.getStorageIndexs(storageIndexs);
-                                if (storageList != null && !storageList.isEmpty()) {
-                                    mCurrentUser = user;
-                                    mIsRecognizing = true;
-                                    openLockers(storageList);
+                            for (User user : users) {
+                                long storageIndexs = user.getStorageIndexs();
+                                int count = Long.bitCount(storageIndexs);
+                                if (count > 0) {
+                                    //说明已存物品,需要开箱
+                                    //获取到需要开箱的集合
+                                    List<Integer> storageList = LockerUtils.getStorageIndexs(storageIndexs);
+                                    if (storageList != null && !storageList.isEmpty()) {
+                                        mCurrentUser = user;
+                                        mIsRecognizing = true;
+                                        openLockers(storageList);
+                                    }
+                                } else {
+                                    //说明没有存物品,提醒用户没有存物品
+                                    ToastUtil.showMessage(" 说明没有存物品,提醒用户没有存物品");
+                                    Log.i(TAG, "onCallback: 说明没有存物品,提醒用户没有存物品");
+                                    Intent intent = new Intent(PassActivity.this, ShowTipsActivity.class);
+                                    intent.putExtra(ShowTipsActivity.TIPS, "您没有保存物品，请先保存物品");
+                                    startActivity(intent);
                                 }
-                            } else {
-                                //说明没有存物品,提醒用户没有存物品
-                                Log.i(TAG, "onCallback: 说明没有存物品,提醒用户没有存物品");
-                                ToastUtil.showMessage("说明没有存物品,提醒用户没有存物品");
                             }
                         }
                     } else {
@@ -293,7 +296,7 @@ public class PassActivity extends BaseActivity implements ILivenessCallBack, Vie
     }
 
 
-    private void openLockers(final List<Integer> storageList) {
+    private synchronized void openLockers(final List<Integer> storageList) {
         mCurrentStorageList = storageList;
         mSubscribe = Observable.just(1).subscribeOn(Schedulers.io())
                 .subscribe(new Consumer<Integer>() {
@@ -309,7 +312,7 @@ public class PassActivity extends BaseActivity implements ILivenessCallBack, Vie
                 });
         Intent intent = new Intent(PassActivity.this, ShowTipsActivity.class);
         intent.putExtra(ShowTipsActivity.TIPS, "已打开柜门");
-        finish();
+        startActivity(intent);
     }
 
     @Override

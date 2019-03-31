@@ -327,7 +327,7 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
 
                 Intent intent = new Intent(StorageActivity.this, ShowTipsActivity.class);
                 intent.putExtra(ShowTipsActivity.TIPS, tips);
-                finish();
+                startActivity(intent);
             }
         });
     }

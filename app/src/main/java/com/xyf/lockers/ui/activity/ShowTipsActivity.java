@@ -19,13 +19,13 @@ public class ShowTipsActivity extends BaseActivity {
     TextView mTvTimer;
     @BindView(R.id.tv_tips)
     TextView mTvTips;
-    private int time = 30;
+    private int time = 3;
     @SuppressLint("HandlerLeak")
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             mTvTimer.setText("(" + time-- + "秒后自动关闭)");
-            if (time == 0) {
+            if (time < 0) {
                 startActivity(new Intent(ShowTipsActivity.this, MainActivity.class));
             } else {
                 handler.sendEmptyMessageDelayed(0, 1000);
@@ -44,7 +44,8 @@ public class ShowTipsActivity extends BaseActivity {
     protected void initEventAndData(Bundle savedInstanceState) {
         Intent intent = getIntent();
         mTips = intent.getStringExtra(TIPS);
-        mTvTimer.setText(mTips);
+        mTvTips.setText(mTips);
+        handler.sendEmptyMessageDelayed(0,500);
     }
 
     @Override
