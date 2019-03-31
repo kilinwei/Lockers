@@ -2,6 +2,7 @@ package com.xyf.lockers.ui.activity;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -44,6 +45,9 @@ public class ShowTipsActivity extends BaseActivity {
     protected void initEventAndData(Bundle savedInstanceState) {
         Intent intent = getIntent();
         mTips = intent.getStringExtra(TIPS);
+        if ("您没有保存物品，请先保存物品".equals(mTips)) {
+            mTvTips.setTextColor(Color.RED);
+        }
         mTvTips.setText(mTips);
         handler.sendEmptyMessageDelayed(0,500);
     }
