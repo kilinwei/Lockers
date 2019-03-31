@@ -28,6 +28,8 @@ public class MainAppliction extends Application {
         CrabSDK.init(this, BAIDU_APP_KEY);
         initBugly();
         initGreenDao();
+        //初始化内存泄漏检测
+        LeakCanary.install(App.getInstance());
     }
 
     private void initGreenDao() {
