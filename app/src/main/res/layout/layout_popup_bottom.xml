@@ -236,7 +236,7 @@
 
     </LinearLayout>
 
-    <com.szyh.ikf3.widget.VirtualKeyboardView
+    <com.xyf.lockers.view.VirtualKeyboardView
         android:id="@+id/virtualKeyboardView"
         android:layout_width="match_parent"
         android:layout_height="500dp"

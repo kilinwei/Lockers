@@ -273,4 +273,10 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
         // TODO: 2019/3/10 串口未打开
         Log.e(TAG, "disConnectDevice: 串口未打开");
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        LockersCommHelperNew.get().setOnSingleLockerStatusListener(null);
+    }
 }
