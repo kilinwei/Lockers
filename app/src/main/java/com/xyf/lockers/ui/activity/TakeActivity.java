@@ -18,8 +18,10 @@ import com.xyf.lockers.app.MainAppliction;
 import com.xyf.lockers.base.BaseActivity;
 import com.xyf.lockers.callback.ILivenessCallBack;
 import com.xyf.lockers.common.GlobalSet;
-import com.xyf.lockers.common.serialport.LockersCommHelper;
+import com.xyf.lockers.common.serialport.LockersCommHelperNew;
 import com.xyf.lockers.listener.OnSingleLockerStatusListener;
+import com.xyf.lockers.manager.FaceLiveness;
+import com.xyf.lockers.manager.FaceSDKManager;
 import com.xyf.lockers.model.LivenessModel;
 import com.xyf.lockers.model.bean.User;
 import com.xyf.lockers.model.bean.UserDao;
@@ -95,6 +97,8 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
     protected void initEventAndData(Bundle savedInstanceState) {
         mContext = this;
         calculateCameraView();
+        //设置为注册模式
+        FaceSDKManager.getInstance().getFaceLiveness().setCurrentTaskType(FaceLiveness.TaskType.TASK_TYPE_ONETON);
     }
 
     /**
@@ -195,7 +199,7 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
                     }
                 } else {
                     //说明没有存物品,提醒用户没有存物品
-                    Log.i(TAG, "onCallback: 已存大于等于三个");
+                    Log.i(TAG, "onCallback: 说明没有存物品,提醒用户没有存物品");
                 }
             } else {
                 //说明facesdk的数据库里有数据,但是user数据库没有,说明user已被删除,没有存东西,不需要处理
@@ -212,7 +216,8 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
                     @Override
                     public void accept(Integer integer) throws Exception {
                         for (Integer index : storageList) {
-                            LockersCommHelper.get().controlSingleLock(index, 1, TakeActivity.this);
+                            byte[] openSingleLockerBytes = LockerUtils.getOpenSingleLockerBytes(index);
+                            LockersCommHelperNew.get().controlSingleLock(openSingleLockerBytes[0], openSingleLockerBytes[1], openSingleLockerBytes[2], openSingleLockerBytes[3]);
                             //延迟开门,是因为如果同一时间开门,用户可能没有听到两个门的声音,将声音分开,以及电流不够同时开几把锁
                             SystemClock.sleep(OPEN_LOCKER_INTEVAL);
                         }
@@ -222,24 +227,7 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
 
     @Override
     public void onSingleLockerStatusResponse(int way, int status) {
-        if (mCurrentStorageList == null || mCurrentStorageList.isEmpty() || mCurrentUser == null) {
-            return;
-        }
-        if (status == 1) {
-            //锁已打开,此时需要判断是否是我们打开的锁,以及录入user数据库中
-            int storageIndexs = mCurrentUser.getStorageIndexs();
-            //获取当前打开的箱位
-            int wayBinary = 1 << (way - 1);
-            //二进制取反,比如00001000变成111110111
-            int i = ~wayBinary;
-            //将指定位数的1抹去
-            storageIndexs &= i;
-            mCurrentUser.setStorageIndexs(storageIndexs);
-            //更新数据库信息
-            UserDBManager.update(mCurrentUser);
-        } else {
-            // TODO: 2019/3/15 锁已关闭
-        }
+
     }
 
     /**
@@ -261,7 +249,7 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
             int storageIndexs = mCurrentUser.getStorageIndexs();
             for (Integer locker : lockers) {
                 //获取当前打开的箱位
-                int wayBinary = 1 << (locker - 1);
+                int wayBinary = 1 << locker;
                 //二进制取反,比如00001000变成111110111
                 int i = ~wayBinary;
                 //将指定位数的1抹去

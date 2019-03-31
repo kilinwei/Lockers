@@ -18,16 +18,19 @@ public class SharedPreferenceUtil {
 
     private static final String SHARED_PREFERENCES_NAME = "robot_sp";
 
+    public static final int SCREEN_INDEX = 25;
+
     private static SharedPreferences getAppSp() {
         return MainAppliction.getInstance()
                 .getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
     }
 
     public static int getAllLockersStatus() {
-        return getAppSp().getInt(Constants.SP_ALL_LOCKERS_STATUS, 0);
+        return getAppSp().getInt(Constants.SP_ALL_LOCKERS_STATUS, 1 << (SCREEN_INDEX - 1));
     }
 
     public static void setAllLockersStatus(int allLockersStatus) {
+        allLockersStatus |= (1 << (SCREEN_INDEX - 1));
         getAppSp().edit()
                 .putInt(Constants.SP_ALL_LOCKERS_STATUS, allLockersStatus)
                 .apply();

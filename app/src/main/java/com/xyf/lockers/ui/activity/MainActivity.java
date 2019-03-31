@@ -7,8 +7,10 @@ import android.view.View;
 import android.widget.Button;
 
 import com.baidu.idl.facesdk.model.Feature;
+import com.baidu.idl.facesdk.utils.PreferencesUtil;
 import com.xyf.lockers.R;
 import com.xyf.lockers.base.BaseActivity;
+import com.xyf.lockers.common.GlobalSet;
 import com.xyf.lockers.common.serialport.LockersCommHelperNew;
 import com.xyf.lockers.db.DBManager;
 import com.xyf.lockers.manager.UserInfoManager;
@@ -33,6 +35,8 @@ public class MainActivity
     Button mBtnControlTest;
     @BindView(R.id.btn_control_delete_all)
     Button mBtnControlDeleteAll;
+    @BindView(R.id.btn_control_query)
+    Button mBtnQuery;
     private List<Feature> mListFeatureInfo;
     private UserInfoManager.UserInfoListener mUserInfoListener;
 
@@ -48,6 +52,7 @@ public class MainActivity
         mUserInfoListener = new UserListener();
         DBManager.getInstance().init(getApplicationContext());
         UserInfoManager.getInstance().getFeatureInfo(null, mUserInfoListener);
+        PreferencesUtil.putInt(GlobalSet.TYPE_PREVIEW_ANGLE, GlobalSet.TYPE_TPREVIEW_NINETY_ANGLE);
     }
 
     @Override
@@ -60,6 +65,7 @@ public class MainActivity
     @OnClick({R.id.btn_storage,
             R.id.btn_take,
             R.id.btn_control_delete_all,
+            R.id.btn_control_query,
             R.id.btn_control_test})
     public void onViewClicked(View view) {
         Intent intent = null;
@@ -72,6 +78,9 @@ public class MainActivity
                 break;
             case R.id.btn_control_test:
                 intent = new Intent(this, ControlTestActivityNew.class);
+                break;
+            case R.id.btn_control_query:
+                UserInfoManager.getInstance().getFeatureInfo(null, mUserInfoListener);
                 break;
             case R.id.btn_control_delete_all:
                 if (mListFeatureInfo == null) {
@@ -109,6 +118,9 @@ public class MainActivity
                         Log.i(TAG, "run: 查询到百度人脸库数量为空");
                     } else {
                         mListFeatureInfo = listFeatureInfo;
+                        for (Feature feature : mListFeatureInfo) {
+                            Log.i(TAG, "run: feature：　"+ feature.getUserName());
+                        }
                         Log.i(TAG, "run: 查询到百度人脸库数量为: " + listFeatureInfo.size());
                     }
                 }

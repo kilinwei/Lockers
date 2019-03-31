@@ -6,10 +6,13 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.baidu.idl.facesdk.model.Feature;
 import com.xyf.lockers.R;
@@ -52,6 +55,8 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
     RelativeLayout mCameraView;
     @BindView(R.id.image_track)
     ImageView mImageTrack;
+    @BindView(R.id.tv_tips)
+    TextView mTvTips;
     private Context mContext;
     private BinocularView mBinocularView;
     private MonocularView mMonocularView;
@@ -216,7 +221,7 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
                 int count = Integer.bitCount(storageIndexs);
                 if (count < 3) {
                     //未大于三个,可以存,先打开箱门，然后再把箱位记录到数据库中
-                    Log.i(TAG, "onCallback: 识别到老用户,存物品未大于三个,可以存");
+                    Log.i(TAG, "onCallback: 识别到老用户,存物品未大于三个,可以存,当前存储个数: " + count);
                     mCurrentUser = user;
                     removeCameraView();
                     openSingleLocker();
@@ -240,7 +245,6 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
             if (!mHandler.hasMessages(MSG_CHECK_FACE)) {
                 mHandler.sendEmptyMessageDelayed(MSG_CHECK_FACE, PASS_TIME);
                 Log.i(TAG, "onCallback: 开始注册倒计时,还有3s开启注册");
-                mNeedRegister = false;
             }
             if (mNeedRegister) {
                 mNeedRegister = false;
@@ -257,6 +261,7 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
 
     // 注册结果
     private IFaceRegistCalllBack faceRegistCalllBack = new IFaceRegistCalllBack() {
+        private String lastUserName;
 
         @Override
         public void onRegistCallBack(int code, LivenessModel livenessModel, final Bitmap cropBitmap) {
@@ -267,11 +272,12 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
                     // 设置注册信息
                     Feature feature = livenessModel.getFeature();
                     String userName = feature.getUserName();
+                    Log.i(TAG, "onRegistCallBack: 注册成功,注册人为: " + userName);
                     mCurrentUser = UserDBManager.insertUser2DB(userName, Long.parseLong(userName),
                             Long.parseLong(userName), feature.getCropImageName(), feature.getImageName());
-                    mHandler.removeMessages(MSG_REGISTER_TIME_OUT);
-                    Log.i(TAG, "onRegistCallBack: 注册成功,注册人为: " + userName);
-                    openSingleLocker();
+                    if (!TextUtils.isEmpty(userName) && !userName.equalsIgnoreCase(lastUserName)) {
+                        openSingleLocker();
+                    }
                 }
                 break;
                 case 1: {
@@ -298,6 +304,7 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
                     mMonocularView.onPause();
                     mCameraView.removeView(mMonocularView);
                 }
+                mTvTips.setVisibility(View.VISIBLE);
             }
         });
     }
@@ -390,7 +397,6 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
 
     @Override
     public void disConnectDevice() {
-        // TODO: 2019/3/10 串口未打开
-        Log.e(TAG, "disConnectDevice: 串口未打开");
+
     }
 }

@@ -14,6 +14,16 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
+
+    <Button
+        android:id="@+id/btn_control_query"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="查询状态"
+        app:layout_constraintLeft_toLeftOf="@id/btn_control_test"
+        app:layout_constraintRight_toRightOf="@id/btn_control_delete_all"
+        app:layout_constraintTop_toTopOf="parent"/>
+
     <Button
         android:id="@+id/btn_control_delete_all"
         android:layout_width="wrap_content"
@@ -26,9 +36,9 @@
         android:id="@+id/btn_storage"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="40dp"
+        android:layout_margin="60dp"
         android:text="存"
-        android:textSize="100dp"
+        android:textSize="150dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"/>
 
@@ -36,9 +46,9 @@
         android:id="@+id/btn_take"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="40dp"
+        android:layout_margin="60dp"
         android:text="取"
-        android:textSize="100dp"
+        android:textSize="150dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 

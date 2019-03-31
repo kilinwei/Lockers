@@ -13,7 +13,7 @@ import com.baidu.idl.facesdk.utils.PreferencesUtil;
 import com.xyf.lockers.common.GlobalSet;
 
 import static com.xyf.lockers.common.GlobalSet.TYPE_PREVIEW_ANGLE;
-import static com.xyf.lockers.common.GlobalSet.TYPE_PREVIEW_TWO_HUNDERED_SEVENTY_ANGLE;
+import static com.xyf.lockers.common.GlobalSet.TYPE_TPREVIEW_NINETY_ANGLE;
 
 
 /**
@@ -165,7 +165,7 @@ public final class DensityUtil {
 		int layoutHeight = DensityUtil.getScreenHeight(context) - DensityUtil.dip2px(context, 62);
 		// 设置的角度
 		int previewAngle = PreferencesUtil.getInt(TYPE_PREVIEW_ANGLE,
-				TYPE_PREVIEW_TWO_HUNDERED_SEVENTY_ANGLE);
+				TYPE_TPREVIEW_NINETY_ANGLE);
 		float widthPercent;
 		float heightPercent;
 		float minPercent = 0;
@@ -201,7 +201,7 @@ public final class DensityUtil {
 		int layoutHeight = DensityUtil.getScreenHeight(context) - DensityUtil.dip2px(context, 62);
 		// 设置的角度
 		int previewAngle = PreferencesUtil.getInt(TYPE_PREVIEW_ANGLE,
-				TYPE_PREVIEW_TWO_HUNDERED_SEVENTY_ANGLE);
+				TYPE_TPREVIEW_NINETY_ANGLE);
 		float widthPercent;
 		float heightPercent;
 		float minPercent = 0;

@@ -2,7 +2,6 @@ package com.xyf.lockers.view;
 
 import android.content.Context;
 import android.hardware.Camera;
-import android.media.FaceDetector;
 import android.util.AttributeSet;
 import android.view.SurfaceView;
 import android.view.TextureView;
@@ -14,6 +13,8 @@ import com.xyf.lockers.callback.ILivenessCallBack;
 import com.xyf.lockers.common.GlobalSet;
 import com.xyf.lockers.manager.FaceSDKManager;
 import com.xyf.lockers.model.LivenessModel;
+import com.xyf.lockers.utils.Utils;
+
 import static com.xyf.lockers.common.GlobalSet.PERFER_HEIGH;
 import static com.xyf.lockers.common.GlobalSet.PREFER_WIDTH;
 import static com.xyf.lockers.common.GlobalSet.TYPE_PREVIEW_ANGLE;
@@ -180,16 +181,16 @@ public class MonocularView extends BaseCameraView implements ILivenessCallBack {
             FaceSDKManager.getInstance().getFaceDetector().yuvToARGB(data,
                     PREFER_WIDTH, PERFER_HEIGH, argb, trackAngle, mirror);
             rgbData = argb;
-//            post(new Runnable() {
-//                @Override
-//                public void run() {
-//                    if (faceFrameImg == null) {
-//                        return;
-//                    }
-//                    // 用于显示送检时的图片，建议注释掉
-//                    faceFrameImg.setImageBitmap(Utils.getBitmap(argb, mTrackImageHeight, mTrackImageWidth));
-//                }
-//            });
+            post(new Runnable() {
+                @Override
+                public void run() {
+                    if (faceFrameImg == null) {
+                        return;
+                    }
+                    // 用于显示送检时的图片，建议注释掉
+                    faceFrameImg.setImageBitmap(Utils.getBitmap(argb, mTrackImageHeight, mTrackImageWidth));
+                }
+            });
         }
         checkData();
     }
