@@ -20,6 +20,8 @@ import com.xyf.lockers.callback.ILivenessCallBack;
 import com.xyf.lockers.common.GlobalSet;
 import com.xyf.lockers.common.serialport.LockersCommHelperNew;
 import com.xyf.lockers.listener.OnSingleLockerStatusListener;
+import com.xyf.lockers.manager.FaceLiveness;
+import com.xyf.lockers.manager.FaceSDKManager;
 import com.xyf.lockers.model.LivenessModel;
 import com.xyf.lockers.model.bean.User;
 import com.xyf.lockers.model.bean.UserDao;
@@ -183,21 +185,23 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
             UserDao userDao = MainAppliction.getInstance().getDaoSession().getUserDao();
             List<User> users = userDao.queryRaw("where user_name=?", userName);
             if (users.size() > 0) {
-                User user = users.get(0);
-                long storageIndexs = user.getStorageIndexs();
-                int count = Long.bitCount(storageIndexs);
-                if (count > 0) {
-                    //说明已存物品,需要开箱
-                    //获取到需要开箱的集合
-                    List<Integer> storageList = LockerUtils.getStorageIndexs(storageIndexs);
-                    if (storageList != null && !storageList.isEmpty()) {
-                        mCurrentUser = user;
-                        mIsRecognizing = true;
-                        openLockers(storageList);
+//                User user = users.get(0);
+                for (User user : users) {
+                    long storageIndexs = user.getStorageIndexs();
+                    int count = Long.bitCount(storageIndexs);
+                    if (count > 0) {
+                        //说明已存物品,需要开箱
+                        //获取到需要开箱的集合
+                        List<Integer> storageList = LockerUtils.getStorageIndexs(storageIndexs);
+                        if (storageList != null && !storageList.isEmpty()) {
+                            mCurrentUser = user;
+                            mIsRecognizing = true;
+                            openLockers(storageList);
+                        }
+                    } else {
+                        //说明没有存物品,提醒用户没有存物品
+                        Log.i(TAG, "onCallback: 说明没有存物品,提醒用户没有存物品");
                     }
-                } else {
-                    //说明没有存物品,提醒用户没有存物品
-                    Log.i(TAG, "onCallback: 说明没有存物品,提醒用户没有存物品");
                 }
             } else {
                 //说明facesdk的数据库里有数据,但是user数据库没有,说明user已被删除,没有存东西,不需要处理
@@ -207,7 +211,7 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
         }
     }
 
-    private void openLockers(final List<Integer> storageList) {
+    private synchronized void openLockers(final List<Integer> storageList) {
         mCurrentStorageList = storageList;
         mSubscribe = Observable.just(1).subscribeOn(Schedulers.io())
                 .subscribe(new Consumer<Integer>() {
@@ -277,6 +281,17 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (mBinocularView != null) {
+            mBinocularView.setLivenessCallBack(null);
+            mBinocularView = null;
+        }
+        if (mMonocularView != null) {
+            mMonocularView.setLivenessCallBack(null);
+            mMonocularView = null;
+        }
+        mHandler.removeCallbacksAndMessages(null);
+        //进入界面首先设置为通行,确保同一用户不会被注册两次
+        FaceSDKManager.getInstance().getFaceLiveness().setCurrentTaskType(FaceLiveness.TaskType.TASK_TYPE_ONETON);
         LockersCommHelperNew.get().setOnSingleLockerStatusListener(null);
     }
 }

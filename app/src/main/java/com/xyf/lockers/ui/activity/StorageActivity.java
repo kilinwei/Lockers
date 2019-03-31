@@ -33,6 +33,7 @@ import com.xyf.lockers.model.bean.UserDao;
 import com.xyf.lockers.utils.DensityUtil;
 import com.xyf.lockers.utils.LockerUtils;
 import com.xyf.lockers.utils.SharedPreferenceUtil;
+import com.xyf.lockers.utils.ToastUtil;
 import com.xyf.lockers.utils.UserDBManager;
 import com.xyf.lockers.view.BinocularView;
 import com.xyf.lockers.view.MonocularView;
@@ -64,6 +65,8 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
     private String mNickName;
     private int mCurrentOpenLockerIndex = -1;
     private User mCurrentUser;
+    private boolean mFirstRecogniceFace;
+
     /**
      * 是否发送了检测关门命令
      */
@@ -205,7 +208,7 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
     @Override
     public void onCallback(final int code, final LivenessModel livenessModel) {
         //子线程
-        Log.i(TAG, "onCallback: code: " + code + "  livenessModel为空吗:" + (livenessModel == null));
+        Log.i(TAG, "onCallback: code: " + code + "  livenessModel为空吗:" + (livenessModel == null) + "  当前activity的hashcode: " + this.hashCode());
         if (mIsRecognized) {
             return;
         }
@@ -232,16 +235,17 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
                 User user = users.get(0);
                 int storageIndexs = user.getStorageIndexs();
                 int count = Integer.bitCount(storageIndexs);
-                if (count < 3) {
-                    //未大于三个,可以存,先打开箱门，然后再把箱位记录到数据库中
-                    Log.i(TAG, "onCallback: 识别到老用户,存物品未大于三个,可以存,当前存储个数: " + count);
+                if (count < 1) {
+                    //未大于1个,可以存,先打开箱门，然后再把箱位记录到数据库中
+                    Log.i(TAG, "onCallback: 识别到老用户,存物品未大于1个,可以存,当前存储个数: " + count);
                     mCurrentUser = user;
-                    removeCameraView();
+                    removeCameraView(true);
                     openSingleLocker();
                 } else {
-                    // TODO: 2019/3/12  已存大于等于三个,提示用户需要先取出已存的东西
-                    Log.i(TAG, "onCallback: 识别到老用户,已存大于等于三个");
-                    removeCameraView();
+                    // TODO: 2019/3/12  已存大于等于1个,提示用户需要先取出已存的东西
+                    Log.i(TAG, "onCallback: 识别到老用户,已存大于等于1个");
+                    ToastUtil.showMessage("您已保存过一个物品了");
+                    removeCameraView(false);
                 }
             } else {
                 //说明facesdk的数据库里有数据,但是user数据库没有.需要写入user数据库，再打开箱门，然后再把箱位记录到数据库中
@@ -250,15 +254,18 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
                         currentTimeMillis / 1000,
                         currentTimeMillis / 1000,
                         feature.getCropImageName(), feature.getImageName());
-                removeCameraView();
+                removeCameraView(true);
                 openSingleLocker();
             }
         } else {
             Log.i(TAG, "onCallback: 未匹配到相似人脸");
-            if (!mHandler.hasMessages(MSG_CHECK_FACE)) {
+            if (!mFirstRecogniceFace) {
+                mHandler.removeMessages(MSG_CHECK_FACE);
                 mHandler.sendEmptyMessageDelayed(MSG_CHECK_FACE, PASS_TIME);
+                mFirstRecogniceFace = true;
                 Log.i(TAG, "onCallback: 开始注册倒计时,还有3s开启注册");
             }
+
             if (mNeedRegister) {
                 mNeedRegister = false;
                 mNickName = String.valueOf(System.currentTimeMillis() / 1000);
@@ -267,6 +274,8 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
                 //设置为注册模式
                 FaceSDKManager.getInstance().getFaceLiveness().setCurrentTaskType(FaceLiveness.TaskType.TASK_TYPE_REGIST);
                 Log.i(TAG, "onCallback: 已设置为注册模式");
+            }else{
+
             }
         }
 
@@ -278,7 +287,7 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
 
         @Override
         public void onRegistCallBack(int code, LivenessModel livenessModel, final Bitmap cropBitmap) {
-            removeCameraView();
+            removeCameraView(true);
             switch (code) {
                 case 0: {
                     mHandler.removeMessages(MSG_REGISTER_TIME_OUT);
@@ -305,7 +314,7 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
         }
     };
 
-    private void removeCameraView() {
+    private void removeCameraView(final boolean b) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -318,7 +327,9 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
                     Log.i(TAG, "run: removeCameraView");
                     mCameraView.removeView(mMonocularView);
                 }
-                mTvTips.setVisibility(View.VISIBLE);
+                if (b ) {
+                    mTvTips.setVisibility(View.VISIBLE);
+                }
             }
         });
     }
@@ -363,7 +374,7 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
             //更新当前用户储存的箱位索引
             int storageIndexs = mCurrentUser.getStorageIndexs();
             storageIndexs |= wayBinary;
-            Log.i(TAG, "updateStorageStatus: 用户存的位置： "+  Integer.toBinaryString(storageIndexs));
+            Log.i(TAG, "updateStorageStatus: 用户存的位置： " + Integer.toBinaryString(storageIndexs));
             mCurrentUser.setStorageIndexs(storageIndexs);
             UserDBManager.update(mCurrentUser);
             //此时需要post一个定时任务,假如到时间用户未关门,那么闪灯

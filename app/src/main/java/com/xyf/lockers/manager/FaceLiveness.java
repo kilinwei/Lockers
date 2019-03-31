@@ -7,6 +7,7 @@ package com.xyf.lockers.manager;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.baidu.idl.facesdk.FaceFeature;
@@ -66,7 +67,6 @@ public class FaceLiveness {
     private Future future;
     private Future future2;
     private int curFaceID = -1;
-    private LivenessModel mLastLivenessModel;
 
     public static enum TaskType {
         TASK_TYPE_REGIST,
@@ -453,6 +453,8 @@ public class FaceLiveness {
         livenessCallBack.onCallback(1, livenessModel);
     }
 
+    private String mLastRegistName;
+
     /**
      * 人脸注册
      *
@@ -460,10 +462,9 @@ public class FaceLiveness {
      */
     public void registFace(LivenessModel livenessModel) {
         long sTime = System.currentTimeMillis();
-        if (mLastLivenessModel != null && mLastLivenessModel.equals(livenessModel)) {
+        if (!TextUtils.isEmpty(mLastRegistName) && mLastRegistName.equals(registNickName)) {
             return;
         }
-        mLastLivenessModel = livenessModel;
         if ((GlobalSet.getLiveStatusValue() == GlobalSet.LIVE_STATUS.NO)
                 || (GlobalSet.getLiveStatusValue() == GlobalSet.LIVE_STATUS.RGB
                 && livenessModel.getRgbLivenessScore() > GlobalSet.getLiveRgbValue())
@@ -536,6 +537,7 @@ public class FaceLiveness {
 
                 logBuilder.append(registNickName + "\t" + picFile + "\t" + "成功\n");
                 if (FaceApi.getInstance().featureAdd(feature)) {
+                    mLastRegistName = registNickName;
                     livenessModel.setFeature(feature);
                     returnRegistResult(0, livenessModel, cropBitmap);
                 }
@@ -552,6 +554,7 @@ public class FaceLiveness {
      */
     private void returnRegistResult(int code, LivenessModel livenessModel, Bitmap cropBitmap) {
         synchronized (mLock) {
+            Log.i(TAG, "returnRegistResult: registCalllBacks个数: " + (registCalllBacks == null ? 0 : registCalllBacks.size()));
             for (IFaceRegistCalllBack faceRegistCalllBack : registCalllBacks) {
                 try {
                     faceRegistCalllBack.onRegistCallBack(code, livenessModel, cropBitmap);
