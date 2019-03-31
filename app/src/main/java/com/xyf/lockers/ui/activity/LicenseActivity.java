@@ -22,7 +22,7 @@ import com.xyf.lockers.base.BaseActivity;
 import com.xyf.lockers.common.GlobalSet;
 import com.xyf.lockers.db.DBManager;
 import com.xyf.lockers.manager.FaceSDKManager;
-import com.xyf.lockers.utils.ToastUtils;
+import com.xyf.lockers.utils.ToastUtil;
 
 import static com.xyf.lockers.common.GlobalSet.LICENSE_APP;
 import static com.xyf.lockers.common.GlobalSet.LICENSE_OFFLINE;
@@ -173,7 +173,7 @@ public class LicenseActivity extends BaseActivity implements View.OnClickListene
                     GlobalSet.setLicenseStatus(LICENSE_OFFLINE);
                     finish();
                 } else {
-                    ToastUtils.toast(mContext, code + "  " + response);
+                    ToastUtil.showMessage( code + "  " + response);
                 }
             }
         });
@@ -201,7 +201,7 @@ public class LicenseActivity extends BaseActivity implements View.OnClickListene
                     startActivity(new Intent(LicenseActivity.this, MainActivity.class));
                     finish();
                 } else {
-                    ToastUtils.toast(mContext, code + "  " + response);
+                    ToastUtil.showMessage( code + "  " + response);
                 }
             }
         });
@@ -224,7 +224,7 @@ public class LicenseActivity extends BaseActivity implements View.OnClickListene
                             GlobalSet.setLicenseStatus(LICENSE_APP);
                             finish();
                         } else {
-                            ToastUtils.toast(mContext, code + "  " + response);
+                            ToastUtil.showMessage( code + "  " + response);
                         }
 
                     }

@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.annotation.Nullable;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -19,7 +18,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.baidu.idl.facesdk.model.Feature;
-
 import com.bumptech.glide.Glide;
 import com.xyf.lockers.R;
 import com.xyf.lockers.base.BaseActivity;
@@ -29,7 +27,8 @@ import com.xyf.lockers.listener.OnItemClickListener;
 import com.xyf.lockers.manager.UserInfoManager;
 import com.xyf.lockers.utils.DensityUtil;
 import com.xyf.lockers.utils.FileUtils;
-import com.xyf.lockers.utils.ToastUtils;
+import com.xyf.lockers.utils.ToastUtil;
+
 import com.xyf.lockers.view.CircleImageView;
 
 import java.util.List;
@@ -347,7 +346,7 @@ public class UserActivity extends BaseActivity implements View.OnClickListener, 
                     if (mIsBatchDelete) {
                         // 更新删除UI
                         updateDeleteUI(false);
-                        ToastUtils.toast(mContext, "删除成功");
+                        ToastUtil.showMessage("删除成功");
                     } else {
                         mFaceAdapter.notifyDataSetChanged();
                     }
@@ -364,7 +363,7 @@ public class UserActivity extends BaseActivity implements View.OnClickListener, 
                     if (mContext == null) {
                         return;
                     }
-                    ToastUtils.toast(mContext, message);
+                    ToastUtil.showMessage( message);
                 }
             });
         }

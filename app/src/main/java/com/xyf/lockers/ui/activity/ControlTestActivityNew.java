@@ -11,7 +11,7 @@ import com.xyf.lockers.R;
 import com.xyf.lockers.base.BaseActivity;
 import com.xyf.lockers.common.serialport.LockersCommHelperNew;
 import com.xyf.lockers.utils.LockerUtils;
-import com.xyf.lockers.utils.ToastUtils;
+import com.xyf.lockers.utils.ToastUtil;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -66,7 +66,7 @@ public class ControlTestActivityNew
         switch (view.getId()) {
             case R.id.btn_open_locker:
                 if (TextUtils.isEmpty(circuitBoardStr) || TextUtils.isEmpty(lockerStr) || TextUtils.isEmpty(lightStr) || TextUtils.isEmpty(sonsorStr)) {
-                    ToastUtils.toast(this, "输入不能为空");
+                    ToastUtil.showMessage( "输入不能为空");
                     return;
                 }
                 circuitBoard = Integer.parseInt(circuitBoardStr);
@@ -84,7 +84,7 @@ public class ControlTestActivityNew
                 break;
             case R.id.btn_query_all:
                 if (TextUtils.isEmpty(circuitBoardStr) || TextUtils.isEmpty(lockerStr) || TextUtils.isEmpty(lightStr) || TextUtils.isEmpty(sonsorStr)) {
-                    ToastUtils.toast(this, "输入不能为空");
+                    ToastUtil.showMessage( "输入不能为空");
                     return;
                 }
                 circuitBoard = Integer.parseInt(circuitBoardStr);
@@ -103,7 +103,7 @@ public class ControlTestActivityNew
                 break;
             case R.id.btn_auto_light:
                 if (TextUtils.isEmpty(circuitBoardStr) || TextUtils.isEmpty(lockerStr) || TextUtils.isEmpty(lightStr) || TextUtils.isEmpty(sonsorStr)) {
-                    ToastUtils.toast(this, "输入不能为空");
+                    ToastUtil.showMessage( "输入不能为空");
                     return;
                 }
                 circuitBoard = Integer.parseInt(circuitBoardStr);

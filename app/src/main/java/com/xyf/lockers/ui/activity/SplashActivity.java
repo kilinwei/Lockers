@@ -15,7 +15,7 @@ import com.xyf.lockers.base.BaseActivity;
 import com.xyf.lockers.common.GlobalSet;
 import com.xyf.lockers.db.DBManager;
 import com.xyf.lockers.manager.FaceSDKManager;
-import com.xyf.lockers.utils.ToastUtils;
+import com.xyf.lockers.utils.ToastUtil;
 
 import butterknife.BindView;
 
@@ -92,7 +92,7 @@ public class SplashActivity extends BaseActivity {
                     startActivity(new Intent(SplashActivity.this, MainActivity.class));
                     finish();
                 } else {
-                    ToastUtils.toast(SplashActivity.this, code + "  " + response);
+                    ToastUtil.showMessage( code + "  " + response);
                 }
             }
         });

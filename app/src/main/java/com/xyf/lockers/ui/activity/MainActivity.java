@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
 
 import com.baidu.idl.facesdk.model.Feature;
 import com.baidu.idl.facesdk.utils.PreferencesUtil;
@@ -21,6 +22,7 @@ import com.xyf.lockers.utils.UserDBManager;
 import java.util.List;
 
 import butterknife.BindView;
+import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 
@@ -37,6 +39,8 @@ public class MainActivity
     Button mBtnControlDeleteAll;
     @BindView(R.id.btn_control_query)
     Button mBtnQuery;
+    @BindView(R.id.fl_hide)
+    FrameLayout mFlHide;
     private List<Feature> mListFeatureInfo;
     private UserInfoManager.UserInfoListener mUserInfoListener;
 
@@ -53,6 +57,14 @@ public class MainActivity
         DBManager.getInstance().init(getApplicationContext());
         UserInfoManager.getInstance().getFeatureInfo(null, mUserInfoListener);
         PreferencesUtil.putInt(GlobalSet.TYPE_PREVIEW_ANGLE, GlobalSet.TYPE_TPREVIEW_NINETY_ANGLE);
+        mFlHide.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Intent intent = new Intent(MainActivity.this, PasswordActivity.class);
+                startActivity(intent);
+                return false;
+            }
+        });
     }
 
     @Override
@@ -80,7 +92,7 @@ public class MainActivity
                 intent = new Intent(this, ControlTestActivityNew.class);
                 break;
             case R.id.btn_control_query:
-                intent = new Intent(this,UserActivity.class);
+                intent = new Intent(this, UserActivity.class);
                 break;
             case R.id.btn_control_delete_all:
                 if (mListFeatureInfo == null) {
@@ -103,6 +115,13 @@ public class MainActivity
         }
     }
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // TODO: add setContentView(...) invocation
+        ButterKnife.bind(this);
+    }
+
 
     // 用于返回读取数据库的结果
     private class UserListener extends UserInfoManager.UserInfoListener {
@@ -119,7 +138,7 @@ public class MainActivity
                     } else {
                         mListFeatureInfo = listFeatureInfo;
                         for (Feature feature : mListFeatureInfo) {
-                            Log.i(TAG, "run: feature：　"+ feature.getUserName());
+                            Log.i(TAG, "run: feature：　" + feature.getUserName());
                         }
                         Log.i(TAG, "run: 查询到百度人脸库数量为: " + listFeatureInfo.size());
                     }

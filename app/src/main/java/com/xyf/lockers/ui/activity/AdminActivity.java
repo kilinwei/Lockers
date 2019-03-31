@@ -1,7 +1,6 @@
 package com.xyf.lockers.ui.activity;
 
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -12,12 +11,10 @@ import com.xyf.lockers.R;
 import com.xyf.lockers.adapter.GridAdapter;
 import com.xyf.lockers.base.BaseActivity;
 import com.xyf.lockers.common.serialport.LockersCommHelper;
-import com.xyf.lockers.listener.OnSingleLockerStatusListener;
 import com.xyf.lockers.model.bean.GridBean;
 import com.xyf.lockers.model.bean.User;
 import com.xyf.lockers.utils.LockerUtils;
-import com.xyf.lockers.utils.SharedPreferenceUtil;
-import com.xyf.lockers.utils.ToastUtils;
+import com.xyf.lockers.utils.ToastUtil;
 import com.xyf.lockers.utils.UserDBManager;
 
 import java.util.ArrayList;
@@ -26,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -84,7 +80,7 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
                                         User put = mCacheMap.put(index, user);
                                         if (put != null) {
                                             Log.w(TAG, "警告：序号为：" + index + "的柜子保存了两个人的信息");
-                                            ToastUtils.toast(AdminActivity.this, "警告：序号为：" + index + "的柜子保存了两个人的信息");
+                                            ToastUtil.showMessage( "警告：序号为：" + index + "的柜子保存了两个人的信息");
                                         }
                                     }
                                 }
@@ -131,7 +127,7 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
             GridBean gridBean = mGridBeans.get(position);
 
         }
-        ToastUtils.toast(this, position + "被点击");
+        ToastUtil.showMessage(position + "被点击");
     }
 
 }

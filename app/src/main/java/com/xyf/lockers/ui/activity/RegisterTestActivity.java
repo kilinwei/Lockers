@@ -23,7 +23,7 @@ import com.xyf.lockers.manager.FaceLiveness;
 import com.xyf.lockers.manager.FaceSDKManager;
 import com.xyf.lockers.model.LivenessModel;
 import com.xyf.lockers.utils.DensityUtil;
-import com.xyf.lockers.utils.ToastUtils;
+import com.xyf.lockers.utils.ToastUtil;
 import com.xyf.lockers.view.BinocularView;
 import com.xyf.lockers.view.CircleImageView;
 import com.xyf.lockers.view.CirclePercentView;
@@ -206,7 +206,7 @@ public class RegisterTestActivity extends BaseActivity implements ILivenessCallB
                                 FaceSDKManager.getInstance().getFaceLiveness()
                                         .setCurrentTaskType(FaceLiveness.TaskType.TASK_TYPE_REGIST);
                             } else {
-                                ToastUtils.toast(mContext, nameResult);
+                                ToastUtil.showMessage(nameResult);
                             }
                         }
                     }
