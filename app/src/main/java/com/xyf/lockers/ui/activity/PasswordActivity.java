@@ -47,7 +47,7 @@ public class PasswordActivity extends BaseActivity {
             @Override
             public void inputFinish(String password) {
                 if (PWD.equals(password)) {
-                    Intent intent = new Intent(PasswordActivity.this, ControlTestActivityNew.class);
+                    Intent intent = new Intent(PasswordActivity.this, AdminActivity.class);
                     startActivity(intent);
                     finish();
                 } else {

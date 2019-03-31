@@ -315,6 +315,7 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
                 }
                 if (mMonocularView != null && mCameraView != null) {
                     mMonocularView.onPause();
+                    Log.i(TAG, "run: removeCameraView");
                     mCameraView.removeView(mMonocularView);
                 }
                 mTvTips.setVisibility(View.VISIBLE);
