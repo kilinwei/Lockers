@@ -26,6 +26,7 @@ import com.xyf.lockers.model.bean.UserDao;
 import com.xyf.lockers.utils.DensityUtil;
 import com.xyf.lockers.utils.LockerUtils;
 import com.xyf.lockers.utils.SharedPreferenceUtil;
+import com.xyf.lockers.utils.ToastUtil;
 import com.xyf.lockers.utils.UserDBManager;
 import com.xyf.lockers.view.BinocularView;
 import com.xyf.lockers.view.MonocularView;
@@ -243,6 +244,7 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
         byte lockerBinary = bRec[2];
         ArrayList<Integer> lockers = LockerUtils.getOpeningLockesIndexs(boardBinary, lockerBinary);
         if (lockers != null) {
+            ToastUtil.showMessage("取出成功");
             int storageIndexs = mCurrentUser.getStorageIndexs();
             for (Integer locker : lockers) {
                 //获取当前打开的箱位

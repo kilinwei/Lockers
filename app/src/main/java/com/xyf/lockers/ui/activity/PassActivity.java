@@ -30,6 +30,7 @@ import com.xyf.lockers.utils.DensityUtil;
 import com.xyf.lockers.utils.FileUtils;
 import com.xyf.lockers.utils.LockerUtils;
 import com.xyf.lockers.utils.SharedPreferenceUtil;
+import com.xyf.lockers.utils.ToastUtil;
 import com.xyf.lockers.utils.UserDBManager;
 import com.xyf.lockers.utils.Utils;
 import com.xyf.lockers.view.BinocularView;
@@ -247,11 +248,13 @@ public class PassActivity extends BaseActivity implements ILivenessCallBack, Vie
                         //相似度
                         float featureScore = livenessModel.getFeatureScore();
                         if (featureScore < Constants.PASS_SCORE) {
+                            ToastUtil.showMessage("分数低于： "+ Constants.PASS_SCORE);
                             return;
                         }
                         if (mIsRecognizing) {
                             // TODO: 2019/3/15 请等待上一个用户取完物品再取
                             Log.i(TAG, "onCallback: 请等待上一个用户取完物品再取");
+                            ToastUtil.showMessage("请等待上一个用户取完物品再取");
                             return;
                         }
                         //储存的名字,
@@ -265,6 +268,7 @@ public class PassActivity extends BaseActivity implements ILivenessCallBack, Vie
                             if (count > 0) {
                                 //说明已存物品,需要开箱
                                 //获取到需要开箱的集合
+                                ToastUtil.showMessage("说明已存物品,需要开箱");
                                 List<Integer> storageList = LockerUtils.getStorageIndexs(storageIndexs);
                                 if (storageList != null && !storageList.isEmpty()) {
                                     mCurrentUser = user;
@@ -274,6 +278,7 @@ public class PassActivity extends BaseActivity implements ILivenessCallBack, Vie
                             } else {
                                 //说明没有存物品,提醒用户没有存物品
                                 Log.i(TAG, "onCallback: 说明没有存物品,提醒用户没有存物品");
+                                ToastUtil.showMessage("说明没有存物品,提醒用户没有存物品");
                             }
                         }
                     } else {

@@ -13,5 +13,5 @@ public interface Constants {
     /**
      * 超过这个分数,认定是同一个人
      */
-    int PASS_SCORE = 90;
+    int PASS_SCORE = 80;
 }

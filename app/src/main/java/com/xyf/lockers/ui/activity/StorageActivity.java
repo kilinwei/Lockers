@@ -363,6 +363,7 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
             //更新当前用户储存的箱位索引
             int storageIndexs = mCurrentUser.getStorageIndexs();
             storageIndexs |= wayBinary;
+            Log.i(TAG, "updateStorageStatus: 用户存的位置： "+  Integer.toBinaryString(storageIndexs));
             mCurrentUser.setStorageIndexs(storageIndexs);
             UserDBManager.update(mCurrentUser);
             //此时需要post一个定时任务,假如到时间用户未关门,那么闪灯

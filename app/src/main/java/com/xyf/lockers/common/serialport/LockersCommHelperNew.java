@@ -39,7 +39,7 @@ public class LockersCommHelperNew {
     /**
      * 数据接收超时时间 todo 记得把时间回去
      */
-    private static final int RECEIVER_DATA_TIMEOUT = 300;
+    private static final int RECEIVER_DATA_TIMEOUT = 800;
 
     private static LockersCommHelperNew instance;
 
