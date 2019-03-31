@@ -80,7 +80,7 @@ public class MainActivity
                 intent = new Intent(this, ControlTestActivityNew.class);
                 break;
             case R.id.btn_control_query:
-                UserInfoManager.getInstance().getFeatureInfo(null, mUserInfoListener);
+                intent = new Intent(this,UserActivity.class);
                 break;
             case R.id.btn_control_delete_all:
                 if (mListFeatureInfo == null) {

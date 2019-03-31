@@ -12,4 +12,17 @@
     <string name="pass_1_n">1:N 通行</string>
     <string name="setting">设置</string>
 
+    <string name="batch_import">批量导入</string>
+    <string name="batch_delete">批量删除</string>
+    <string name="batch_register">批量注册</string>
+    <string name="db_import_output">导入/导出数据库</string>
+    <string name="check_all">全选</string>
+
+    <string name="import_achieve">导入完成</string>
+    <string name="import_tatal">任务总数</string>
+    <string name="import_success">导入成功</string>
+    <string name="import_fail">导入失败</string>
+    <string name="face_manager">人脸库管理</string>
+    <string name="db_import">数据库导入/导出</string>
+
 </resources>

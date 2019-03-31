@@ -75,6 +75,7 @@
         </activity>
         <activity android:name=".ui.activity.LicenseActivity"/>
         <activity android:name=".ui.activity.PassActivity"/>
+        <activity android:name=".ui.activity.UserActivity"/>
     </application>
 
 </manifest>
