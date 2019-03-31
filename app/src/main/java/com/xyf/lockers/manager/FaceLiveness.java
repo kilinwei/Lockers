@@ -66,6 +66,7 @@ public class FaceLiveness {
     private Future future;
     private Future future2;
     private int curFaceID = -1;
+    private LivenessModel mLastLivenessModel;
 
     public static enum TaskType {
         TASK_TYPE_REGIST,
@@ -391,9 +392,11 @@ public class FaceLiveness {
                     // 增加注册功能
                     switch (currentTaskType) {
                         case TASK_TYPE_ONETON:
+                            Log.i(TAG, "当前是通行策略");
                             filterFeature(livenessModel);
                             break;
                         case TASK_TYPE_REGIST:
+                            Log.i(TAG, "当前是注册策略");
                             registFace(livenessModel);
                             break;
                         default:
@@ -415,7 +418,7 @@ public class FaceLiveness {
                 (GlobalSet.getLiveStatusValue() == GlobalSet.LIVE_STATUS.RGB_DEPTH
                         && livenessModel.getRgbLivenessScore() > GlobalSet.getLiveRgbValue()
                         && livenessModel.getDepthLivenessScore() > GlobalSet.getLiveDepthValue())
-                ) {
+        ) {
             byte[] visFeature = new byte[512];
             long sTime = System.currentTimeMillis();
             float length = FaceSDKManager.getInstance().getFaceFeature().extractFeature(
@@ -457,7 +460,10 @@ public class FaceLiveness {
      */
     public void registFace(LivenessModel livenessModel) {
         long sTime = System.currentTimeMillis();
-
+        if (mLastLivenessModel != null && mLastLivenessModel.equals(livenessModel)) {
+            return;
+        }
+        mLastLivenessModel = livenessModel;
         if ((GlobalSet.getLiveStatusValue() == GlobalSet.LIVE_STATUS.NO)
                 || (GlobalSet.getLiveStatusValue() == GlobalSet.LIVE_STATUS.RGB
                 && livenessModel.getRgbLivenessScore() > GlobalSet.getLiveRgbValue())
@@ -500,7 +506,7 @@ public class FaceLiveness {
                 if (facePicDir != null) {
                     File savePicPath = new File(facePicDir, picFile);
                     if (FileUtils.saveFile(savePicPath, registBmp)) {
-                        Log.i(TAG, "图片保存成功");
+                        Log.i(TAG, "图片保存成功: picFile: " + picFile);
                         feature.setImageName(picFile);
                     }
                 }
