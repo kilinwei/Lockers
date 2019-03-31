@@ -1,6 +1,7 @@
 package com.xyf.lockers.ui.activity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -248,7 +249,7 @@ public class PassActivity extends BaseActivity implements ILivenessCallBack, Vie
                         //相似度
                         float featureScore = livenessModel.getFeatureScore();
                         if (featureScore < Constants.PASS_SCORE) {
-                            ToastUtil.showMessage("分数低于： "+ Constants.PASS_SCORE);
+                            ToastUtil.showMessage("分数低于： " + Constants.PASS_SCORE);
                             return;
                         }
                         if (mIsRecognizing) {
@@ -306,6 +307,9 @@ public class PassActivity extends BaseActivity implements ILivenessCallBack, Vie
                         }
                     }
                 });
+        Intent intent = new Intent(PassActivity.this, ShowTipsActivity.class);
+        intent.putExtra(ShowTipsActivity.TIPS, "已打开柜门");
+        finish();
     }
 
     @Override

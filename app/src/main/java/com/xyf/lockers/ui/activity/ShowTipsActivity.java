@@ -1,14 +1,39 @@
 package com.xyf.lockers.ui.activity;
 
-import android.support.v7.app.AppCompatActivity;
+import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.widget.TextView;
 
 import com.xyf.lockers.R;
 import com.xyf.lockers.base.BaseActivity;
 
+import butterknife.BindView;
+
 public class ShowTipsActivity extends BaseActivity {
+    private static final String TAG = "ShowTipsActivity";
+    public static final String TIPS = "tips";
+    @BindView(R.id.tv_timer)
+    TextView mTvTimer;
+    @BindView(R.id.tv_tips)
+    TextView mTvTips;
+    private int time = 30;
+    @SuppressLint("HandlerLeak")
+    private Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            mTvTimer.setText("(" + time-- + "秒后自动关闭)");
+            if (time == 0) {
+                startActivity(new Intent(ShowTipsActivity.this, MainActivity.class));
+            } else {
+                handler.sendEmptyMessageDelayed(0, 1000);
+            }
 
-
+        }
+    };
+    private String mTips;
 
     @Override
     protected int getLayout() {
@@ -17,6 +42,23 @@ public class ShowTipsActivity extends BaseActivity {
 
     @Override
     protected void initEventAndData(Bundle savedInstanceState) {
+        Intent intent = getIntent();
+        mTips = intent.getStringExtra(TIPS);
+        mTvTimer.setText(mTips);
+    }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if (intent != null) {
+            mTips = intent.getStringExtra(TIPS);
+            mTvTimer.setText(mTips);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        handler.removeCallbacksAndMessages(null);
     }
 }

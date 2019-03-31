@@ -2,17 +2,16 @@ package com.xyf.lockers.ui.activity;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import com.baidu.idl.facesdk.model.Feature;
 import com.xyf.lockers.R;
@@ -56,8 +55,6 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
     RelativeLayout mCameraView;
     @BindView(R.id.image_track)
     ImageView mImageTrack;
-    @BindView(R.id.tv_tips)
-    TextView mTvTips;
     private Context mContext;
     private BinocularView mBinocularView;
     private MonocularView mMonocularView;
@@ -239,13 +236,13 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
                     //未大于1个,可以存,先打开箱门，然后再把箱位记录到数据库中
                     Log.i(TAG, "onCallback: 识别到老用户,存物品未大于1个,可以存,当前存储个数: " + count);
                     mCurrentUser = user;
-                    removeCameraView(true);
+                    removeCameraView("已打开柜门");
                     openSingleLocker();
                 } else {
                     // TODO: 2019/3/12  已存大于等于1个,提示用户需要先取出已存的东西
                     Log.i(TAG, "onCallback: 识别到老用户,已存大于等于1个");
                     ToastUtil.showMessage("您已保存过一个物品了");
-                    removeCameraView(false);
+                    removeCameraView("您已保存过一个物品了");
                 }
             } else {
                 //说明facesdk的数据库里有数据,但是user数据库没有.需要写入user数据库，再打开箱门，然后再把箱位记录到数据库中
@@ -254,7 +251,7 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
                         currentTimeMillis / 1000,
                         currentTimeMillis / 1000,
                         feature.getCropImageName(), feature.getImageName());
-                removeCameraView(true);
+                removeCameraView("已打开柜门");
                 openSingleLocker();
             }
         } else {
@@ -274,7 +271,7 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
                 //设置为注册模式
                 FaceSDKManager.getInstance().getFaceLiveness().setCurrentTaskType(FaceLiveness.TaskType.TASK_TYPE_REGIST);
                 Log.i(TAG, "onCallback: 已设置为注册模式");
-            }else{
+            } else {
 
             }
         }
@@ -287,7 +284,7 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
 
         @Override
         public void onRegistCallBack(int code, LivenessModel livenessModel, final Bitmap cropBitmap) {
-            removeCameraView(true);
+            removeCameraView("已打开柜门");
             switch (code) {
                 case 0: {
                     mHandler.removeMessages(MSG_REGISTER_TIME_OUT);
@@ -314,7 +311,7 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
         }
     };
 
-    private void removeCameraView(final boolean b) {
+    private void removeCameraView(final String tips) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -327,9 +324,10 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
                     Log.i(TAG, "run: removeCameraView");
                     mCameraView.removeView(mMonocularView);
                 }
-                if (b ) {
-                    mTvTips.setVisibility(View.VISIBLE);
-                }
+
+                Intent intent = new Intent(StorageActivity.this, ShowTipsActivity.class);
+                intent.putExtra(ShowTipsActivity.TIPS, tips);
+                finish();
             }
         });
     }
