@@ -5,12 +5,14 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.xyf.lockers.R;
 import com.xyf.lockers.adapter.GridAdapter;
 import com.xyf.lockers.base.BaseActivity;
 import com.xyf.lockers.common.serialport.LockersCommHelper;
+import com.xyf.lockers.common.serialport.LockersCommHelperNew;
 import com.xyf.lockers.model.bean.GridBean;
 import com.xyf.lockers.model.bean.User;
 import com.xyf.lockers.utils.LockerUtils;
@@ -23,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import butterknife.BindView;
+import butterknife.OnClick;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -45,8 +48,11 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
      * 用于
      */
     List<GridBean> mGridBeans;
+    @BindView(R.id.btn_open_all)
+    Button mBtnOpenAll;
     private Map<Integer, User> mCacheMap;
     private int mCurrentOpenLockerIndex;
+    private Disposable mSubscribe;
 
 
     @Override
@@ -80,7 +86,7 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
                                         User put = mCacheMap.put(index, user);
                                         if (put != null) {
                                             Log.w(TAG, "警告：序号为：" + index + "的柜子保存了两个人的信息");
-                                            ToastUtil.showMessage( "警告：序号为：" + index + "的柜子保存了两个人的信息");
+                                            ToastUtil.showMessage("警告：序号为：" + index + "的柜子保存了两个人的信息");
                                         }
                                     }
                                 }
@@ -125,9 +131,30 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
     public void onItemChildClick(BaseQuickAdapter adapter, View view, int position) {
         if (mGridBeans != null) {
             GridBean gridBean = mGridBeans.get(position);
-
         }
         ToastUtil.showMessage(position + "被点击");
     }
 
+
+    @OnClick(R.id.btn_open_all)
+    public void onViewClicked() {
+        mSubscribe = Observable.just(1).subscribeOn(Schedulers.io())
+                .subscribe(new Consumer<Integer>() {
+                    @Override
+                    public void accept(Integer integer) throws Exception {
+                        for (int i = 0; i < 32; i++) {
+                            byte[] openSingleLockerBytes = LockerUtils.getOpenSingleLockerBytes(i);
+                            LockersCommHelperNew.get().controlSingleLock(openSingleLockerBytes[0], openSingleLockerBytes[1], openSingleLockerBytes[2], openSingleLockerBytes[3]);
+                        }
+                    }
+                });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mSubscribe != null && !mSubscribe.isDisposed()) {
+            mSubscribe.dispose();
+        }
+    }
 }

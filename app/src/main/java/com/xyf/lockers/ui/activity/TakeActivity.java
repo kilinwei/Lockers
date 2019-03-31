@@ -20,8 +20,6 @@ import com.xyf.lockers.callback.ILivenessCallBack;
 import com.xyf.lockers.common.GlobalSet;
 import com.xyf.lockers.common.serialport.LockersCommHelperNew;
 import com.xyf.lockers.listener.OnSingleLockerStatusListener;
-import com.xyf.lockers.manager.FaceLiveness;
-import com.xyf.lockers.manager.FaceSDKManager;
 import com.xyf.lockers.model.LivenessModel;
 import com.xyf.lockers.model.bean.User;
 import com.xyf.lockers.model.bean.UserDao;
@@ -98,6 +96,7 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
         mContext = this;
         //设置为注册模式
         calculateCameraView();
+        LockersCommHelperNew.get().setOnSingleLockerStatusListener(this);
     }
 
     /**
