@@ -69,12 +69,12 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
 
     @Override
     protected void initEventAndData(Bundle savedInstanceState) {
-        List<User> list = new ArrayList<>();
-        for (int i = 0; i < 32; i++) {
-            User user = new User();
-            user.setUserName("" + 1);
-            list.add(user);
-        }
+//        final List<User> list = new ArrayList<>();
+//        for (int i = 0; i < 32; i++) {
+//            User user = new User();
+//            user.setUserName("" + 1);
+//            list.add(user);
+//        }
         mUserInfoListener = new UserListener();
         UserInfoManager.getInstance().getFeatureInfo(null, mUserInfoListener);
         Disposable subscribe = Observable.just(1)
@@ -84,8 +84,8 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
                     public List<GridBean> apply(Integer integer) throws Exception {
                         List<GridBean> gridBeanList = new ArrayList<>();
                         List<User> allStorageUser = UserDBManager.getAllStorageUser();
-                        if (allStorageUser != null && !allStorageUser.isEmpty()) {
-//                        if (allStorageUser != null && allStorageUser.isEmpty()) {//测试用
+//                        if (allStorageUser != null && !allStorageUser.isEmpty()) {
+                        if (allStorageUser != null && allStorageUser.isEmpty()) {//测试用,上面的才是生产用的
                             mCacheMap = new HashMap<>();
                             for (User user : allStorageUser) {
                                 int storageIndex = user.getStorageIndexs();
@@ -129,6 +129,8 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
                         gridLayoutManager.setOrientation(GridLayoutManager.VERTICAL);
                         recyclerviewGrid.setLayoutManager(gridLayoutManager);
                         GridAdapter gridAdapter = new GridAdapter(R.layout.grid_item, mGridBeans);
+                        // TODO: 2019/4/9 just for  test
+//                        GridAdapter gridAdapter = new GridAdapter(R.layout.grid_item, list);
                         recyclerviewGrid.setAdapter(gridAdapter);
                         gridAdapter.setOnItemChildClickListener(AdminActivity.this);
 
