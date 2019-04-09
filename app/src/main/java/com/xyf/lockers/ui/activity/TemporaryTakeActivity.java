@@ -28,9 +28,7 @@ import com.xyf.lockers.model.bean.User;
 import com.xyf.lockers.model.bean.UserDao;
 import com.xyf.lockers.utils.DensityUtil;
 import com.xyf.lockers.utils.LockerUtils;
-import com.xyf.lockers.utils.SharedPreferenceUtil;
 import com.xyf.lockers.utils.ToastUtil;
-import com.xyf.lockers.utils.UserDBManager;
 import com.xyf.lockers.view.BinocularView;
 import com.xyf.lockers.view.MonocularView;
 
@@ -43,10 +41,10 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
-public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnSingleLockerStatusListener {
+public class TemporaryTakeActivity extends BaseActivity implements ILivenessCallBack, OnSingleLockerStatusListener {
     // TODO: 2019/3/15  待写功能：判断用户取出所有物品之后，关闭本界面
 
-    private static final String TAG = "TakeActivity";
+    private static final String TAG = "TemporaryTakeActivity";
     public static final int MSG_PASS_TIME_OUT = 0x04;
     public static final int PASS_OUT_TIME = 30 * 1000;
     @BindView(R.id.layout_camera)
@@ -230,7 +228,7 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
                         }
                     }
                 });
-        Intent intent = new Intent(TakeActivity.this, ShowTipsActivity.class);
+        Intent intent = new Intent(TemporaryTakeActivity.this, ShowTipsActivity.class);
         intent.putExtra(ShowTipsActivity.TIPS, "已打开柜门");
         startActivity(intent);
     }
@@ -256,25 +254,8 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
         byte lockerBinary = bRec[2];
         ArrayList<Integer> lockers = LockerUtils.getOpeningLockesIndexs(boardBinary, lockerBinary);
         if (lockers != null) {
-            ToastUtil.showMessage("取出成功");
-            int storageIndexs = mCurrentUser.getStorageIndexs();
-            for (Integer locker : lockers) {
-                //获取当前打开的箱位
-                int wayBinary = 1 << locker;
-                //二进制取反,比如00001000变成111110111
-                int i = ~wayBinary;
-                //将指定位数的1抹去
-                storageIndexs &= i;
-
-                int allLockersStatus = SharedPreferenceUtil.getAllLockersStatus();
-                //用原来以保存的箱位或上现保存的箱位,然后记录所有已存东西的箱位索引
-                allLockersStatus &= i;
-
-                SharedPreferenceUtil.setAllLockersStatus(allLockersStatus);
-                mCurrentUser.setStorageIndexs(storageIndexs);
-                //更新数据库信息
-                UserDBManager.update(mCurrentUser);
-            }
+            ToastUtil.showMessage("临时取出成功");
+           //此处和TakeActivity不一样的地方为,不需要更新用户数据,为临时开柜,只需要检测用户是否关门就行
         } else {
             Log.i(TAG, "onSingleLockerStatusResponse: 没有打开任何柜门");
         }

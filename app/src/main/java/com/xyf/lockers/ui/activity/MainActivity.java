@@ -29,6 +29,8 @@ public class MainActivity
     Button btnStorage;
     @BindView(R.id.btn_take)
     Button btnTake;
+    @BindView(R.id.btn_temporary_take)
+    Button btnEmporaryTake;
     @BindView(R.id.btn_control_test)
     Button mBtnControlTest;
     @BindView(R.id.btn_control_query)
@@ -70,6 +72,7 @@ public class MainActivity
 
     @OnClick({R.id.btn_storage,
             R.id.btn_take,
+            R.id.btn_temporary_take,
             R.id.btn_control_query,
             R.id.btn_control_test})
     public void onViewClicked(View view) {
@@ -80,6 +83,9 @@ public class MainActivity
                 break;
             case R.id.btn_take:
                 intent = new Intent(this, TakeActivity.class);
+                break;
+            case R.id.btn_temporary_take:
+                intent = new Intent(this, TemporaryTakeActivity.class);
                 break;
             case R.id.btn_control_test:
                 intent = new Intent(this, ControlTestActivityNew.class);
@@ -92,7 +98,6 @@ public class MainActivity
             startActivity(intent);
         }
     }
-
 
 
     // 用于返回读取数据库的结果
