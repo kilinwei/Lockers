@@ -79,7 +79,7 @@ public class MainActivity
                 intent = new Intent(this, StorageActivity.class);
                 break;
             case R.id.btn_take:
-                intent = new Intent(this, PassActivity.class);
+                intent = new Intent(this, TakeActivity.class);
                 break;
             case R.id.btn_control_test:
                 intent = new Intent(this, ControlTestActivityNew.class);

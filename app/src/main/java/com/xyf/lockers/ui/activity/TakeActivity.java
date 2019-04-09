@@ -2,6 +2,7 @@ package com.xyf.lockers.ui.activity;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -177,6 +178,7 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
             if (mIsRecognizing) {
                 // TODO: 2019/3/15 请等待上一个用户取完物品再取
                 Log.i(TAG, "onCallback: 请等待上一个用户取完物品再取");
+                ToastUtil.showMessage("请等待上一个用户取完物品再取");
                 return;
             }
             Feature feature = livenessModel.getFeature();
@@ -200,7 +202,11 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
                         }
                     } else {
                         //说明没有存物品,提醒用户没有存物品
+                        ToastUtil.showMessage(" 说明没有存物品,提醒用户没有存物品");
                         Log.i(TAG, "onCallback: 说明没有存物品,提醒用户没有存物品");
+                        Intent intent = new Intent(this, ShowTipsActivity.class);
+                        intent.putExtra(ShowTipsActivity.TIPS, "您没有保存物品，请先保存物品");
+                        startActivity(intent);
                     }
                 }
             } else {
@@ -225,6 +231,9 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
                         }
                     }
                 });
+        Intent intent = new Intent(TakeActivity.this, ShowTipsActivity.class);
+        intent.putExtra(ShowTipsActivity.TIPS, "已打开柜门");
+        startActivity(intent);
     }
 
     @Override
