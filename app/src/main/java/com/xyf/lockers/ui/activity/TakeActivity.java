@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.baidu.idl.facesdk.model.Feature;
 import com.xyf.lockers.R;
@@ -53,6 +54,8 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
     RelativeLayout mCameraView;
     @BindView(R.id.image_track)
     ImageView mImageTrack;
+    @BindView(R.id.tv_similarity)
+    TextView mTvSimilarity;
     private Context mContext;
     private BinocularView mBinocularView;
     private MonocularView mMonocularView;
@@ -157,7 +160,10 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
 
     @Override
     public void onTip(int code, String msg) {
-
+        if (mTvSimilarity != null) {
+            mTvSimilarity.setText(msg);
+        }
+        Log.i(TAG, "onTip: " + msg);
     }
 
     @Override
@@ -171,6 +177,9 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
             //匹配到相似人脸,说明这个人已经存过东西,检测已经存几个,将用户存的箱子一次性打开
             //相似度
             float featureScore = livenessModel.getFeatureScore();
+            if (mTvSimilarity != null) {
+                mTvSimilarity.setText(String.format("相似度: %s", featureScore));
+            }
             if (featureScore < Constants.PASS_SCORE) {
                 return;
             }
@@ -212,6 +221,9 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
                 //说明facesdk的数据库里有数据,但是user数据库没有,说明user已被删除,没有存东西,不需要处理
             }
         } else {
+            if (mTvSimilarity != null) {
+                mTvSimilarity.setText("未匹配到相似人脸");
+            }
             Log.i(TAG, "run: 未匹配到相似人脸");
         }
     }
