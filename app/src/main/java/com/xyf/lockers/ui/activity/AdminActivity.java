@@ -1,5 +1,6 @@
 package com.xyf.lockers.ui.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v7.widget.GridLayoutManager;
@@ -56,6 +57,8 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
     Button mBtnOpenAll;
     @BindView(R.id.btn_control_delete_all)
     Button mBtnControlDeleteAll;
+    @BindView(R.id.btn_back)
+    Button mBtnBack;
     private Map<Integer, User> mCacheMap;
     private int mCurrentOpenLockerIndex;
     private Disposable mSubscribe;
@@ -153,7 +156,9 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
     }
 
 
-    @OnClick({R.id.btn_open_all, R.id.btn_control_delete_all})
+    @OnClick({R.id.btn_open_all,
+            R.id.btn_back,
+            R.id.btn_control_delete_all})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btn_open_all:
@@ -168,6 +173,9 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
                                 }
                             }
                         });
+                break;
+            case R.id.btn_back:
+                startActivity(new Intent(this, MainActivity.class));
                 break;
             case R.id.btn_control_delete_all:
                 if (mListFeatureInfo == null) {
