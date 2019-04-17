@@ -61,7 +61,7 @@ public class FaceSDKManager {
                 "align_2.0.0.anakin.bin", new FaceCallback() {
                     @Override
                     public void onResponse(int code, String response) {
-                        ToastUtil.showMessage( code + "  " + response);
+                        ToastUtil.showMessage(code + "  " + response);
                     }
                 });
         faceDetector.loadConfig(getFaceEnvironmentConfig());
@@ -70,7 +70,7 @@ public class FaceSDKManager {
                 "", new FaceCallback() {
                     @Override
                     public void onResponse(int code, String response) {
-                       ToastUtil.showMessage( code + "  " + response);
+                        ToastUtil.showMessage(code + "  " + response);
                     }
                 });
         faceLiveness.initModel(context, "liveness_rgb_anakin_2.0.0.bin",
@@ -78,7 +78,7 @@ public class FaceSDKManager {
                 "liveness_depth_anakin_2.0.0.bin", new FaceCallback() {
                     @Override
                     public void onResponse(int code, String response) {
-                       ToastUtil.showMessage( code + "  " + response);
+                        ToastUtil.showMessage(code + "  " + response);
                     }
                 });
     }

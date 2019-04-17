@@ -14,6 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/ic_title">
+
         <RelativeLayout
             android:id="@+id/layout_camera"
             android:layout_width="match_parent"

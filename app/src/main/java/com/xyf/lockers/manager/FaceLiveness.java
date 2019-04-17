@@ -42,6 +42,7 @@ public class FaceLiveness {
     public static final int MASK_RGB = 0X0001;
     public static final int MASK_IR = 0X0010;
     public static final int MASK_DEPTH = 0X0100;
+    public static final int FACE_ANGLE = 15;
 
     private FaceLive mFaceLive;
 
@@ -324,7 +325,12 @@ public class FaceLiveness {
             if (currentTaskType == TASK_TYPE_ONETON && faceInfos[0].face_id == curFaceID) {
                 return true;
             }
-
+            float[] headPose = faceInfo.headPose;
+            Log.i(TAG, "onLivenessCheck headpose->人脸角度" + headPose[0] + " " + headPose[1] + " " + headPose[2]);
+            if (Math.abs(headPose[0]) > FACE_ANGLE || Math.abs(headPose[1]) > FACE_ANGLE || Math.abs(headPose[2]) > FACE_ANGLE) {
+                livenessCallBack.onTip(0, "人脸置角度太大，请正对摄像头");
+                return false;
+            }
             return livenessFeatures(livenessModel);
         } else {
             // 返回检测到人脸的事件
@@ -467,6 +473,7 @@ public class FaceLiveness {
             Log.i(TAG, "registFace: 同一用户注册两次，已拦截");
             return;
         }
+        FaceInfo[] faceInfos = FaceSDKManager.getInstance().getFaceDetector().detect(livenessModel.getImageFrame(), 50);
         if ((GlobalSet.getLiveStatusValue() == GlobalSet.LIVE_STATUS.NO)
                 || (GlobalSet.getLiveStatusValue() == GlobalSet.LIVE_STATUS.RGB
                 && livenessModel.getRgbLivenessScore() > GlobalSet.getLiveRgbValue())
@@ -539,7 +546,7 @@ public class FaceLiveness {
 
                 logBuilder.append(registNickName + "\t" + picFile + "\t" + "成功\n");
                 if (FaceApi.getInstance().featureAdd(feature)) {
-                    Log.i(TAG, "registFace: 百度数据库已保存："+ registNickName);
+                    Log.i(TAG, "registFace: 百度数据库已保存：" + registNickName);
                     mLastRegistName = registNickName;
                     livenessModel.setFeature(feature);
                     returnRegistResult(0, livenessModel, cropBitmap);

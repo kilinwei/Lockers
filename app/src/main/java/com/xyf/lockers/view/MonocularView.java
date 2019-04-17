@@ -209,12 +209,16 @@ public class MonocularView extends BaseCameraView implements ILivenessCallBack {
 
     @Override
     public void onTip(int code, String msg) {
-
+        if (livenessCallBack != null) {
+            livenessCallBack.onTip(code, msg);
+        }
     }
 
     @Override
     public void onCanvasRectCallback(LivenessModel livenessModel) {
-
+        if (livenessCallBack != null) {
+            livenessCallBack.onCanvasRectCallback( livenessModel);
+        }
     }
 
     @Override

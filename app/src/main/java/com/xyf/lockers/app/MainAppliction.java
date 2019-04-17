@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Environment;
 
 import com.baidu.crabsdk.CrabSDK;
+import com.squareup.leakcanary.LeakCanary;
 import com.tencent.bugly.beta.Beta;
 import com.tencent.bugly.crashreport.CrashReport;
 import com.xyf.lockers.model.bean.DaoMaster;
@@ -29,7 +30,7 @@ public class MainAppliction extends Application {
         initBugly();
         initGreenDao();
         //初始化内存泄漏检测
-//        LeakCanary.install(MainAppliction.getInstance());
+        LeakCanary.install(MainAppliction.getInstance());
     }
 
     private void initGreenDao() {
