@@ -38,6 +38,7 @@
 
     <Button
         android:id="@+id/btn_storage"
+        app:layout_constraintHorizontal_weight="2"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="存"
@@ -48,10 +49,11 @@
 
     <Button
         android:id="@+id/btn_temporary_take"
+        app:layout_constraintHorizontal_weight="1"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="临时/n开柜"
-        android:textSize="40dp"
+        android:text="临时&#10;开柜"
+        android:textSize="60dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/btn_take"
         app:layout_constraintStart_toEndOf="@id/btn_storage"
@@ -59,6 +61,7 @@
 
     <Button
         android:id="@+id/btn_take"
+        app:layout_constraintHorizontal_weight="2"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="取"
