@@ -6,4 +6,5 @@ public class GridBean {
     public boolean isStorageTimeout;
     public int lockerStatus;
     public int lightStatus;
+    public long userID = -1;
 }

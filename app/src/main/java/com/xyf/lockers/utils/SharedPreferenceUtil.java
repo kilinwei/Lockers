@@ -36,5 +36,34 @@ public class SharedPreferenceUtil {
                 .apply();
     }
 
+    public static int getUpDownAngle() {
+        return getAppSp().getInt(Constants.SP_UP_DOWN_ANGLE, 20);
+    }
+
+    public static void setUpDownAngle(int angle) {
+        getAppSp().edit()
+                .putInt(Constants.SP_UP_DOWN_ANGLE, angle)
+                .apply();
+    }
+
+    public static int getLeftRightAngle() {
+        return getAppSp().getInt(Constants.SP_LEFT_RIGHT_ANGLE, 20);
+    }
+
+    public static void setLeftRightAngle(int angle) {
+        getAppSp().edit()
+                .putInt(Constants.SP_LEFT_RIGHT_ANGLE, angle)
+                .apply();
+    }
+
+    public static int getRotateAngle() {
+        return getAppSp().getInt(Constants.SP_ROTATE_ANGLE, 20);
+    }
+
+    public static void setRotateAngle(int angle) {
+        getAppSp().edit()
+                .putInt(Constants.SP_ROTATE_ANGLE, angle)
+                .apply();
+    }
 }
 

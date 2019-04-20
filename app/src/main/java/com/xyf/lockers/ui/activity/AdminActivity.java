@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 
 import com.baidu.idl.facesdk.model.Feature;
 import com.chad.library.adapter.base.BaseQuickAdapter;
@@ -16,6 +17,7 @@ import com.xyf.lockers.adapter.GridAdapter;
 import com.xyf.lockers.base.BaseActivity;
 import com.xyf.lockers.common.serialport.LockersCommHelper;
 import com.xyf.lockers.common.serialport.LockersCommHelperNew;
+import com.xyf.lockers.listener.OnSingleLockerStatusListener;
 import com.xyf.lockers.manager.UserInfoManager;
 import com.xyf.lockers.model.bean.GridBean;
 import com.xyf.lockers.model.bean.User;
@@ -30,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 
 import butterknife.BindView;
+import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -44,14 +47,11 @@ import io.reactivex.schedulers.Schedulers;
  * 每个item上有打开的按钮，以及下方具有打开全部柜门的按钮，以及一键打开保存超过三天的按钮，打开皆需要二次确认
  * 以及进入数据库界面，查询历史保存界面
  */
-public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnItemChildClickListener {
+public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnItemChildClickListener, OnSingleLockerStatusListener {
     private static final String TAG = "AdminActivity";
     public static final long STORAGE_TIME_OUT = 3 * 24 * 60 * 60 * 1000;
     @BindView(R.id.recyclerview_grid)
     RecyclerView recyclerviewGrid;
-    /**
-     * 用于
-     */
     List<GridBean> mGridBeans;
     @BindView(R.id.btn_open_all)
     Button mBtnOpenAll;
@@ -59,6 +59,14 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
     Button mBtnControlDeleteAll;
     @BindView(R.id.btn_back)
     Button mBtnBack;
+    @BindView(R.id.btn_config_angle)
+    Button mBtnConfigAngle;
+    @BindView(R.id.edit_up_down)
+    EditText mEditUpDown;
+    @BindView(R.id.edit_right_left_angle)
+    EditText mEditRightLeftAngle;
+    @BindView(R.id.edit_rotate_angle)
+    EditText mEditRotateAngle;
     private Map<Integer, User> mCacheMap;
     private int mCurrentOpenLockerIndex;
     private Disposable mSubscribe;
@@ -78,6 +86,10 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
 //            user.setUserName("" + 1);
 //            list.add(user);
 //        }
+        mEditUpDown.setText(SharedPreferenceUtil.getUpDownAngle()+"");
+        mEditRightLeftAngle.setText(SharedPreferenceUtil.getLeftRightAngle()+"");
+        mEditRotateAngle.setText(SharedPreferenceUtil.getRotateAngle()+"");
+        LockersCommHelperNew.get().setOnSingleLockerStatusListener(this);
         mUserInfoListener = new UserListener();
         UserInfoManager.getInstance().getFeatureInfo(null, mUserInfoListener);
         Disposable subscribe = Observable.just(1)
@@ -108,6 +120,7 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
                                 GridBean gridBean = new GridBean();
                                 User user = mCacheMap.get(i);
                                 if (user != null) {
+                                    gridBean.userID = user.getId();
                                     gridBean.imagePath = user.getCropImageName();
                                     gridBean.lastStorageTime = user.getLastTime();
                                     gridBean.isStorageTimeout = System.currentTimeMillis() / 1000 - user.getLastTime() > STORAGE_TIME_OUT;
@@ -145,11 +158,30 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
     public void onItemChildClick(BaseQuickAdapter adapter, View view, int position) {
         if (mGridBeans != null) {
             GridBean gridBean = mGridBeans.get(position);
+            // TODO: 2019/4/20 打开之后，把用户储存的信息去掉
+            byte[] openSingleLockerBytes = LockerUtils.getOpenSingleLockerBytes(position);
+            LockersCommHelperNew.get().controlSingleLock(openSingleLockerBytes[0], openSingleLockerBytes[1], openSingleLockerBytes[2], openSingleLockerBytes[3]);
+            ToastUtil.showMessage("第" + (1 + position) + "柜子被打开");
+            if (gridBean != null && gridBean.userID != -1) {
+                User user = UserDBManager.getUser(gridBean.userID);
+                if (user != null) {
+                    int storageIndexs = user.getStorageIndexs();
+                    //获取当前打开的箱位
+                    int wayBinary = 1 << position;
+                    //二进制取反,比如00001000变成111110111
+                    int i = ~wayBinary;
+                    //将指定位数的1抹去
+                    storageIndexs &= i;
+                    user.setStorageIndexs(storageIndexs);
+                    //更新数据库信息
+                    UserDBManager.update(user);
+                    int allLockersStatus = SharedPreferenceUtil.getAllLockersStatus();
+                    //用原来以保存的箱位或上现保存的箱位,然后记录所有已存东西的箱位索引
+                    allLockersStatus &= i;
+                    SharedPreferenceUtil.setAllLockersStatus(allLockersStatus);
+                }
+            }
         }
-        ToastUtil.showMessage(position + "被点击");
-        // TODO: 2019/4/20 打开之后，把用户储存的信息去掉
-        byte[] openSingleLockerBytes = LockerUtils.getOpenSingleLockerBytes(position);
-        LockersCommHelperNew.get().controlSingleLock(openSingleLockerBytes[0], openSingleLockerBytes[1], openSingleLockerBytes[2], openSingleLockerBytes[3]);
 
     }
 
@@ -159,11 +191,13 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
         if (mSubscribe != null && !mSubscribe.isDisposed()) {
             mSubscribe.dispose();
         }
+        LockersCommHelperNew.get().setOnSingleLockerStatusListener(null);
     }
 
 
     @OnClick({R.id.btn_open_all,
             R.id.btn_back,
+            R.id.btn_config_angle,
             R.id.btn_control_delete_all})
     public void onViewClicked(View view) {
         switch (view.getId()) {
@@ -177,6 +211,7 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
                                     LockersCommHelperNew.get().controlSingleLock(openSingleLockerBytes[0], openSingleLockerBytes[1], openSingleLockerBytes[2], openSingleLockerBytes[3]);
                                     SystemClock.sleep(LockerUtils.OPEN_LOCKER_INTEVAL);
                                 }
+                                deleteAll();
                             }
                         });
                 break;
@@ -184,21 +219,55 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
                 startActivity(new Intent(this, MainActivity.class));
                 break;
             case R.id.btn_control_delete_all:
-                if (mListFeatureInfo == null) {
-                    return;
-                }
-                Log.i(TAG, "onViewClicked: 删除之前的百度人脸库数量: " + mListFeatureInfo.size());
-                for (Feature feature : mListFeatureInfo) {
-                    feature.setChecked(true);
-                }
-                UserInfoManager.getInstance().batchRemoveFeatureInfo(mListFeatureInfo, mUserInfoListener, mListFeatureInfo.size());
-                SharedPreferenceUtil.setAllLockersStatus(0);
-                List<User> allStorageUser = UserDBManager.getAllStorageUser();
-                for (User user : allStorageUser) {
-                    user.setStorageIndexs(0);
-                }
+                deleteAll();
+                break;
+            case R.id.btn_config_angle:
+                String upDownAngle = mEditUpDown.getText().toString().trim();
+                String leftRightAngle = mEditRightLeftAngle.getText().toString().trim();
+                String rotateAngle = mEditRotateAngle.getText().toString().trim();
+                SharedPreferenceUtil.setUpDownAngle(Integer.parseInt(upDownAngle));
+                SharedPreferenceUtil.setLeftRightAngle(Integer.parseInt(leftRightAngle));
+                SharedPreferenceUtil.setRotateAngle(Integer.parseInt(rotateAngle));
                 break;
         }
+    }
+
+    private void deleteAll() {
+        if (mListFeatureInfo == null) {
+            return;
+        }
+        Log.i(TAG, "onViewClicked: 删除之前的百度人脸库数量: " + mListFeatureInfo.size());
+        for (Feature feature : mListFeatureInfo) {
+            feature.setChecked(true);
+        }
+        UserInfoManager.getInstance().batchRemoveFeatureInfo(mListFeatureInfo, mUserInfoListener, mListFeatureInfo.size());
+        SharedPreferenceUtil.setAllLockersStatus(0);
+        List<User> allStorageUser = UserDBManager.getAllStorageUser();
+        for (User user : allStorageUser) {
+            user.setStorageIndexs(0);
+        }
+    }
+
+    @Override
+    public void onSingleLockerStatusResponse(int way, int status) {
+
+    }
+
+    @Override
+    public void onSingleLockerStatusResponse(byte[] bRec) {
+
+    }
+
+    @Override
+    public void disConnectDevice() {
+
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // TODO: add setContentView(...) invocation
+        ButterKnife.bind(this);
     }
 
 
@@ -261,4 +330,5 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
 
         }
     }
+
 }

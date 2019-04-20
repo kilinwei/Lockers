@@ -85,7 +85,7 @@ public class UserInfoManager {
                         }
                     }
                 }
-                FaceSDKManager.getInstance().getFeatureLRUCache().clear();
+//                FaceSDKManager.getInstance().getFeatureLRUCache().clear();
                 listener.deleteSuccess();
             }
         });

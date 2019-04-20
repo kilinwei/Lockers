@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@mipmap/main_bg"
-    tools:context=".ui.activity.MainActivity">
+                                             xmlns:app="http://schemas.android.com/apk/res-auto"
+                                             xmlns:tools="http://schemas.android.com/tools"
+                                             android:layout_width="match_parent"
+                                             android:layout_height="match_parent"
+                                             android:background="@mipmap/main_bg"
+                                             tools:context=".ui.activity.MainActivity">
 
     <FrameLayout
         android:id="@+id/fl_hide"
@@ -14,7 +14,7 @@
         android:background="#00000000"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@id/btn_control_test"
-        tools:ignore="MissingConstraints" />
+        tools:ignore="MissingConstraints"/>
 
     <Button
         android:id="@+id/btn_control_test"
@@ -23,7 +23,7 @@
         android:text="控制测试"
         android:visibility="gone"
         app:layout_constraintLeft_toRightOf="@id/fl_hide"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"/>
 
 
     <Button
@@ -33,41 +33,47 @@
         android:text="查询状态"
         android:visibility="gone"
         app:layout_constraintLeft_toLeftOf="@id/btn_control_test"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"/>
 
 
     <Button
         android:id="@+id/btn_storage"
-        app:layout_constraintHorizontal_weight="2"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="存"
+        android:background="@drawable/main_btn_selector"
+        android:textColor="@color/b2w_text_color_selector"
         android:textSize="200dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/btn_temporary_take"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintHorizontal_weight="2"
+        app:layout_constraintStart_toStartOf="parent"/>
 
     <Button
         android:id="@+id/btn_temporary_take"
-        app:layout_constraintHorizontal_weight="1"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:background="@drawable/main_circle_bg"
         android:text="临时&#10;开柜"
+        android:textColor="@color/w2b_text_color_selector"
         android:textSize="60dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/btn_take"
+        app:layout_constraintHorizontal_weight="1"
         app:layout_constraintStart_toEndOf="@id/btn_storage"
-        app:layout_constraintTop_toTopOf="@id/btn_take" />
+        app:layout_constraintTop_toTopOf="@id/btn_take"/>
 
     <Button
+        android:textColor="@color/b2w_text_color_selector"
         android:id="@+id/btn_take"
-        app:layout_constraintHorizontal_weight="2"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:background="@drawable/main_btn_selector"
         android:text="取"
         android:textSize="200dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/btn_temporary_take" />
+        app:layout_constraintHorizontal_weight="2"
+        app:layout_constraintStart_toEndOf="@id/btn_temporary_take"/>
 
 </android.support.constraint.ConstraintLayout>

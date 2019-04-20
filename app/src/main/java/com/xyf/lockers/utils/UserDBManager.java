@@ -47,6 +47,12 @@ public class UserDBManager {
         userDao.update(user);
     }
 
+    public static User getUser(long id) {
+        UserDao userDao = MainAppliction.getInstance().getDaoSession().getUserDao();
+        User user = userDao.loadByRowId(id);
+        return user;
+    }
+
     public static List<User> getAllStorageUser() {
         UserDao userDao = MainAppliction.getInstance().getDaoSession().getUserDao();
         QueryBuilder<User> userQueryBuilder = userDao.queryBuilder();

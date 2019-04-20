@@ -10,6 +10,9 @@ package com.xyf.lockers.app;
  */
 public interface Constants {
     String SP_ALL_LOCKERS_STATUS = "sp_all_lockers_status";
+    String SP_UP_DOWN_ANGLE = "sp_up_down_angle";
+    String SP_LEFT_RIGHT_ANGLE= "sp_left_right_angle";
+    String SP_ROTATE_ANGLE = "sp_rotate_angle";
     /**
      * 超过这个分数,认定是同一个人
      */

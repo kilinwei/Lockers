@@ -24,8 +24,10 @@ import com.xyf.lockers.common.GlobalSet;
 import com.xyf.lockers.model.LivenessModel;
 import com.xyf.lockers.utils.FileUtils;
 import com.xyf.lockers.utils.ImageUtils;
+import com.xyf.lockers.utils.SharedPreferenceUtil;
 
 import java.io.File;
+import java.text.DecimalFormat;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -327,8 +329,11 @@ public class FaceLiveness {
             }
             float[] headPose = faceInfo.headPose;
             Log.i(TAG, "onLivenessCheck headpose->人脸角度" + headPose[0] + " " + headPose[1] + " " + headPose[2]);
-            if (Math.abs(headPose[0]) > FACE_ANGLE || Math.abs(headPose[1]) > FACE_ANGLE || Math.abs(headPose[2]) > FACE_ANGLE) {
-                livenessCallBack.onTip(0, "人脸置角度太大，请正对摄像头");
+            if (Math.abs(headPose[0]) > SharedPreferenceUtil.getUpDownAngle() || Math.abs(headPose[1]) > SharedPreferenceUtil.getLeftRightAngle()
+                    || Math.abs(headPose[2]) > SharedPreferenceUtil.getRotateAngle()) {
+                DecimalFormat df = new DecimalFormat("0.0");
+                livenessCallBack.onTip(0, "人脸置角度太大，请正对摄像头,\n当前角度: 上下:" + df.format(headPose[0])
+                        + " 左右:" + df.format(headPose[1]) + " 旋转:" + df.format(headPose[2]));
                 return false;
             }
             return livenessFeatures(livenessModel);

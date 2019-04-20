@@ -46,9 +46,9 @@ import butterknife.BindView;
 public class StorageActivity extends BaseActivity implements ILivenessCallBack, OnSingleLockerStatusListener {
     private static final String TAG = "StorageActivity";
     private static final int MSG_CHECK_FACE = 0x01;
-    private static final int MSG_REGISTER_TIME_OUT = 0x02;
+    private static final int MSG_REGISTER_TIME_OUT = 0x0;
     private static final int MSG_NOT_CLOSE_DOOR = 0x03;
-    private static final int PASS_TIME = 2 * 1000;
+    private static final int PASS_TIME = 3 * 1000;
     private static final int REGISTER_TIME_OUT = 30 * 1000;
     private static final int CLOSE_DOOR_TIME_OUT = 30 * 1000;
 
@@ -196,9 +196,14 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
     }
 
     @Override
-    public void onTip(int code, String msg) {
+    public void onTip(int code, final String msg) {
         if (mTvSimilarity != null) {
-            mTvSimilarity.setText(msg);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mTvSimilarity.setText(msg);
+                }
+            });
         }
         Log.i(TAG, "onTip: " + msg);
     }
@@ -267,7 +272,12 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
             }
         } else {
             if (mTvSimilarity != null) {
-                mTvSimilarity.setText("未匹配到相似人脸");
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mTvSimilarity.setText("未匹配到相似人脸");
+                    }
+                });
             }
             Log.i(TAG, "onCallback: 未匹配到相似人脸");
             if (!mFirstRecogniceFace) {
