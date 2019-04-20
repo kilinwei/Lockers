@@ -147,6 +147,10 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
             GridBean gridBean = mGridBeans.get(position);
         }
         ToastUtil.showMessage(position + "被点击");
+        // TODO: 2019/4/20 打开之后，把用户储存的信息去掉
+        byte[] openSingleLockerBytes = LockerUtils.getOpenSingleLockerBytes(position);
+        LockersCommHelperNew.get().controlSingleLock(openSingleLockerBytes[0], openSingleLockerBytes[1], openSingleLockerBytes[2], openSingleLockerBytes[3]);
+
     }
 
     @Override

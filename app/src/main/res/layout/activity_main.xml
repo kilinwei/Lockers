@@ -41,7 +41,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="存"
-        android:textSize="100dp"
+        android:textSize="200dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/btn_temporary_take"
         app:layout_constraintStart_toStartOf="parent" />
@@ -50,7 +50,7 @@
         android:id="@+id/btn_temporary_take"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="临时开柜"
+        android:text="临时/n开柜"
         android:textSize="40dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/btn_take"
@@ -62,7 +62,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="取"
-        android:textSize="100dp"
+        android:textSize="200dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/btn_temporary_take" />

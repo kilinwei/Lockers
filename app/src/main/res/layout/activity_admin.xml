@@ -1,33 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical"
-              tools:context=".ui.activity.AdminActivity">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="50dp"
+    tools:context=".ui.activity.AdminActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
         <Button
+            android:textSize="30sp"
             android:id="@+id/btn_back"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="返回首页"/>
+            android:text="返回首页" />
+
         <Button
+            android:textSize="30sp"
             android:id="@+id/btn_open_all"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="打开所有柜门"/>
+            android:text="打开所有柜门" />
 
         <Button
+            android:textSize="30sp"
             android:id="@+id/btn_control_delete_all"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="全部删除"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" />
     </LinearLayout>
 
     <android.support.v7.widget.RecyclerView
