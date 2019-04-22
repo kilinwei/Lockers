@@ -3,13 +3,17 @@ package com.xyf.lockers.ui.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.baidu.idl.facesdk.model.Feature;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.xyf.lockers.R;
@@ -32,7 +36,6 @@ import java.util.List;
 import java.util.Map;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -61,17 +64,16 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
     Button mBtnBack;
     @BindView(R.id.btn_config_angle)
     Button mBtnConfigAngle;
-    @BindView(R.id.edit_up_down)
+
     EditText mEditUpDown;
-    @BindView(R.id.edit_right_left_angle)
     EditText mEditRightLeftAngle;
-    @BindView(R.id.edit_rotate_angle)
     EditText mEditRotateAngle;
     private Map<Integer, User> mCacheMap;
     private int mCurrentOpenLockerIndex;
     private Disposable mSubscribe;
     private List<Feature> mListFeatureInfo;
     private UserInfoManager.UserInfoListener mUserInfoListener;
+    private MaterialDialog mShowAngleConfigDialog;
 
     @Override
     protected int getLayout() {
@@ -86,9 +88,6 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
 //            user.setUserName("" + 1);
 //            list.add(user);
 //        }
-        mEditUpDown.setText(SharedPreferenceUtil.getUpDownAngle()+"");
-        mEditRightLeftAngle.setText(SharedPreferenceUtil.getLeftRightAngle()+"");
-        mEditRotateAngle.setText(SharedPreferenceUtil.getRotateAngle()+"");
         LockersCommHelperNew.get().setOnSingleLockerStatusListener(this);
         mUserInfoListener = new UserListener();
         UserInfoManager.getInstance().getFeatureInfo(null, mUserInfoListener);
@@ -191,6 +190,9 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
         if (mSubscribe != null && !mSubscribe.isDisposed()) {
             mSubscribe.dispose();
         }
+        if (mShowAngleConfigDialog != null && mShowAngleConfigDialog.isShowing()) {
+            mShowAngleConfigDialog.dismiss();
+        }
         LockersCommHelperNew.get().setOnSingleLockerStatusListener(null);
     }
 
@@ -222,12 +224,7 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
                 deleteAll();
                 break;
             case R.id.btn_config_angle:
-                String upDownAngle = mEditUpDown.getText().toString().trim();
-                String leftRightAngle = mEditRightLeftAngle.getText().toString().trim();
-                String rotateAngle = mEditRotateAngle.getText().toString().trim();
-                SharedPreferenceUtil.setUpDownAngle(Integer.parseInt(upDownAngle));
-                SharedPreferenceUtil.setLeftRightAngle(Integer.parseInt(leftRightAngle));
-                SharedPreferenceUtil.setRotateAngle(Integer.parseInt(rotateAngle));
+                showAngleConfigDialog();
                 break;
         }
     }
@@ -261,13 +258,6 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
     @Override
     public void disConnectDevice() {
 
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        // TODO: add setContentView(...) invocation
-        ButterKnife.bind(this);
     }
 
 
@@ -323,6 +313,7 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
                 @Override
                 public void run() {
                     Log.i(TAG, "run: 百度人脸库删除成功");
+                    ToastUtil.showMessage(" 百度人脸库删除成功");
                     // 读取数据库信息
                     UserInfoManager.getInstance().getFeatureInfo(null, mUserInfoListener);
                 }
@@ -331,4 +322,43 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
         }
     }
 
+    private void showAngleConfigDialog() {
+        mShowAngleConfigDialog = new MaterialDialog.Builder(this)
+                .title("人脸角度限制")
+                .customView(R.layout.angle_config, true)
+                .positiveText(android.R.string.ok)
+                .negativeText(android.R.string.no)
+                .autoDismiss(false)
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull final MaterialDialog dialog, @NonNull DialogAction which) {
+                        final String upDownAngle = mEditUpDown.getText().toString().trim();
+                        final String leftRightAngle = mEditRightLeftAngle.getText().toString().trim();
+                        final String rotateAngle = mEditRotateAngle.getText().toString().trim();
+                        if (TextUtils.isEmpty(upDownAngle) || TextUtils.isEmpty(leftRightAngle) || TextUtils.isEmpty(rotateAngle)) {
+                            ToastUtil.showMessage("输入框全部都不能为空!");
+                            return;
+                        }
+
+                        SharedPreferenceUtil.setUpDownAngle(Integer.parseInt(upDownAngle));
+                        SharedPreferenceUtil.setLeftRightAngle(Integer.parseInt(leftRightAngle));
+                        SharedPreferenceUtil.setRotateAngle(Integer.parseInt(rotateAngle));
+                        dialog.dismiss();
+                    }
+                })
+                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        dialog.dismiss();
+                    }
+                })
+                .build();
+        mEditUpDown = (EditText) mShowAngleConfigDialog.findViewById(R.id.edit_up_down);
+        mEditRightLeftAngle = (EditText) mShowAngleConfigDialog.findViewById(R.id.edit_right_left_angle);
+        mEditRotateAngle = (EditText) mShowAngleConfigDialog.findViewById(R.id.edit_rotate_angle);
+        mEditUpDown.setText(String.valueOf(SharedPreferenceUtil.getUpDownAngle()));
+        mEditRightLeftAngle.setText(String.valueOf(SharedPreferenceUtil.getLeftRightAngle()));
+        mEditRotateAngle.setText(String.valueOf(SharedPreferenceUtil.getRotateAngle()));
+        mShowAngleConfigDialog.show();
+    }
 }

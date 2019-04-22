@@ -101,7 +101,13 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
     protected void initEventAndData(Bundle savedInstanceState) {
         mContext = this;
         calculateCameraView();
+        initData();
         LockersCommHelperNew.get().setOnSingleLockerStatusListener(this);
+    }
+
+    private void initData() {
+        int num = FaceSDKManager.getInstance().setFeature();
+        Log.i(TAG, "initData: " + String.format("底库人脸数: %s 个", num));
     }
 
     /**
