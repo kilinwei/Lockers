@@ -83,7 +83,19 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
 
                     } else {
                         // TODO: 2019/3/15 取出超时，提示用户，关闭界面
+                        if (mBinocularView != null && mCameraView != null) {
+                            mBinocularView.onPause();
+                            mCameraView.removeView(mBinocularView);
+                        }
+                        if (mMonocularView != null && mCameraView != null) {
+                            mMonocularView.onPause();
+                            Log.i(TAG, "run: removeCameraView");
+                            mCameraView.removeView(mMonocularView);
+                        }
 
+                        Intent intent = new Intent(TakeActivity.this, ShowTipsActivity.class);
+                        intent.putExtra(ShowTipsActivity.TIPS, "取出物品超时");
+                        startActivity(intent);
                     }
                     break;
                 default:
@@ -100,15 +112,11 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
     @Override
     protected void initEventAndData(Bundle savedInstanceState) {
         mContext = this;
+        initFaceData();
         calculateCameraView();
-        initData();
         LockersCommHelperNew.get().setOnSingleLockerStatusListener(this);
     }
 
-    private void initData() {
-        int num = FaceSDKManager.getInstance().setFeature();
-        Log.i(TAG, "initData: " + String.format("底库人脸数: %s 个", num));
-    }
 
     /**
      * 计算并适配显示图像容器的宽高

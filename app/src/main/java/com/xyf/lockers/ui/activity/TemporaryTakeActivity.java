@@ -81,7 +81,20 @@ public class TemporaryTakeActivity extends BaseActivity implements ILivenessCall
 
                     } else {
                         // TODO: 2019/3/15 取出超时，提示用户，关闭界面
+                        // TODO: 2019/3/15 取出超时，提示用户，关闭界面
+                        if (mBinocularView != null && mCameraView != null) {
+                            mBinocularView.onPause();
+                            mCameraView.removeView(mBinocularView);
+                        }
+                        if (mMonocularView != null && mCameraView != null) {
+                            mMonocularView.onPause();
+                            Log.i(TAG, "run: removeCameraView");
+                            mCameraView.removeView(mMonocularView);
+                        }
 
+                        Intent intent = new Intent(TemporaryTakeActivity.this, ShowTipsActivity.class);
+                        intent.putExtra(ShowTipsActivity.TIPS, "取出物品超时");
+                        startActivity(intent);
                     }
                     break;
                 default:
@@ -98,6 +111,7 @@ public class TemporaryTakeActivity extends BaseActivity implements ILivenessCall
     @Override
     protected void initEventAndData(Bundle savedInstanceState) {
         mContext = this;
+        initFaceData();
         calculateCameraView();
         LockersCommHelperNew.get().setOnSingleLockerStatusListener(this);
     }

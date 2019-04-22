@@ -13,6 +13,7 @@ import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.baidu.idl.facesdk.utils.PreferencesUtil;
+import com.xyf.lockers.manager.FaceSDKManager;
 
 import java.util.ArrayList;
 
@@ -24,7 +25,7 @@ import butterknife.Unbinder;
  */
 
 public abstract class BaseActivity extends Activity {
-
+    private static final String TAG = "BaseActivity";
     protected TextView mLableTxt;
     private Unbinder mUnBinder;
 
@@ -41,6 +42,13 @@ public abstract class BaseActivity extends Activity {
         mUnBinder = ButterKnife.bind(this);
         initEventAndData(savedInstanceState);
     }
+
+
+    protected void initFaceData() {
+        int num = FaceSDKManager.getInstance().setFeature();
+        Log.i(TAG, "initFaceData: " + String.format("底库人脸数: %s 个", num));
+    }
+
 
     // 请求权限
     public void requestPermissions(int requestCode) {
@@ -96,7 +104,6 @@ public abstract class BaseActivity extends Activity {
     protected abstract int getLayout();
 
     protected abstract void initEventAndData(Bundle savedInstanceState);
-
 
 
     @Override

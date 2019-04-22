@@ -23,7 +23,6 @@ import com.xyf.lockers.callback.ILivenessCallBack;
 import com.xyf.lockers.common.GlobalSet;
 import com.xyf.lockers.common.serialport.LockersCommHelperNew;
 import com.xyf.lockers.listener.OnSingleLockerStatusListener;
-import com.xyf.lockers.manager.FaceSDKManager;
 import com.xyf.lockers.model.LivenessModel;
 import com.xyf.lockers.model.bean.User;
 import com.xyf.lockers.model.bean.UserDao;
@@ -91,7 +90,7 @@ public class PassActivity extends BaseActivity implements ILivenessCallBack, Vie
     protected void initEventAndData(Bundle savedInstanceState) {
         mContext = this;
         initView();
-        initData();
+        initFaceData();
         LockersCommHelperNew.get().setOnSingleLockerStatusListener(this);
     }
 
@@ -150,11 +149,6 @@ public class PassActivity extends BaseActivity implements ILivenessCallBack, Vie
             mMonocularView.setLivenessCallBack(this);
             mCameraView.addView(mMonocularView, layoutParams);
         }
-    }
-
-    private void initData() {
-        int num = FaceSDKManager.getInstance().setFeature();
-        mNumTv.setText(String.format("底库人脸数: %s 个", num));
     }
 
     @Override

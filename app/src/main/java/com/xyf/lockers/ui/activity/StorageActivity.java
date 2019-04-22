@@ -42,13 +42,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
+import butterknife.ButterKnife;
 
 public class StorageActivity extends BaseActivity implements ILivenessCallBack, OnSingleLockerStatusListener {
     private static final String TAG = "StorageActivity";
     private static final int MSG_CHECK_FACE = 0x01;
     private static final int MSG_REGISTER_TIME_OUT = 0x0;
     private static final int MSG_NOT_CLOSE_DOOR = 0x03;
-    private static final int PASS_TIME = 3 * 1000;
+    private static final int PASS_TIME = 800;
     private static final int REGISTER_TIME_OUT = 30 * 1000;
     private static final int CLOSE_DOOR_TIME_OUT = 30 * 1000;
 
@@ -58,6 +59,8 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
     ImageView mImageTrack;
     @BindView(R.id.tv_similarity)
     TextView mTvSimilarity;
+    @BindView(R.id.tv_countdown)
+    TextView mTvCountdown;
     private Context mContext;
     private BinocularView mBinocularView;
     private MonocularView mMonocularView;
@@ -77,15 +80,25 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
     private boolean mIsRecognized;
     private byte[] mCurrentOpenLockerBytes;
 
+    private int mConutdown = 2;
+
     @SuppressLint("HandlerLeak")
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case MSG_CHECK_FACE:
-                    mNeedRegister = true;
-                    sendEmptyMessageDelayed(MSG_REGISTER_TIME_OUT, REGISTER_TIME_OUT);
-                    removeMessages(MSG_CHECK_FACE);
+                    if (mConutdown >= 0) {
+                        mTvCountdown.setText(String.valueOf(mConutdown));
+                        mConutdown--;
+                        sendEmptyMessageDelayed(MSG_CHECK_FACE, PASS_TIME);
+                    } else {
+                        mTvCountdown.setText("");
+                        mNeedRegister = true;
+                        removeMessages(MSG_REGISTER_TIME_OUT);
+                        sendEmptyMessageDelayed(MSG_REGISTER_TIME_OUT, REGISTER_TIME_OUT);
+                        removeMessages(MSG_CHECK_FACE);
+                    }
                     break;
                 case MSG_REGISTER_TIME_OUT:
                     if (faceRegistCalllBack != null) {
@@ -122,6 +135,7 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
         FaceSDKManager.getInstance().getFaceLiveness().addRegistCallBack(faceRegistCalllBack);
         //进入界面首先设置为通行,确保同一用户不会被注册两次
         FaceSDKManager.getInstance().getFaceLiveness().setCurrentTaskType(FaceLiveness.TaskType.TASK_TYPE_ONETON);
+        initFaceData();
         calculateCameraView();
     }
 
@@ -129,6 +143,7 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
     @Override
     protected void onResume() {
         super.onResume();
+        mHandler.sendEmptyMessageDelayed(MSG_REGISTER_TIME_OUT, REGISTER_TIME_OUT);
         if (GlobalSet.getLiveStatusValue() == GlobalSet.LIVE_STATUS.RGN_NIR) {
             mBinocularView.onResume();
         } else {
@@ -166,6 +181,7 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
         LockersCommHelperNew.get().setOnSingleLockerStatusListener(null);
         faceRegistCalllBack = null;
     }
+
 
     /**
      * 计算并适配显示图像容器的宽高
@@ -284,8 +300,14 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
                 mHandler.removeMessages(MSG_CHECK_FACE);
                 mHandler.sendEmptyMessageDelayed(MSG_CHECK_FACE, PASS_TIME);
                 mFirstRecogniceFace = true;
-                ToastUtil.showMessage("开始注册倒计时,还有3s开启注册");
-                Log.i(TAG, "onCallback: 开始注册倒计时,还有3s开启注册");
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mTvCountdown.setText("开始注册倒计时");
+                    }
+                });
+                ToastUtil.showMessage("开始注册倒计时");
+                Log.i(TAG, "onCallback: 开始注册倒计时");
             }
 
             if (mNeedRegister) {
@@ -310,9 +332,9 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
 
         @Override
         public void onRegistCallBack(int code, LivenessModel livenessModel, final Bitmap cropBitmap) {
-            removeCameraView("已打开柜门");
             switch (code) {
                 case 0: {
+                    removeCameraView("已打开柜门");
                     mHandler.removeMessages(MSG_REGISTER_TIME_OUT);
                     // 设置注册信息
                     Feature feature = livenessModel.getFeature();
@@ -328,6 +350,7 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
                 case 1: {
                     //注册超时
                     // TODO: 2019/3/10 注册超时
+                    removeCameraView("注册超时");
                     ToastUtil.showMessage("注册超时");
                     Log.i(TAG, "onRegistCallBack: 注册超时");
                 }
@@ -451,5 +474,12 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
     @Override
     public void disConnectDevice() {
 
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // TODO: add setContentView(...) invocation
+        ButterKnife.bind(this);
     }
 }
