@@ -63,19 +63,35 @@ public class FaceFeatures {
      * @return
      */
     public float featureCompare(byte[] feature1, byte[] feature2) {
-        return mFaceFeature.featureCompare(FaceFeature.FeatureType.FEATURE_VIS, feature1, feature2);
+        if (mFaceFeature != null) {
+            return mFaceFeature.featureCompare(FaceFeature.FeatureType.FEATURE_VIS, feature1, feature2);
+        } else {
+            return 0;
+        }
     }
 
     public float featureIDCompare(byte[] feature1, byte[] feature2) {
-        return mFaceFeature.featureCompare(FaceFeature.FeatureType.FEATURE_ID_PHOTO, feature1, feature2);
+        if (mFaceFeature != null) {
+            return mFaceFeature.featureCompare(FaceFeature.FeatureType.FEATURE_ID_PHOTO, feature1, feature2);
+        } else {
+            return 0;
+        }
     }
 
     public int setFeature(List<Feature> features) {
-        return mFaceFeature.setFeature(features);
+        if (mFaceFeature != null) {
+            return mFaceFeature.setFeature(features);
+        } else {
+            return 0;
+        }
     }
 
     public Feature featureCompareCpp(byte[] firstFaceFeature, FaceFeature.FeatureType featureType, float thresholdValue) {
-        return mFaceFeature.featureCompareCpp(firstFaceFeature, featureType, thresholdValue);
+        if (mFaceFeature != null) {
+            return mFaceFeature.featureCompareCpp(firstFaceFeature, featureType, thresholdValue);
+        } else {
+            return null;
+        }
     }
 
 }

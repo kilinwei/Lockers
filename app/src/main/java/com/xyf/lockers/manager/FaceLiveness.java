@@ -478,7 +478,6 @@ public class FaceLiveness {
             Log.i(TAG, "registFace: 同一用户注册两次，已拦截");
             return;
         }
-        FaceInfo[] faceInfos = FaceSDKManager.getInstance().getFaceDetector().detect(livenessModel.getImageFrame(), 50);
         if ((GlobalSet.getLiveStatusValue() == GlobalSet.LIVE_STATUS.NO)
                 || (GlobalSet.getLiveStatusValue() == GlobalSet.LIVE_STATUS.RGB
                 && livenessModel.getRgbLivenessScore() > GlobalSet.getLiveRgbValue())

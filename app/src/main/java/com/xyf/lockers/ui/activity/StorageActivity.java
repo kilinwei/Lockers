@@ -42,7 +42,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
 
 public class StorageActivity extends BaseActivity implements ILivenessCallBack, OnSingleLockerStatusListener {
     private static final String TAG = "StorageActivity";
@@ -474,12 +473,5 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
     @Override
     public void disConnectDevice() {
 
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        // TODO: add setContentView(...) invocation
-        ButterKnife.bind(this);
     }
 }

@@ -233,6 +233,11 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
                 }
             } else {
                 //说明facesdk的数据库里有数据,但是user数据库没有,说明user已被删除,没有存东西,不需要处理
+                ToastUtil.showMessage(" 您没有保存物品，请先保存物品");
+                Log.i(TAG, "onCallback: 您没有保存物品，请先保存物品");
+                Intent intent = new Intent(this, ShowTipsActivity.class);
+                intent.putExtra(ShowTipsActivity.TIPS, "您没有保存物品，请先保存物品");
+                startActivity(intent);
             }
         } else {
             if (mTvSimilarity != null) {

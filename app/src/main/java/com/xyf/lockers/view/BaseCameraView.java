@@ -153,6 +153,8 @@ public class BaseCameraView extends RelativeLayout implements IFaceDetectCallBac
             } else {
                 faceFrameImg.setImageBitmap(null);
             }
+
+
         }
     }
 

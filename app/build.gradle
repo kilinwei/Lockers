@@ -8,8 +8,8 @@ android {
         applicationId "com.xyf.lockers"
         minSdkVersion 19
         targetSdkVersion 22
-        versionCode 1
-        versionName "1.0"
+        versionCode 3
+        versionName "1.0.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         ndk {
             // 设置支持的SO库架构  bugly
@@ -36,6 +36,12 @@ android {
         debug {
             debuggable true
             jniDebuggable true
+        }
+    }
+
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            outputFileName = "XYF-${variant.buildType.name}-${defaultConfig.versionName}" + ".apk"
         }
     }
 }

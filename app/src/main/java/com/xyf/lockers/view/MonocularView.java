@@ -147,6 +147,7 @@ public class MonocularView extends BaseCameraView implements ILivenessCallBack {
                 });
             } catch (RuntimeException e) {
                 // Log.e(TAG, e.getMessage());
+                e.printStackTrace();
             }
         }
 
