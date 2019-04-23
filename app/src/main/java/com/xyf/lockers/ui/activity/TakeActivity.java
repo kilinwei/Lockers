@@ -49,7 +49,7 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
 
     private static final String TAG = "TakeActivity";
     public static final int MSG_PASS_TIME_OUT = 0x04;
-    public static final int PASS_OUT_TIME = 30 * 1000;
+    public static final int PASS_OUT_TIME = 10 * 1000;
     @BindView(R.id.layout_camera)
     RelativeLayout mCameraView;
     @BindView(R.id.image_track)
@@ -173,11 +173,16 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
     }
 
     @Override
-    public void onTip(int code, String msg) {
+    public void onTip(int code, final String msg) {
         if (mTvSimilarity != null) {
-            mTvSimilarity.setText(msg);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mTvSimilarity.setText(msg);
+                }
+            });
         }
-        Log.i(TAG, "onTip: " + msg);
+        Log.d(TAG, "onTip: " + msg);
     }
 
     @Override
@@ -190,9 +195,14 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
         if (code == 0) {
             //匹配到相似人脸,说明这个人已经存过东西,检测已经存几个,将用户存的箱子一次性打开
             //相似度
-            float featureScore = livenessModel.getFeatureScore();
+            final float featureScore = livenessModel.getFeatureScore();
             if (mTvSimilarity != null) {
-                mTvSimilarity.setText(String.format("相似度: %s", featureScore));
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mTvSimilarity.setText(String.format("相似度: %s", featureScore));
+                    }
+                });
             }
             if (featureScore < Constants.PASS_SCORE) {
                 return;
@@ -241,7 +251,12 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
             }
         } else {
             if (mTvSimilarity != null) {
-                mTvSimilarity.setText("未匹配到相似人脸");
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mTvSimilarity.setText("未匹配到相似人脸");
+                    }
+                });
             }
             Log.i(TAG, "run: 未匹配到相似人脸");
         }
@@ -261,9 +276,6 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
                         }
                     }
                 });
-        Intent intent = new Intent(TakeActivity.this, ShowTipsActivity.class);
-        intent.putExtra(ShowTipsActivity.TIPS, "已打开柜门");
-        startActivity(intent);
     }
 
     @Override
@@ -289,22 +301,33 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
         if (lockers != null) {
             ToastUtil.showMessage("取出成功");
             int storageIndexs = mCurrentUser.getStorageIndexs();
-            for (Integer locker : lockers) {
-                //获取当前打开的箱位
-                int wayBinary = 1 << locker;
-                //二进制取反,比如00001000变成111110111
-                int i = ~wayBinary;
-                //将指定位数的1抹去
-                storageIndexs &= i;
+            for (final Integer locker : lockers) {
+                if (mCurrentStorageList != null && mCurrentStorageList.contains(locker)) {
 
-                int allLockersStatus = SharedPreferenceUtil.getAllLockersStatus();
-                //用原来以保存的箱位或上现保存的箱位,然后记录所有已存东西的箱位索引
-                allLockersStatus &= i;
+                    //获取当前打开的箱位
+                    int wayBinary = 1 << locker;
+                    //二进制取反,比如00001000变成111110111
+                    int i = ~wayBinary;
+                    //将指定位数的1抹去
+                    storageIndexs &= i;
 
-                SharedPreferenceUtil.setAllLockersStatus(allLockersStatus);
-                mCurrentUser.setStorageIndexs(storageIndexs);
-                //更新数据库信息
-                UserDBManager.update(mCurrentUser);
+                    int allLockersStatus = SharedPreferenceUtil.getAllLockersStatus();
+                    //用原来以保存的箱位或上现保存的箱位,然后记录所有已存东西的箱位索引
+                    allLockersStatus &= i;
+
+                    SharedPreferenceUtil.setAllLockersStatus(allLockersStatus);
+                    mCurrentUser.setStorageIndexs(storageIndexs);
+                    //更新数据库信息
+                    UserDBManager.update(mCurrentUser);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Intent intent = new Intent(TakeActivity.this, ShowTipsActivity.class);
+                            intent.putExtra(ShowTipsActivity.TIPS, "已打开" + (locker + 1) + "号柜门");
+                            startActivity(intent);
+                        }
+                    });
+                }
             }
         } else {
             Log.i(TAG, "onSingleLockerStatusResponse: 没有打开任何柜门");

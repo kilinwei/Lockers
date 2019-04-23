@@ -49,8 +49,8 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
     private static final int MSG_REGISTER_TIME_OUT = 0x0;
     private static final int MSG_NOT_CLOSE_DOOR = 0x03;
     private static final int PASS_TIME = 800;
-    private static final int REGISTER_TIME_OUT = 30 * 1000;
-    private static final int CLOSE_DOOR_TIME_OUT = 30 * 1000;
+    private static final int REGISTER_TIME_OUT = 10 * 1000;
+    private static final int CLOSE_DOOR_TIME_OUT = 10 * 1000;
 
     @BindView(R.id.layout_camera)
     RelativeLayout mCameraView;
@@ -220,7 +220,7 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
                 }
             });
         }
-        Log.i(TAG, "onTip: " + msg);
+        Log.d(TAG, "onTip: " + msg);
     }
 
     @Override
@@ -229,9 +229,9 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
     }
 
     @Override
-    public void onCallback(final int code, final LivenessModel livenessModel) {
+    public synchronized void onCallback(final int code, final LivenessModel livenessModel) {
         //子线程
-        Log.i(TAG, "onCallback: code: " + code + "  livenessModel为空吗:" + (livenessModel == null) + "  当前activity的hashcode: " + this.hashCode());
+        Log.d(TAG, "onCallback: code: " + code + "  livenessModel为空吗:" + (livenessModel == null) + "  当前activity的hashcode: " + this.hashCode());
         if (mIsRecognized) {
             return;
         }
@@ -241,9 +241,14 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
         if (code == 0) {
             //匹配到相似人脸,说明这个人已经存过东西,检测是否已经存>=3,如果是,提示先取出
             //相似度
-            float featureScore = livenessModel.getFeatureScore();
+            final float featureScore = livenessModel.getFeatureScore();
             if (mTvSimilarity != null) {
-                mTvSimilarity.setText(String.format("相似度: %s", featureScore));
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mTvSimilarity.setText(String.format("相似度: %s", featureScore));
+                    }
+                });
             }
             if (featureScore < Constants.PASS_SCORE) {
                 return;
@@ -251,7 +256,13 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
             mHandler.removeMessages(MSG_CHECK_FACE);
             mHandler.removeMessages(MSG_REGISTER_TIME_OUT);
             Log.i(TAG, "onCallback: 识别到相似用户,去掉注册倒计时消息");
-            mIsRecognized = true;
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mTvCountdown.setText("");
+                }
+            });
+
             Feature feature = livenessModel.getFeature();
             //储存的名字,
             String userName = feature.getUserName();
@@ -263,10 +274,9 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
                 int count = Integer.bitCount(storageIndexs);
                 if (count < 1) {
                     //未大于1个,可以存,先打开箱门，然后再把箱位记录到数据库中
-                    Log.i(TAG, "onCallback: 识别到老用户,存物品未大于1个,可以存,当前存储个数: " + count);
-                    ToastUtil.showMessage(" 识别到老用户,存物品未大于1个,可以存,当前存储个数: " + count);
                     mCurrentUser = user;
-                    removeCameraView("已打开柜门");
+                    Log.i(TAG, "onCallback: 识别到老用户,存物品未大于1个,可以存,当前存储个数: " + count + "用户ID: " + mCurrentUser.getUserName());
+                    ToastUtil.showMessage(" 识别到老用户,存物品未大于1个,可以存,当前存储个数: " + count + "用户ID: " + mCurrentUser.getUserName());
                     openSingleLocker();
                 } else {
                     // TODO: 2019/3/12  已存大于等于1个,提示用户需要先取出已存的东西
@@ -276,15 +286,16 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
                 }
             } else {
                 //说明facesdk的数据库里有数据,但是user数据库没有.需要写入user数据库，再打开箱门，然后再把箱位记录到数据库中
-                ToastUtil.showMessage("facesdk的数据库里有数据,user数据库没有,需要写入user数据库，再打开箱门");
                 long currentTimeMillis = System.currentTimeMillis();
                 mCurrentUser = UserDBManager.insertUser2DB(String.valueOf(currentTimeMillis / 1000),
                         currentTimeMillis / 1000,
                         currentTimeMillis / 1000,
                         feature.getCropImageName(), feature.getImageName());
-                removeCameraView("已打开柜门");
                 openSingleLocker();
+                ToastUtil.showMessage("facesdk的数据库里有数据,user数据库没有,需要写入user数据库，再打开箱门,用户ID: " + mCurrentUser.getUserName());
+                Log.i(TAG, "onCallback: facesdk的数据库里有数据,user数据库没有,需要写入user数据库，再打开箱门,用户ID: " + mCurrentUser.getUserName());
             }
+            mIsRecognized = true;
         } else {
             if (mTvSimilarity != null) {
                 runOnUiThread(new Runnable() {
@@ -333,7 +344,6 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
         public void onRegistCallBack(int code, LivenessModel livenessModel, final Bitmap cropBitmap) {
             switch (code) {
                 case 0: {
-                    removeCameraView("已打开柜门");
                     mHandler.removeMessages(MSG_REGISTER_TIME_OUT);
                     // 设置注册信息
                     Feature feature = livenessModel.getFeature();
@@ -460,6 +470,7 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
             for (int i = 0; i < openingLockesIndexs.size(); i++) {
                 Integer openingLockesIndex = openingLockesIndexs.get(i);
                 if (mCurrentOpenLockerIndex != -1 && mCurrentOpenLockerIndex == openingLockesIndex) {
+                    removeCameraView("已打开" + (mCurrentOpenLockerIndex + 1) + "号柜门");
                     updateStorageStatus(openingLockesIndex);
                 }
                 Log.i(TAG, "onSingleLockerStatusResponse: 当前开的柜门索引为:　" + openingLockesIndex);

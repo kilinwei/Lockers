@@ -20,7 +20,7 @@ public class ShowTipsActivity extends BaseActivity {
     TextView mTvTimer;
     @BindView(R.id.tv_tips)
     TextView mTvTips;
-    private int time = 1;
+    private int time = 2;
     @SuppressLint("HandlerLeak")
     private Handler handler = new Handler() {
         @Override

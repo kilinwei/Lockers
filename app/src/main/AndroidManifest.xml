@@ -15,7 +15,12 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" /> <!-- 记录logcat日志功能 所需的权限 -->
     <uses-permission android:name="android.permission.READ_LOGS" />
-
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature
         android:name="android.hardware.camera.autofocus"
@@ -82,6 +87,10 @@
         <activity android:name=".ui.activity.PassActivity" />
         <activity android:name=".ui.activity.UserActivity" />
         <activity android:name=".ui.activity.PasswordActivity" />
+        <activity
+            android:name="com.tencent.bugly.beta.ui.BetaActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:theme="@android:style/Theme.Translucent" />
     </application>
 
 </manifest>

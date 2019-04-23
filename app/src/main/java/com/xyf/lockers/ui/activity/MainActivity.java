@@ -9,6 +9,7 @@ import android.widget.FrameLayout;
 
 import com.baidu.idl.facesdk.model.Feature;
 import com.baidu.idl.facesdk.utils.PreferencesUtil;
+import com.tencent.bugly.beta.Beta;
 import com.xyf.lockers.R;
 import com.xyf.lockers.base.BaseActivity;
 import com.xyf.lockers.common.GlobalSet;
@@ -61,6 +62,7 @@ public class MainActivity
                 return false;
             }
         });
+        Beta.checkUpgrade(false,false);
     }
 
     @Override

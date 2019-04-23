@@ -13,6 +13,7 @@
         android:layout_below="@id/ic_title">
 
         <TextView
+            android:layout_marginTop="30dp"
             android:paddingStart="20dp"
             android:paddingEnd="20dp"
             android:id="@+id/tv_similarity"
@@ -21,7 +22,7 @@
             android:layout_centerHorizontal="true"
             android:gravity="center"
             android:textColor="@color/red"
-            android:textSize="20sp" />
+            android:textSize="30sp" />
 
         <RelativeLayout
             android:id="@+id/layout_camera"

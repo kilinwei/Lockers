@@ -16,11 +16,20 @@ android {
             abiFilters 'armeabi-v7a' //, 'x8n6', 'armeabi', 'x86_64', 'arm64-v8a'
         }
     }
+    signingConfigs {
+        myConfig {
+            storeFile file("../xyf.keystore")
+            storePassword "xyf18026986510"
+            keyAlias "key0"
+            keyPassword "xyf18026986510"
+        }
+    }
 
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.myConfig
         }
     }
 
@@ -43,6 +52,13 @@ android {
         variant.outputs.all { output ->
             outputFileName = "XYF-${variant.buildType.name}-${defaultConfig.versionName}" + ".apk"
         }
+    }
+
+    lintOptions {
+        checkReleaseBuilds false
+        // Or, if you prefer, you can continue to check for errors in release builds,
+        // but continue the build even when errors are found:
+        abortOnError false
     }
 }
 

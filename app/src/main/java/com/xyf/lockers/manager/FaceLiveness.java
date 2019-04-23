@@ -328,7 +328,7 @@ public class FaceLiveness {
                 return true;
             }
             float[] headPose = faceInfo.headPose;
-            Log.i(TAG, "onLivenessCheck headpose->人脸角度" + headPose[0] + " " + headPose[1] + " " + headPose[2]);
+            Log.d(TAG, "onLivenessCheck headpose->人脸角度" + headPose[0] + " " + headPose[1] + " " + headPose[2]);
             if (Math.abs(headPose[0]) > SharedPreferenceUtil.getUpDownAngle() || Math.abs(headPose[1]) > SharedPreferenceUtil.getLeftRightAngle()
                     || Math.abs(headPose[2]) > SharedPreferenceUtil.getRotateAngle()) {
                 DecimalFormat df = new DecimalFormat("0.0");

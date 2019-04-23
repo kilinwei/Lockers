@@ -47,7 +47,7 @@ public class TemporaryTakeActivity extends BaseActivity implements ILivenessCall
 
     private static final String TAG = "TemporaryTakeActivity";
     public static final int MSG_PASS_TIME_OUT = 0x04;
-    public static final int PASS_OUT_TIME = 30 * 1000;
+    public static final int PASS_OUT_TIME = 10 * 1000;
     @BindView(R.id.layout_camera)
     RelativeLayout mCameraView;
     @BindView(R.id.image_track)
@@ -171,9 +171,14 @@ public class TemporaryTakeActivity extends BaseActivity implements ILivenessCall
     }
 
     @Override
-    public void onTip(int code, String msg) {
+    public void onTip(int code, final String msg) {
         if (mTvSimilarity != null) {
-            mTvSimilarity.setText(msg);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mTvSimilarity.setText(msg);
+                }
+            });
         }
         Log.i(TAG, "onTip: " + msg);
     }
@@ -188,9 +193,14 @@ public class TemporaryTakeActivity extends BaseActivity implements ILivenessCall
         if (code == 0) {
             //匹配到相似人脸,说明这个人已经存过东西,检测已经存几个,将用户存的箱子一次性打开
             //相似度
-            float featureScore = livenessModel.getFeatureScore();
+            final float featureScore = livenessModel.getFeatureScore();
             if (mTvSimilarity != null) {
-                mTvSimilarity.setText(String.format("相似度: %s", featureScore));
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mTvSimilarity.setText(String.format("相似度: %s", featureScore));
+                    }
+                });
             }
             if (featureScore < Constants.PASS_SCORE) {
                 return;
@@ -240,7 +250,12 @@ public class TemporaryTakeActivity extends BaseActivity implements ILivenessCall
         } else {
             Log.i(TAG, "run: 未匹配到相似人脸");
             if (mTvSimilarity != null) {
-                mTvSimilarity.setText("未匹配到相似人脸");
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mTvSimilarity.setText("未匹配到相似人脸");
+                    }
+                });
             }
             Log.i(TAG, "run: 未匹配到相似人脸");
         }
@@ -260,9 +275,6 @@ public class TemporaryTakeActivity extends BaseActivity implements ILivenessCall
                         }
                     }
                 });
-        Intent intent = new Intent(TemporaryTakeActivity.this, ShowTipsActivity.class);
-        intent.putExtra(ShowTipsActivity.TIPS, "已打开柜门");
-        startActivity(intent);
     }
 
     @Override
@@ -287,7 +299,20 @@ public class TemporaryTakeActivity extends BaseActivity implements ILivenessCall
         ArrayList<Integer> lockers = LockerUtils.getOpeningLockesIndexs(boardBinary, lockerBinary);
         if (lockers != null) {
             ToastUtil.showMessage("临时取出成功");
-           //此处和TakeActivity不一样的地方为,不需要更新用户数据,为临时开柜,只需要检测用户是否关门就行
+            for (final Integer locker : lockers) {
+                if (mCurrentStorageList != null && mCurrentStorageList.contains(locker)) {
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Intent intent = new Intent(TemporaryTakeActivity.this, ShowTipsActivity.class);
+                            intent.putExtra(ShowTipsActivity.TIPS, "临时开柜:已打开" + (locker + 1) + "号柜门");
+                            startActivity(intent);
+                        }
+                    });
+                }
+            }
+            //此处和TakeActivity不一样的地方为,不需要更新用户数据,为临时开柜,只需要检测用户是否关门就行
         } else {
             Log.i(TAG, "onSingleLockerStatusResponse: 没有打开任何柜门");
         }

@@ -86,7 +86,6 @@ public class UserInfoManager {
                     }
                 }
                 FaceSDKManager.getInstance().getFeatureLRUCache().clear();
-
                 listener.deleteSuccess();
             }
         });

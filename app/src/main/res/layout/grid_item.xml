@@ -1,43 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="wrap_content"
-    android:orientation="vertical"
-    android:gravity="center_horizontal"
-    android:layout_marginTop="20dp"
-    android:layout_height="wrap_content">
-    <ImageView
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_marginTop="20dp"
+              android:gravity="center_horizontal"
+              android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tv_num"
+        android:textSize="24sp"
         android:layout_width="wrap_content"
-        android:id="@+id/iv_user"
-        android:layout_height="30dp" />
+        android:layout_height="30dp"/>
+
     <TextView
         android:id="@+id/tv_storage"
-        android:text="tv_storage"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:text="tv_storage"/>
+
     <TextView
-        android:text="tv_timeout"
         android:id="@+id/tv_timeout"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:text="tv_timeout"/>
+
     <Button
-        android:background="@drawable/small_btn_selector"
-        android:text="开门"
-        android:textSize="30sp"
         android:id="@+id/btn_open_lock"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:background="@drawable/small_btn_selector"
+        android:text="开门"
+        android:textSize="30sp"/>
+
     <TextView
-        android:text="tv_locker_status"
         android:id="@+id/tv_locker_status"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:text="tv_locker_status"/>
+
     <TextView
-        android:visibility="gone"
-        android:text="tv_light_status"
         android:id="@+id/tv_light_status"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:text="tv_light_status"
+        android:visibility="gone"/>
 
 </LinearLayout>
