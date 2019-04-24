@@ -16,6 +16,7 @@ import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.baidu.idl.facesdk.model.Feature;
 import com.chad.library.adapter.base.BaseQuickAdapter;
+import com.tencent.bugly.beta.Beta;
 import com.xyf.lockers.R;
 import com.xyf.lockers.adapter.GridAdapter;
 import com.xyf.lockers.base.BaseActivity;
@@ -64,6 +65,8 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
     Button mBtnBack;
     @BindView(R.id.btn_config_angle)
     Button mBtnConfigAngle;
+    @BindView(R.id.btn_update)
+    Button mBtnUpdate;
 
     EditText mEditUpDown;
     EditText mEditRightLeftAngle;
@@ -98,7 +101,7 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
                     public List<GridBean> apply(Integer integer) throws Exception {
                         List<GridBean> gridBeanList = new ArrayList<>();
                         List<User> allStorageUser = UserDBManager.getAllStorageUser();
-                        if (allStorageUser != null && !allStorageUser.isEmpty()) {
+                        if (allStorageUser != null) {
                             // TODO: 2019/4/9 just for  test
 //                        if (allStorageUser != null && allStorageUser.isEmpty()) {//测试用,上面的才是生产用的
                             mCacheMap = new HashMap<>();
@@ -200,6 +203,7 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
 
     @OnClick({R.id.btn_open_all,
             R.id.btn_back,
+            R.id.btn_update,
             R.id.btn_config_angle,
             R.id.btn_control_delete_all})
     public void onViewClicked(View view) {
@@ -226,6 +230,9 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
                 break;
             case R.id.btn_config_angle:
                 showAngleConfigDialog();
+                break;
+            case R.id.btn_update:
+                Beta.checkUpgrade(true, false);
                 break;
         }
     }
