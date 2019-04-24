@@ -1,6 +1,7 @@
 package com.xyf.lockers.manager;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.baidu.idl.facesdk.FaceDetect;
 import com.baidu.idl.facesdk.FaceFeature;
@@ -18,6 +19,8 @@ import java.util.List;
 import java.util.Map;
 
 public class FaceSDKManager {
+    private static final String TAG = "FaceSDKManager";
+
     private FaceDetector faceDetector;
     private FaceFeatures faceFeature;
     private FaceLiveness faceLiveness;
@@ -117,21 +120,8 @@ public class FaceSDKManager {
         if (featureLRUCache.getAll().size() > 0) {
             for (Map.Entry<String, Feature> featureEntry : featureLRUCache.getAll()) {
                 Feature feature = featureEntry.getValue();
-                float similariry;
-                if (featureType == FaceFeature.FeatureType.FEATURE_VIS) {
-                    similariry = faceFeature.featureCompare(feature.getFeature(), curFeature);
-                    if (similariry > GlobalSet.getFeatureRgbValue()) {
-                        liveModel.setFeatureScore(similariry);
-                        featureLRUCache.put(feature.getUserName(), feature);
-                        return feature;
-                    }
-                } else if (featureType == FaceFeature.FeatureType.FEATURE_ID_PHOTO) {
-                    similariry = faceFeature.featureIDCompare(feature.getFeature(), curFeature);
-                    if (similariry > GlobalSet.getFeaturePhoneValue()) {
-                        liveModel.setFeatureScore(similariry);
-                        featureLRUCache.put(feature.getUserName(), feature);
-                        return feature;
-                    }
+                if (compare(featureType, curFeature, liveModel, feature)) {
+                    return feature;
                 }
             }
         }
@@ -150,5 +140,59 @@ public class FaceSDKManager {
             }
         }
         return null;
+    }
+
+    /**
+     * 返回null代表没有注册
+     *
+     * @param featureType
+     * @param curFeature
+     * @param liveModel
+     * @return
+     */
+    public Feature isRegistered(FaceFeature.FeatureType featureType, byte[] curFeature, LivenessModel liveModel) {
+
+        if (featureLRUCache.getAll().size() > 0) {
+            for (Map.Entry<String, Feature> featureEntry : featureLRUCache.getAll()) {
+                Feature feature = featureEntry.getValue();
+                if (compare(featureType, curFeature, liveModel, feature)) {
+                    liveModel.setFeature(feature);
+                    return feature;
+                }
+            }
+        }
+
+        List<Feature> allFeature = DBManager.getInstance().queryFeature();
+        if (allFeature != null) {
+            Log.i(TAG, "isRegistered: " + allFeature.size());
+            for (Feature feature : allFeature) {
+                if (compare(featureType, curFeature, liveModel, feature)) {
+                    featureLRUCache.put(feature.getUserName(), feature);
+                    liveModel.setFeature(feature);
+                    return feature;
+                }
+            }
+        }
+        return null;
+    }
+
+    private boolean compare(FaceFeature.FeatureType featureType, byte[] curFeature, LivenessModel liveModel, Feature feature) {
+        float similariry;
+        if (featureType == FaceFeature.FeatureType.FEATURE_VIS) {
+            similariry = faceFeature.featureCompare(feature.getFeature(), curFeature);
+            if (similariry > GlobalSet.getFeatureRgbValue()) {
+                liveModel.setFeatureScore(similariry);
+                featureLRUCache.put(feature.getUserName(), feature);
+                return true;
+            }
+        } else if (featureType == FaceFeature.FeatureType.FEATURE_ID_PHOTO) {
+            similariry = faceFeature.featureIDCompare(feature.getFeature(), curFeature);
+            if (similariry > GlobalSet.getFeaturePhoneValue()) {
+                liveModel.setFeatureScore(similariry);
+                featureLRUCache.put(feature.getUserName(), feature);
+                return true;
+            }
+        }
+        return false;
     }
 }

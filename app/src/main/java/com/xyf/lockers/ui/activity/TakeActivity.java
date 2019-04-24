@@ -178,7 +178,9 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    mTvSimilarity.setText(msg);
+                    if (mTvSimilarity != null) {
+                        mTvSimilarity.setText(msg);
+                    }
                 }
             });
         }

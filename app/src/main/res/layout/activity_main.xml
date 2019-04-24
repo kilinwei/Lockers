@@ -5,6 +5,7 @@
                                              android:layout_width="match_parent"
                                              android:layout_height="match_parent"
                                              android:background="@mipmap/main_bg"
+                                             android:paddingBottom="50dp"
                                              tools:context=".ui.activity.MainActivity">
 
     <FrameLayout
@@ -40,8 +41,9 @@
         android:id="@+id/btn_storage"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="存"
+        android:layout_margin="30dp"
         android:background="@drawable/main_btn_selector"
+        android:text="存"
         android:textColor="@color/b2w_text_color_selector"
         android:textSize="200dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -59,17 +61,18 @@
         android:textSize="60dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/btn_take"
-        app:layout_constraintHorizontal_weight="1"
+        app:layout_constraintHorizontal_weight="1.4"
         app:layout_constraintStart_toEndOf="@id/btn_storage"
         app:layout_constraintTop_toTopOf="@id/btn_take"/>
 
     <Button
-        android:textColor="@color/b2w_text_color_selector"
         android:id="@+id/btn_take"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_margin="30dp"
         android:background="@drawable/main_btn_selector"
         android:text="取"
+        android:textColor="@color/b2w_text_color_selector"
         android:textSize="200dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

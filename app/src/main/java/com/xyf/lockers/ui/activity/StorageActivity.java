@@ -133,9 +133,13 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
         FaceSDKManager.getInstance().getFaceLiveness().removeRegistCallBack(faceRegistCalllBack);
         FaceSDKManager.getInstance().getFaceLiveness().addRegistCallBack(faceRegistCalllBack);
         //进入界面首先设置为通行,确保同一用户不会被注册两次
-        FaceSDKManager.getInstance().getFaceLiveness().setCurrentTaskType(FaceLiveness.TaskType.TASK_TYPE_ONETON);
+        FaceSDKManager.getInstance().getFaceLiveness().setCurrentTaskType(FaceLiveness.TaskType.TASK_TYPE_REGIST);
         initFaceData();
         calculateCameraView();
+        //设置本次注册的用户名,用户过滤多次注册的问题,开启一次洁面只允许注册一次
+        mNickName = String.valueOf(System.currentTimeMillis() / 1000);
+        Log.i(TAG, "run: mNickName: " + mNickName);
+        FaceSDKManager.getInstance().getFaceLiveness().setRegistNickName(mNickName);
     }
 
 
@@ -216,7 +220,9 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    mTvSimilarity.setText(msg);
+                    if (mTvSimilarity != null) {
+                        mTvSimilarity.setText(msg);
+                    }
                 }
             });
         }
@@ -344,6 +350,7 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
         public void onRegistCallBack(int code, LivenessModel livenessModel, final Bitmap cropBitmap) {
             switch (code) {
                 case 0: {
+                    //第一次注册
                     mHandler.removeMessages(MSG_REGISTER_TIME_OUT);
                     // 设置注册信息
                     Feature feature = livenessModel.getFeature();
@@ -353,6 +360,46 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
                             Long.parseLong(userName), feature.getCropImageName(), feature.getImageName());
                     if (!TextUtils.isEmpty(userName) && !userName.equalsIgnoreCase(lastUserName)) {
                         openSingleLocker();
+                    }
+                }
+                break;
+                case 2: {
+                    //已注册过
+                    mHandler.removeMessages(MSG_REGISTER_TIME_OUT);
+                    // 设置注册信息
+                    Feature feature = livenessModel.getFeature();
+                    if (feature != null) {
+                        String userName = feature.getUserName();
+                        Log.i(TAG, "onRegistCallBack: 之前已注册过,注册人为: " + userName);
+                        UserDao userDao = MainAppliction.getInstance().getDaoSession().getUserDao();
+                        List<User> users = userDao.queryRaw("where user_name=?", userName);
+                        if (users.size() > 0) {
+                            User user = users.get(0);
+                            int storageIndexs = user.getStorageIndexs();
+                            int count = Integer.bitCount(storageIndexs);
+                            if (count < 1) {
+                                //未大于1个,可以存,先打开箱门，然后再把箱位记录到数据库中
+                                mCurrentUser = user;
+                                Log.i(TAG, "onRegistCallBack: 识别到老用户,存物品未大于1个,可以存,当前存储个数: " + count + "用户ID: " + mCurrentUser.getUserName());
+                                ToastUtil.showMessage(" 识别到老用户,存物品未大于1个,可以存,当前存储个数: " + count + "用户ID: " + mCurrentUser.getUserName());
+                                openSingleLocker();
+                            } else {
+                                // TODO: 2019/3/12  已存大于等于1个,提示用户需要先取出已存的东西
+                                Log.i(TAG, "onRegistCallBack: 识别到老用户,已存大于等于1个");
+                                ToastUtil.showMessage("您已保存过一个物品了");
+                                removeCameraView("您已保存过一个物品了");
+                            }
+                        } else {
+                            //说明facesdk的数据库里有数据,但是user数据库没有.需要写入user数据库，再打开箱门，然后再把箱位记录到数据库中
+                            long currentTimeMillis = System.currentTimeMillis();
+                            mCurrentUser = UserDBManager.insertUser2DB(String.valueOf(currentTimeMillis / 1000),
+                                    currentTimeMillis / 1000,
+                                    currentTimeMillis / 1000,
+                                    feature.getCropImageName(), feature.getImageName());
+                            openSingleLocker();
+                            ToastUtil.showMessage("facesdk的数据库里有数据,user数据库没有,需要写入user数据库，再打开箱门,用户ID: " + mCurrentUser.getUserName());
+                            Log.i(TAG, "onRegistCallBack: facesdk的数据库里有数据,user数据库没有,需要写入user数据库，再打开箱门,用户ID: " + mCurrentUser.getUserName());
+                        }
                     }
                 }
                 break;

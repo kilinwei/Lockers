@@ -176,7 +176,9 @@ public class TemporaryTakeActivity extends BaseActivity implements ILivenessCall
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    mTvSimilarity.setText(msg);
+                    if (mTvSimilarity != null) {
+                        mTvSimilarity.setText(msg);
+                    }
                 }
             });
         }
