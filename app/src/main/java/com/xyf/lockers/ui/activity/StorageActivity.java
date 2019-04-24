@@ -16,7 +16,6 @@ import android.widget.TextView;
 
 import com.baidu.idl.facesdk.model.Feature;
 import com.xyf.lockers.R;
-import com.xyf.lockers.app.Constants;
 import com.xyf.lockers.app.MainAppliction;
 import com.xyf.lockers.base.BaseActivity;
 import com.xyf.lockers.callback.IFaceRegistCalllBack;
@@ -237,108 +236,108 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
     @Override
     public synchronized void onCallback(final int code, final LivenessModel livenessModel) {
         //子线程
-        Log.d(TAG, "onCallback: code: " + code + "  livenessModel为空吗:" + (livenessModel == null) + "  当前activity的hashcode: " + this.hashCode());
-        if (mIsRecognized) {
-            return;
-        }
-        if (livenessModel == null) {
-            return;
-        }
-        if (code == 0) {
-            //匹配到相似人脸,说明这个人已经存过东西,检测是否已经存>=3,如果是,提示先取出
-            //相似度
-            final float featureScore = livenessModel.getFeatureScore();
-            if (mTvSimilarity != null) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        mTvSimilarity.setText(String.format("相似度: %s", featureScore));
-                    }
-                });
-            }
-            if (featureScore < Constants.PASS_SCORE) {
-                return;
-            }
-            mHandler.removeMessages(MSG_CHECK_FACE);
-            mHandler.removeMessages(MSG_REGISTER_TIME_OUT);
-            Log.i(TAG, "onCallback: 识别到相似用户,去掉注册倒计时消息");
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    mTvCountdown.setText("");
-                }
-            });
-
-            Feature feature = livenessModel.getFeature();
-            //储存的名字,
-            String userName = feature.getUserName();
-            UserDao userDao = MainAppliction.getInstance().getDaoSession().getUserDao();
-            List<User> users = userDao.queryRaw("where user_name=?", userName);
-            if (users.size() > 0) {
-                User user = users.get(0);
-                int storageIndexs = user.getStorageIndexs();
-                int count = Integer.bitCount(storageIndexs);
-                if (count < 1) {
-                    //未大于1个,可以存,先打开箱门，然后再把箱位记录到数据库中
-                    mCurrentUser = user;
-                    Log.i(TAG, "onCallback: 识别到老用户,存物品未大于1个,可以存,当前存储个数: " + count + "用户ID: " + mCurrentUser.getUserName());
-                    ToastUtil.showMessage(" 识别到老用户,存物品未大于1个,可以存,当前存储个数: " + count + "用户ID: " + mCurrentUser.getUserName());
-                    openSingleLocker();
-                } else {
-                    // TODO: 2019/3/12  已存大于等于1个,提示用户需要先取出已存的东西
-                    Log.i(TAG, "onCallback: 识别到老用户,已存大于等于1个");
-                    ToastUtil.showMessage("您已保存过一个物品了");
-                    removeCameraView("您已保存过一个物品了");
-                }
-            } else {
-                //说明facesdk的数据库里有数据,但是user数据库没有.需要写入user数据库，再打开箱门，然后再把箱位记录到数据库中
-                long currentTimeMillis = System.currentTimeMillis();
-                mCurrentUser = UserDBManager.insertUser2DB(String.valueOf(currentTimeMillis / 1000),
-                        currentTimeMillis / 1000,
-                        currentTimeMillis / 1000,
-                        feature.getCropImageName(), feature.getImageName());
-                openSingleLocker();
-                ToastUtil.showMessage("facesdk的数据库里有数据,user数据库没有,需要写入user数据库，再打开箱门,用户ID: " + mCurrentUser.getUserName());
-                Log.i(TAG, "onCallback: facesdk的数据库里有数据,user数据库没有,需要写入user数据库，再打开箱门,用户ID: " + mCurrentUser.getUserName());
-            }
-            mIsRecognized = true;
-        } else {
-            if (mTvSimilarity != null) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        mTvSimilarity.setText("未匹配到相似人脸");
-                    }
-                });
-            }
-            Log.i(TAG, "onCallback: 未匹配到相似人脸");
-            if (!mFirstRecogniceFace) {
-                mHandler.removeMessages(MSG_CHECK_FACE);
-                mHandler.sendEmptyMessageDelayed(MSG_CHECK_FACE, PASS_TIME);
-                mFirstRecogniceFace = true;
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        mTvCountdown.setText("开始注册倒计时");
-                    }
-                });
-                ToastUtil.showMessage("开始注册倒计时");
-                Log.i(TAG, "onCallback: 开始注册倒计时");
-            }
-
-            if (mNeedRegister) {
-                mNeedRegister = false;
-                mNickName = String.valueOf(System.currentTimeMillis() / 1000);
-                Log.i(TAG, "run: mNickName: " + mNickName);
-                FaceSDKManager.getInstance().getFaceLiveness().setRegistNickName(mNickName);
-                //设置为注册模式
-                FaceSDKManager.getInstance().getFaceLiveness().setCurrentTaskType(FaceLiveness.TaskType.TASK_TYPE_REGIST);
-                ToastUtil.showMessage("已设置为注册模式");
-                Log.i(TAG, "onCallback: 已设置为注册模式");
-            } else {
-
-            }
-        }
+//        Log.d(TAG, "onCallback: code: " + code + "  livenessModel为空吗:" + (livenessModel == null) + "  当前activity的hashcode: " + this.hashCode());
+//        if (mIsRecognized) {
+//            return;
+//        }
+//        if (livenessModel == null) {
+//            return;
+//        }
+//        if (code == 0) {
+//            //匹配到相似人脸,说明这个人已经存过东西,检测是否已经存>=3,如果是,提示先取出
+//            //相似度
+//            final float featureScore = livenessModel.getFeatureScore();
+//            if (mTvSimilarity != null) {
+//                runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        mTvSimilarity.setText(String.format("相似度: %s", featureScore));
+//                    }
+//                });
+//            }
+//            if (featureScore < Constants.PASS_SCORE) {
+//                return;
+//            }
+//            mHandler.removeMessages(MSG_CHECK_FACE);
+//            mHandler.removeMessages(MSG_REGISTER_TIME_OUT);
+//            Log.i(TAG, "onCallback: 识别到相似用户,去掉注册倒计时消息");
+//            runOnUiThread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    mTvCountdown.setText("");
+//                }
+//            });
+//
+//            Feature feature = livenessModel.getFeature();
+//            //储存的名字,
+//            String userName = feature.getUserName();
+//            UserDao userDao = MainAppliction.getInstance().getDaoSession().getUserDao();
+//            List<User> users = userDao.queryRaw("where user_name=?", userName);
+//            if (users.size() > 0) {
+//                User user = users.get(0);
+//                int storageIndexs = user.getStorageIndexs();
+//                int count = Integer.bitCount(storageIndexs);
+//                if (count < 1) {
+//                    //未大于1个,可以存,先打开箱门，然后再把箱位记录到数据库中
+//                    mCurrentUser = user;
+//                    Log.i(TAG, "onCallback: 识别到老用户,存物品未大于1个,可以存,当前存储个数: " + count + "用户ID: " + mCurrentUser.getUserName());
+//                    ToastUtil.showMessage(" 识别到老用户,存物品未大于1个,可以存,当前存储个数: " + count + "用户ID: " + mCurrentUser.getUserName());
+//                    openSingleLocker();
+//                } else {
+//                    // TODO: 2019/3/12  已存大于等于1个,提示用户需要先取出已存的东西
+//                    Log.i(TAG, "onCallback: 识别到老用户,已存大于等于1个");
+//                    ToastUtil.showMessage("您已保存过一个物品了");
+//                    removeCameraView("您已保存过一个物品了");
+//                }
+//            } else {
+//                //说明facesdk的数据库里有数据,但是user数据库没有.需要写入user数据库，再打开箱门，然后再把箱位记录到数据库中
+//                long currentTimeMillis = System.currentTimeMillis();
+//                mCurrentUser = UserDBManager.insertUser2DB(String.valueOf(currentTimeMillis / 1000),
+//                        currentTimeMillis / 1000,
+//                        currentTimeMillis / 1000,
+//                        feature.getCropImageName(), feature.getImageName());
+//                openSingleLocker();
+//                ToastUtil.showMessage("facesdk的数据库里有数据,user数据库没有,需要写入user数据库，再打开箱门,用户ID: " + mCurrentUser.getUserName());
+//                Log.i(TAG, "onCallback: facesdk的数据库里有数据,user数据库没有,需要写入user数据库，再打开箱门,用户ID: " + mCurrentUser.getUserName());
+//            }
+//            mIsRecognized = true;
+//        } else {
+//            if (mTvSimilarity != null) {
+//                runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        mTvSimilarity.setText("未匹配到相似人脸");
+//                    }
+//                });
+//            }
+//            Log.i(TAG, "onCallback: 未匹配到相似人脸");
+//            if (!mFirstRecogniceFace) {
+//                mHandler.removeMessages(MSG_CHECK_FACE);
+//                mHandler.sendEmptyMessageDelayed(MSG_CHECK_FACE, PASS_TIME);
+//                mFirstRecogniceFace = true;
+//                runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        mTvCountdown.setText("开始注册倒计时");
+//                    }
+//                });
+//                ToastUtil.showMessage("开始注册倒计时");
+//                Log.i(TAG, "onCallback: 开始注册倒计时");
+//            }
+//
+//            if (mNeedRegister) {
+//                mNeedRegister = false;
+//                mNickName = String.valueOf(System.currentTimeMillis() / 1000);
+//                Log.i(TAG, "run: mNickName: " + mNickName);
+//                FaceSDKManager.getInstance().getFaceLiveness().setRegistNickName(mNickName);
+//                //设置为注册模式
+//                FaceSDKManager.getInstance().getFaceLiveness().setCurrentTaskType(FaceLiveness.TaskType.TASK_TYPE_REGIST);
+//                ToastUtil.showMessage("已设置为注册模式");
+//                Log.i(TAG, "onCallback: 已设置为注册模式");
+//            } else {
+//
+//            }
+//        }
 
     }
 
