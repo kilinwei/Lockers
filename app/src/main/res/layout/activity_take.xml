@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -13,14 +12,14 @@
         android:layout_below="@id/ic_title">
 
         <TextView
-            android:layout_marginTop="30dp"
-            android:paddingStart="20dp"
-            android:paddingEnd="20dp"
             android:id="@+id/tv_similarity"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
+            android:layout_marginTop="30dp"
             android:gravity="center"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
             android:textColor="@color/red"
             android:textSize="30sp" />
 
@@ -28,14 +27,19 @@
             android:id="@+id/layout_camera"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center"/>
+            android:gravity="center" />
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/result_drawable" />
 
         <ImageView
             android:id="@+id/image_track"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:visibility="gone"
-            android:layout_alignParentRight="true"/>
+            android:layout_alignParentRight="true"
+            android:visibility="gone" />
     </RelativeLayout>
 
 </RelativeLayout>
