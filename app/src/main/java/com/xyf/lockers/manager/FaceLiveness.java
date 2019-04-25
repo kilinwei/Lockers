@@ -330,16 +330,16 @@ public class FaceLiveness {
             float[] headPose = faceInfo.headPose;
             Log.d(TAG, "onLivenessCheck headpose->人脸角度" + headPose[0] + " " + headPose[1] + " " + headPose[2]);
             Log.i(TAG, "onLivenessCheck: 人脸X坐标: " + faceInfo.mCenter_x + " 人脸Y坐标: " + faceInfo.mCenter_y);
-            if (faceInfo.mCenter_x < 190) {
+            if (faceInfo.mCenter_x < 100) {
                 livenessCallBack.onTip(0, "请往右一点");
                 return false;
-            } else if (faceInfo.mCenter_x > 290) {
+            } else if (faceInfo.mCenter_x > 380) {
                 livenessCallBack.onTip(0, "请往左一点");
                 return false;
-            } else if (faceInfo.mCenter_y < 220) {
+            } else if (faceInfo.mCenter_y < 200) {
                 livenessCallBack.onTip(0, "请往下一点");
                 return false;
-            } else if (faceInfo.mCenter_y > 540) {
+            } else if (faceInfo.mCenter_y > 600) {
                 livenessCallBack.onTip(0, "请往上一点");
                 return false;
             }

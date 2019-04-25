@@ -24,5 +24,4 @@
     <string name="import_fail">导入失败</string>
     <string name="face_manager">人脸库管理</string>
     <string name="db_import">数据库导入/导出</string>
-
 </resources>

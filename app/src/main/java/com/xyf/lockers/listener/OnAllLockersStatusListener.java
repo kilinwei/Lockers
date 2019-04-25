@@ -12,4 +12,12 @@ public interface OnAllLockersStatusListener extends BaseSerialportInterface {
 
     void onAllLockersStatusResponse(int allLockers);
 
+    /**
+     * bRec[1] 板子序号 01:1号板 02:2号板 04:3号板
+     * bRec[2];这块板子的锁状态 11111110:代表1号锁开启,2到8号锁闭合
+     *
+     * @param bRec
+     */
+    void onAllLockersStatusResponse(byte[] bRec);
+
 }

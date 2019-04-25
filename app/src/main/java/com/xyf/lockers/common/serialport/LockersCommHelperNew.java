@@ -237,7 +237,7 @@ public class LockersCommHelperNew {
                     break;
                 case LockersCmd.QUERY_ALL:
                     if (mOnSingleLockerStatusListener != null) {
-                        mOnSingleLockerStatusListener.onSingleLockerStatusResponse(bRec);
+                        mOnAllLockersStatusListener.onAllLockersStatusResponse(bRec);
                     }
                     reset();
                     break;

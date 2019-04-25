@@ -17,6 +17,7 @@ import static com.xyf.lockers.common.serialport.LockersCommHelper.LOCKER_COUNT;
 public class LockerUtils {
 
     public static final int OPEN_LOCKER_INTEVAL = 1000;
+
     /**
      * 返回32位二进制第几位是1的集合,从右到左,第一位为0,然后获取哪一位是1,返回包含1的索引的集合,例如5返回的集合为{0,2}
      *
@@ -41,7 +42,7 @@ public class LockerUtils {
      * @param b
      * @return
      */
-    private static List<Integer> getOpeningLocker(byte b) {
+    public static List<Integer> getOpeningLocker(byte b) {
         List<Integer> list = new ArrayList<>();
         byte help = 0x01;
         for (int i = 0; i < 8; i++) {

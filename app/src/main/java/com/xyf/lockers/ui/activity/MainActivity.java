@@ -15,12 +15,16 @@ import com.baidu.idl.facesdk.utils.PreferencesUtil;
 import com.tencent.bugly.beta.Beta;
 import com.xyf.lockers.BuildConfig;
 import com.xyf.lockers.R;
+import com.xyf.lockers.app.MainAppliction;
 import com.xyf.lockers.base.BaseActivity;
 import com.xyf.lockers.common.GlobalSet;
 import com.xyf.lockers.common.serialport.LockersCommHelperNew;
 import com.xyf.lockers.db.DBManager;
+import com.xyf.lockers.listener.OnAllLockersStatusListener;
 import com.xyf.lockers.manager.UserInfoManager;
+import com.xyf.lockers.utils.LockerUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -28,8 +32,10 @@ import butterknife.OnClick;
 
 
 public class MainActivity
-        extends BaseActivity {
+        extends BaseActivity implements OnAllLockersStatusListener {
     private static final String TAG = "MainActivity";
+    public static final String CHECK_CLOSE = "check_close";
+    public static final int MSG_CHECK_CLOSE = 0x123;
     @BindView(R.id.btn_storage)
     Button btnStorage;
     @BindView(R.id.btn_take)
@@ -49,14 +55,23 @@ public class MainActivity
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            if (i % 2 == 0) {
-                btnStorage.performClick();
-            } else {
-                btnTake.performClick();
+            switch (msg.what) {
+                case 0:
+                    if (i % 2 == 0) {
+                        btnStorage.performClick();
+                    } else {
+                        btnTake.performClick();
+                    }
+                    i++;
+                    break;
+                case MSG_CHECK_CLOSE:
+                    LockersCommHelperNew.get().queryAll(mCurrentOpenLockerBytes[0], mCurrentOpenLockerBytes[1], mCurrentOpenLockerBytes[2], mCurrentOpenLockerBytes[3]);
+                    Log.i(TAG, "handleMessage: 判断,如果此时用户未关门,控制闪灯");
+                    break;
             }
-            i++;
         }
     };
+    private byte[] mCurrentOpenLockerBytes;
 
     @Override
     protected int getLayout() {
@@ -82,6 +97,15 @@ public class MainActivity
     }
 
     @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        mCurrentOpenLockerBytes = intent.getByteArrayExtra(CHECK_CLOSE);
+        if (mCurrentOpenLockerBytes != null && mCurrentOpenLockerBytes.length == 4) {
+            mHandler.sendEmptyMessageDelayed(0, 10 * 1000);
+        }
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         LockersCommHelperNew.get().uninit();
@@ -93,6 +117,18 @@ public class MainActivity
         if (BuildConfig.DEBUG) {
             mHandler.sendEmptyMessageDelayed(0, 10 * 1000);
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        LockersCommHelperNew.get().setOnAllLockersStatusListener(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        LockersCommHelperNew.get().setOnAllLockersStatusListener(null);
     }
 
     @Override
@@ -128,6 +164,26 @@ public class MainActivity
         if (intent != null) {
             startActivity(intent);
         }
+    }
+
+    @Override
+    public void onAllLockersStatusResponse(int allLockers) {
+
+    }
+
+    @Override
+    public void onAllLockersStatusResponse(byte[] bRec) {
+        int boardBinary = bRec[1];
+        byte lockerBinary = bRec[2];
+        ArrayList<Integer> openingLockesIndexs = LockerUtils.getOpeningLockesIndexs(boardBinary, lockerBinary);
+        if (openingLockesIndexs != null && openingLockesIndexs.size() > 0) {
+            MainAppliction.getInstance().playShortMusic(R.raw.close_door);
+        }
+    }
+
+    @Override
+    public void disConnectDevice() {
+
     }
 
 

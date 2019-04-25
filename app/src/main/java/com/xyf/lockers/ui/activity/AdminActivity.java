@@ -72,11 +72,11 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
     EditText mEditRightLeftAngle;
     EditText mEditRotateAngle;
     private Map<Integer, User> mCacheMap;
-    private int mCurrentOpenLockerIndex;
     private Disposable mSubscribe;
     private List<Feature> mListFeatureInfo;
     private UserInfoManager.UserInfoListener mUserInfoListener;
     private MaterialDialog mShowAngleConfigDialog;
+    private boolean visible;
 
     @Override
     protected int getLayout() {
@@ -189,9 +189,21 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        visible = true;
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        visible = false;
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (mSubscribe != null && !mSubscribe.isDisposed()) {
+        if (mSubscribe != null) {
             mSubscribe.dispose();
         }
         if (mShowAngleConfigDialog != null && mShowAngleConfigDialog.isShowing()) {
@@ -214,6 +226,9 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
                             @Override
                             public void accept(Integer integer) throws Exception {
                                 for (int i = 0; i < 32; i++) {
+                                    if (!visible) {
+                                        return;
+                                    }
                                     byte[] openSingleLockerBytes = LockerUtils.getOpenSingleLockerBytes(i);
                                     LockersCommHelperNew.get().controlSingleLock(openSingleLockerBytes[0], openSingleLockerBytes[1], openSingleLockerBytes[2], openSingleLockerBytes[3]);
                                     SystemClock.sleep(LockerUtils.OPEN_LOCKER_INTEVAL);

@@ -363,7 +363,6 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
                 break;
                 case 2: {
                     //已注册过
-                    mHandler.removeMessages(MSG_REGISTER_TIME_OUT);
                     // 设置注册信息
                     Feature feature = livenessModel.getFeature();
                     if (feature != null) {
@@ -444,8 +443,9 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
         Log.i(TAG, "openSingleLocker: canOpenWayIndex: " + canOpenWayIndex);
         if (canOpenWayIndex == -1) {
             // TODO: 2019/3/10 已存满
-            Log.i(TAG, "openSingleLocker: 已存满");
-            ToastUtil.showMessage("已存满");
+            Log.i(TAG, "openSingleLocker: 柜子已存满");
+            ToastUtil.showMessage("柜子已存满");
+            showTipsActivity("柜子已存满");
             return;
         }
         mCurrentOpenLockerIndex = canOpenWayIndex;
@@ -513,8 +513,11 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
             for (int i = 0; i < openingLockesIndexs.size(); i++) {
                 Integer openingLockesIndex = openingLockesIndexs.get(i);
                 if (mCurrentOpenLockerIndex != -1 && mCurrentOpenLockerIndex == openingLockesIndex) {
+                    mHandler.removeMessages(MSG_REGISTER_TIME_OUT);
+                    MainAppliction.getInstance().openDoor(mCurrentOpenLockerIndex);
                     removeCameraView("已打开" + (mCurrentOpenLockerIndex + 1) + "号柜门");
                     updateStorageStatus(openingLockesIndex);
+                    break;
                 }
                 Log.i(TAG, "onSingleLockerStatusResponse: 当前开的柜门索引为:　" + openingLockesIndex);
                 ToastUtil.showMessage("当前开的柜门索引为:　" + openingLockesIndex);

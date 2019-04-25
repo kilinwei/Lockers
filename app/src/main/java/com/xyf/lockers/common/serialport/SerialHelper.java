@@ -167,9 +167,11 @@ public abstract class SerialHelper {
                 if ("6A".equalsIgnoreCase(first) || "8A".equalsIgnoreCase(first)) {
                     sCacheBytes = bytes;
                     Log.i(TAG, "sCacheBytes:首次被赋值: " + ProtConvert.ByteArrToHex(sCacheBytes));
-                }else{
+                } else {
                     Log.i(TAG, "串口收到一条无效字符: " + ProtConvert.ByteArrToHex(bytes));
                 }
+            } else {
+                Log.i(TAG, "串口收到一条长度大于6的数据: " + ProtConvert.ByteArrToHex(bytes));
             }
         } else {
             int lenth = sCacheBytes.length + bytes.length;

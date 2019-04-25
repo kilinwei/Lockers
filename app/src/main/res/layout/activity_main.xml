@@ -55,7 +55,7 @@
         android:id="@+id/btn_temporary_take"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@drawable/main_circle_bg"
+        android:background="@drawable/main_circle_selector"
         android:text="临时&#10;开柜"
         android:textColor="@color/w2b_text_color_selector"
         android:textSize="60dp"

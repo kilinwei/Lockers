@@ -301,6 +301,7 @@ public class TemporaryTakeActivity extends BaseActivity implements ILivenessCall
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+                            MainAppliction.getInstance().openDoor(locker);
                             showTipsActivity("临时开柜:已打开" + (locker + 1) + "号柜门");
                         }
                     });

@@ -309,6 +309,7 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+                            MainAppliction.getInstance().openDoor(locker);
                             showTipsActivity("已打开" + (locker + 1) + "号柜门");
                         }
                     });
