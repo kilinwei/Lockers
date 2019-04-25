@@ -88,7 +88,6 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
                         }
                         if (mMonocularView != null && mCameraView != null) {
                             mMonocularView.onPause();
-                            Log.i(TAG, "run: removeCameraView");
                             mCameraView.removeView(mMonocularView);
                         }
                         String tip = "取出物品超时";
@@ -100,7 +99,6 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
             }
         }
     };
-
 
 
     @Override
@@ -247,15 +245,7 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
                 showTipsActivity("您没有保存物品，请先保存物品");
             }
         } else {
-            if (mTvSimilarity != null) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        mTvSimilarity.setText("未匹配到相似人脸");
-                    }
-                });
-            }
-            Log.i(TAG, "run: 未匹配到相似人脸");
+            Log.d(TAG, "run: 未匹配到相似人脸");
         }
     }
 
