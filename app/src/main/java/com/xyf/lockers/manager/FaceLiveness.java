@@ -329,6 +329,20 @@ public class FaceLiveness {
             }
             float[] headPose = faceInfo.headPose;
             Log.d(TAG, "onLivenessCheck headpose->人脸角度" + headPose[0] + " " + headPose[1] + " " + headPose[2]);
+            Log.i(TAG, "onLivenessCheck: 人脸X坐标: " + faceInfo.mCenter_x + " 人脸Y坐标: " + faceInfo.mCenter_y);
+            if (faceInfo.mCenter_x < 190) {
+                livenessCallBack.onTip(0, "请往右一点");
+                return false;
+            } else if (faceInfo.mCenter_x > 290) {
+                livenessCallBack.onTip(0, "请往左一点");
+                return false;
+            } else if (faceInfo.mCenter_y < 220) {
+                livenessCallBack.onTip(0, "请往下一点");
+                return false;
+            } else if (faceInfo.mCenter_y > 540) {
+                livenessCallBack.onTip(0, "请往上一点");
+                return false;
+            }
             if (Math.abs(headPose[0]) > SharedPreferenceUtil.getUpDownAngle() || Math.abs(headPose[1]) > SharedPreferenceUtil.getLeftRightAngle()
                     || Math.abs(headPose[2]) > SharedPreferenceUtil.getRotateAngle()) {
                 DecimalFormat df = new DecimalFormat("0.0");
@@ -495,67 +509,77 @@ public class FaceLiveness {
                     bytes,
                     livenessModel.getLandmarks());
             if (length == 128) {
-                Feature feature = new Feature();
-                feature.setCtime(System.currentTimeMillis());
-                feature.setFeature(bytes);
-                feature.setUserName(registNickName);
-                final String uid = UUID.randomUUID().toString();
-                feature.setUserId(uid);
-                feature.setGroupId("0");
-                // TODO:增加图片
-                int imgWidth = livenessModel.getImageFrame().getWidth();
-                int imgHeight = livenessModel.getImageFrame().getHeight();
-                Bitmap registBmp = registBmp = Bitmap.createBitmap(imgWidth,
-                        imgHeight, Bitmap.Config.ARGB_8888);
-                registBmp.setPixels(livenessModel.getImageFrame().getArgb(), 0, imgWidth, 0, 0, imgWidth, imgHeight);
-                StringBuilder logBuilder = new StringBuilder();
-                logBuilder.append("姓名\t图片名\t成功/失败\t失败原因\n");
-                // 保存图片
-                // 保存图片到新目录中
-                File facePicDir = FileUtils.getFacePicDirectory();
-                // 保存抠图图片到新目录中
-                File faceCropDir = FileUtils.getFaceCropPicDirectory();
-                String picFile = "regist_" + uid + "_rgb.png";
-
-                if (facePicDir != null) {
-                    File savePicPath = new File(facePicDir, picFile);
-                    if (FileUtils.saveFile(savePicPath, registBmp)) {
-                        Log.i(TAG, "图片保存成功: picFile: " + picFile);
-                        feature.setImageName(picFile);
-                    }
-                }
-
-                Bitmap cropBitmap = null;
-                String cropImgName = null;
-                // 人脸抠图
-                int[] landmarks = livenessModel.getLandmarks();
-                if (landmarks != null) {
-                    cropBitmap = ImageUtils.noBlackBoundImgCrop(landmarks,
-                            livenessModel.getImageFrame().getHeight(), livenessModel.getImageFrame().getWidth(),
-                            livenessModel.getImageFrame().getArgb());
-
-                    if (cropBitmap == null) {
-                        cropBitmap = registBmp;
-                    }
-
-                    cropImgName = "crop_" + picFile;
-                }
-                if (faceCropDir != null && cropBitmap != null) {
-                    File saveCropPath = new File(faceCropDir, cropImgName);
-                    if (FileUtils.saveFile(saveCropPath, cropBitmap)) {
-                        Log.i(TAG, "抠图图片保存成功");
-                        feature.setCropImageName(cropImgName);
-                    }
-                }
-
-                logBuilder.append(registNickName + "\t" + picFile + "\t" + "成功\n");
-                if (FaceApi.getInstance().featureAdd(feature)) {
-                    Log.i(TAG, "registFace: 百度数据库已保存：" + registNickName);
+                Feature feature = FaceSDKManager.getInstance().isRegistered(
+                        FaceFeature.FeatureType.FEATURE_VIS, bytes, livenessModel);
+                if (feature != null) {
+                    Log.i(TAG, "registFace: feature != null");
                     mLastRegistName = registNickName;
-                    livenessModel.setFeature(feature);
-                    returnRegistResult(0, livenessModel, cropBitmap);
+                    //如果检测和本地的都不一样,那才注册,否则注册
+                    returnRegistResult(2, livenessModel, null);
+                } else {
+                    Log.i(TAG, "registFace: feature == null");
+                    feature = new Feature();
+                    feature.setCtime(System.currentTimeMillis());
+                    feature.setFeature(bytes);
+                    feature.setUserName(registNickName);
+                    final String uid = UUID.randomUUID().toString();
+                    feature.setUserId(uid);
+                    feature.setGroupId("0");
+                    // TODO:增加图片
+                    int imgWidth = livenessModel.getImageFrame().getWidth();
+                    int imgHeight = livenessModel.getImageFrame().getHeight();
+                    Bitmap registBmp = registBmp = Bitmap.createBitmap(imgWidth,
+                            imgHeight, Bitmap.Config.ARGB_8888);
+                    registBmp.setPixels(livenessModel.getImageFrame().getArgb(), 0, imgWidth, 0, 0, imgWidth, imgHeight);
+                    StringBuilder logBuilder = new StringBuilder();
+                    logBuilder.append("姓名\t图片名\t成功/失败\t失败原因\n");
+                    // 保存图片
+                    // 保存图片到新目录中
+                    File facePicDir = FileUtils.getFacePicDirectory();
+                    // 保存抠图图片到新目录中
+                    File faceCropDir = FileUtils.getFaceCropPicDirectory();
+                    String picFile = "regist_" + uid + "_rgb.png";
+
+                    if (facePicDir != null) {
+                        File savePicPath = new File(facePicDir, picFile);
+                        if (FileUtils.saveFile(savePicPath, registBmp)) {
+                            Log.i(TAG, "图片保存成功: picFile: " + picFile);
+                            feature.setImageName(picFile);
+                        }
+                    }
+
+                    Bitmap cropBitmap = null;
+                    String cropImgName = null;
+                    // 人脸抠图
+                    int[] landmarks = livenessModel.getLandmarks();
+                    if (landmarks != null) {
+                        cropBitmap = ImageUtils.noBlackBoundImgCrop(landmarks,
+                                livenessModel.getImageFrame().getHeight(), livenessModel.getImageFrame().getWidth(),
+                                livenessModel.getImageFrame().getArgb());
+
+                        if (cropBitmap == null) {
+                            cropBitmap = registBmp;
+                        }
+
+                        cropImgName = "crop_" + picFile;
+                    }
+                    if (faceCropDir != null && cropBitmap != null) {
+                        File saveCropPath = new File(faceCropDir, cropImgName);
+                        if (FileUtils.saveFile(saveCropPath, cropBitmap)) {
+                            Log.i(TAG, "抠图图片保存成功");
+                            feature.setCropImageName(cropImgName);
+                        }
+                    }
+
+                    logBuilder.append(registNickName + "\t" + picFile + "\t" + "成功\n");
+                    if (FaceApi.getInstance().featureAdd(feature)) {
+                        Log.i(TAG, "registFace: 百度数据库已保存：" + registNickName);
+                        mLastRegistName = registNickName;
+                        livenessModel.setFeature(feature);
+                        returnRegistResult(0, livenessModel, cropBitmap);
+                    }
+                    return;
                 }
-                return;
             }
         }
     }
@@ -568,7 +592,7 @@ public class FaceLiveness {
      */
     private void returnRegistResult(int code, LivenessModel livenessModel, Bitmap cropBitmap) {
         synchronized (mLock) {
-            Log.i(TAG, "returnRegistResult: registCalllBacks个数: " + (registCalllBacks == null ? 0 : registCalllBacks.size()));
+//            Log.i(TAG, "returnRegistResult: registCalllBacks个数: " + (registCalllBacks == null ? 0 : registCalllBacks.size()));
             for (IFaceRegistCalllBack faceRegistCalllBack : registCalllBacks) {
                 try {
                     faceRegistCalllBack.onRegistCallBack(code, livenessModel, cropBitmap);

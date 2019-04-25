@@ -2,6 +2,7 @@ package com.xyf.lockers.base;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -14,6 +15,7 @@ import android.widget.TextView;
 
 import com.baidu.idl.facesdk.utils.PreferencesUtil;
 import com.xyf.lockers.manager.FaceSDKManager;
+import com.xyf.lockers.ui.activity.ShowTipsActivity;
 
 import java.util.ArrayList;
 
@@ -129,4 +131,10 @@ public abstract class BaseActivity extends Activity {
         }
     }
 
+    protected void showTipsActivity(String tip) {
+        Intent intent = new Intent(this, ShowTipsActivity.class);
+        intent.putExtra(ShowTipsActivity.TIPS, tip);
+        startActivity(intent);
+        finish();
+    }
 }

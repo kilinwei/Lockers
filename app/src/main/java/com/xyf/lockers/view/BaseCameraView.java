@@ -8,7 +8,6 @@ import android.graphics.Paint;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
@@ -149,7 +148,7 @@ public class BaseCameraView extends RelativeLayout implements IFaceDetectCallBac
                         bottomRightY + mSizeFour, 10, 10, mPaintHorn);
 
                 faceFrameImg.setImageBitmap(canvasImg);
-                Log.i("yangrui", (System.currentTimeMillis() - timeStart) + "");
+//                Log.i("yangrui", (System.currentTimeMillis() - timeStart) + "");
             } else {
                 faceFrameImg.setImageBitmap(null);
             }

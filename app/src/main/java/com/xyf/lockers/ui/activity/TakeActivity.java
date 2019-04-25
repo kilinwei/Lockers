@@ -2,7 +2,6 @@ package com.xyf.lockers.ui.activity;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -92,10 +91,8 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
                             Log.i(TAG, "run: removeCameraView");
                             mCameraView.removeView(mMonocularView);
                         }
-
-                        Intent intent = new Intent(TakeActivity.this, ShowTipsActivity.class);
-                        intent.putExtra(ShowTipsActivity.TIPS, "取出物品超时");
-                        startActivity(intent);
+                        String tip = "取出物品超时";
+                        showTipsActivity(tip);
                     }
                     break;
                 default:
@@ -103,6 +100,8 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
             }
         }
     };
+
+
 
     @Override
     protected int getLayout() {
@@ -178,7 +177,9 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    mTvSimilarity.setText(msg);
+                    if (mTvSimilarity != null) {
+                        mTvSimilarity.setText(msg);
+                    }
                 }
             });
         }
@@ -236,18 +237,14 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
                         //说明没有存物品,提醒用户没有存物品
                         ToastUtil.showMessage(" 说明没有存物品,提醒用户没有存物品");
                         Log.i(TAG, "onCallback: 说明没有存物品,提醒用户没有存物品");
-                        Intent intent = new Intent(this, ShowTipsActivity.class);
-                        intent.putExtra(ShowTipsActivity.TIPS, "您没有保存物品，请先保存物品");
-                        startActivity(intent);
+                        showTipsActivity("您没有保存物品，请先保存物品");
                     }
                 }
             } else {
                 //说明facesdk的数据库里有数据,但是user数据库没有,说明user已被删除,没有存东西,不需要处理
                 ToastUtil.showMessage(" 您没有保存物品，请先保存物品");
                 Log.i(TAG, "onCallback: 您没有保存物品，请先保存物品");
-                Intent intent = new Intent(this, ShowTipsActivity.class);
-                intent.putExtra(ShowTipsActivity.TIPS, "您没有保存物品，请先保存物品");
-                startActivity(intent);
+                showTipsActivity("您没有保存物品，请先保存物品");
             }
         } else {
             if (mTvSimilarity != null) {
@@ -322,9 +319,7 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Intent intent = new Intent(TakeActivity.this, ShowTipsActivity.class);
-                            intent.putExtra(ShowTipsActivity.TIPS, "已打开" + (locker + 1) + "号柜门");
-                            startActivity(intent);
+                            showTipsActivity("已打开" + (locker + 1) + "号柜门");
                         }
                     });
                 }
