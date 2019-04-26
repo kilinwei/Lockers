@@ -27,7 +27,11 @@ public class ShowTipsActivity extends BaseActivity {
         public void handleMessage(Message msg) {
             mTvTimer.setText("(" + time-- + "秒后自动关闭)");
             if (time < 0) {
-                startActivity(new Intent(ShowTipsActivity.this, MainActivity.class));
+                Intent intent = new Intent(ShowTipsActivity.this, MainActivity.class);
+                if (mOpeningLockers != null) {
+                    intent.putExtra(MainActivity.CHECK_CLOSE, mOpeningLockers);
+                }
+                startActivity(intent);
             } else {
                 handler.sendEmptyMessageDelayed(0, 1000);
             }
@@ -35,6 +39,7 @@ public class ShowTipsActivity extends BaseActivity {
         }
     };
     private String mTips;
+    private byte[] mOpeningLockers;
 
     @Override
     protected int getLayout() {
@@ -48,8 +53,9 @@ public class ShowTipsActivity extends BaseActivity {
         if ("您没有保存物品，请先保存物品".equals(mTips)) {
             mTvTips.setTextColor(Color.RED);
         }
+        mOpeningLockers = intent.getByteArrayExtra(MainActivity.CHECK_CLOSE);
         mTvTips.setText(mTips);
-        handler.sendEmptyMessageDelayed(0,500);
+        handler.sendEmptyMessageDelayed(0, 500);
     }
 
     @Override

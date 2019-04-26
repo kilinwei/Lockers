@@ -13,7 +13,6 @@ import android.widget.FrameLayout;
 import com.baidu.idl.facesdk.model.Feature;
 import com.baidu.idl.facesdk.utils.PreferencesUtil;
 import com.tencent.bugly.beta.Beta;
-import com.xyf.lockers.BuildConfig;
 import com.xyf.lockers.R;
 import com.xyf.lockers.app.MainAppliction;
 import com.xyf.lockers.base.BaseActivity;
@@ -36,6 +35,7 @@ public class MainActivity
     private static final String TAG = "MainActivity";
     public static final String CHECK_CLOSE = "check_close";
     public static final int MSG_CHECK_CLOSE = 0x123;
+    public static final int MSG_TEST = 0x111;
     @BindView(R.id.btn_storage)
     Button btnStorage;
     @BindView(R.id.btn_take)
@@ -56,7 +56,7 @@ public class MainActivity
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
-                case 0:
+                case MSG_TEST:
                     if (i % 2 == 0) {
                         btnStorage.performClick();
                     } else {
@@ -72,6 +72,39 @@ public class MainActivity
         }
     };
     private byte[] mCurrentOpenLockerBytes;
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+//        if (BuildConfig.DEBUG) {
+//            mHandler.sendEmptyMessageDelayed(MSG_TEST, 10 * 1000);
+//        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        LockersCommHelperNew.get().setOnAllLockersStatusListener(this);
+        mHandler.removeCallbacksAndMessages(null);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        LockersCommHelperNew.get().setOnAllLockersStatusListener(null);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mHandler.removeCallbacksAndMessages(null);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        LockersCommHelperNew.get().uninit();
+    }
 
     @Override
     protected int getLayout() {
@@ -103,38 +136,6 @@ public class MainActivity
         if (mCurrentOpenLockerBytes != null && mCurrentOpenLockerBytes.length == 4) {
             mHandler.sendEmptyMessageDelayed(0, 10 * 1000);
         }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        LockersCommHelperNew.get().uninit();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        if (BuildConfig.DEBUG) {
-            mHandler.sendEmptyMessageDelayed(0, 10 * 1000);
-        }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        LockersCommHelperNew.get().setOnAllLockersStatusListener(this);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        LockersCommHelperNew.get().setOnAllLockersStatusListener(null);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        mHandler.removeCallbacksAndMessages(null);
     }
 
     @OnClick({R.id.btn_storage,
