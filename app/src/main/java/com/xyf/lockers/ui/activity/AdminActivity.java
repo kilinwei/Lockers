@@ -1,6 +1,7 @@
 package com.xyf.lockers.ui.activity;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
@@ -281,6 +282,16 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
     @Override
     public void disConnectDevice() {
 
+    }
+
+    @Override
+    public void onResponseTime() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                showTipsActivity(getString(R.string.seriaport_timeout), Color.RED);
+            }
+        });
     }
 
 

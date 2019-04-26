@@ -2,6 +2,7 @@ package com.xyf.lockers.ui.activity;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -91,7 +92,7 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
                             mCameraView.removeView(mMonocularView);
                         }
                         String tip = "取出物品超时";
-                        showTipsActivity(tip);
+                        showTipsActivity(tip, Color.RED);
                     }
                     break;
                 default:
@@ -235,14 +236,14 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
                         //说明没有存物品,提醒用户没有存物品
                         ToastUtil.showMessage(" 说明没有存物品,提醒用户没有存物品");
                         Log.i(TAG, "onCallback: 说明没有存物品,提醒用户没有存物品");
-                        showTipsActivity("您没有保存物品，请先保存物品");
+                        showTipsActivity(getString(R.string.no_storage),Color.RED);
                     }
                 }
             } else {
                 //说明facesdk的数据库里有数据,但是user数据库没有,说明user已被删除,没有存东西,不需要处理
-                ToastUtil.showMessage(" 您没有保存物品，请先保存物品");
+                ToastUtil.showMessage(getString(R.string.no_storage));
                 Log.i(TAG, "onCallback: 您没有保存物品，请先保存物品");
-                showTipsActivity("您没有保存物品，请先保存物品");
+                showTipsActivity(getString(R.string.no_storage),Color.RED);
             }
         } else {
             Log.d(TAG, "run: 未匹配到相似人脸");
@@ -324,6 +325,16 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
     public void disConnectDevice() {
         // TODO: 2019/3/10 串口未打开
         Log.e(TAG, "disConnectDevice: 串口未打开");
+    }
+
+    @Override
+    public void onResponseTime() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                showTipsActivity(getString(R.string.seriaport_timeout),Color.RED);
+            }
+        });
     }
 
     @Override

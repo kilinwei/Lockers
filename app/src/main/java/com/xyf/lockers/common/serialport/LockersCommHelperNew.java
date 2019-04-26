@@ -186,6 +186,12 @@ public class LockersCommHelperNew {
                     case LockersCmd.CONTROL_SINGLE_LOCKER:
                         //控制单路
                         Log.i(TAG, "控制单路超时 cmd : " + cmd);
+                        if (mOnAllLockersStatusListener != null) {
+                            mOnAllLockersStatusListener.onResponseTime();
+                        }
+                        if (mOnSingleLockerStatusListener != null) {
+                            mOnSingleLockerStatusListener.onResponseTime();
+                        }
                         break;
                     default:
                         break;
