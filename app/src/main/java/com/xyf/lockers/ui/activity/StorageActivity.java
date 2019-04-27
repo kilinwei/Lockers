@@ -518,7 +518,7 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
                     MainAppliction.getInstance().openDoor(mCurrentOpenLockerIndex);
                     removeCameraView();
                     updateStorageStatus(openingLockesIndex);
-                    showTipsActivity("已打开" + (mCurrentOpenLockerIndex + 1) + "号柜门");
+                    showTipsActivity("已打开" + (mCurrentOpenLockerIndex + 1) + "号柜门",mCurrentOpenLockerBytes);
                     break;
                 }
                 Log.i(TAG, "onSingleLockerStatusResponse: 当前开的柜门索引为:　" + openingLockesIndex);

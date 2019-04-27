@@ -100,6 +100,7 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
             }
         }
     };
+    private byte[] mCurrentOpenLockerBytes;
 
 
     @Override
@@ -257,8 +258,8 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
                     @Override
                     public void accept(Integer integer) throws Exception {
                         for (Integer index : storageList) {
-                            byte[] openSingleLockerBytes = LockerUtils.getOpenSingleLockerBytes(index);
-                            LockersCommHelperNew.get().controlSingleLock(openSingleLockerBytes[0], openSingleLockerBytes[1], openSingleLockerBytes[2], openSingleLockerBytes[3]);
+                            mCurrentOpenLockerBytes = LockerUtils.getOpenSingleLockerBytes(index);
+                            LockersCommHelperNew.get().controlSingleLock(mCurrentOpenLockerBytes[0], mCurrentOpenLockerBytes[1], mCurrentOpenLockerBytes[2], mCurrentOpenLockerBytes[3]);
                             //延迟开门,是因为如果同一时间开门,用户可能没有听到两个门的声音,将声音分开,以及电流不够同时开几把锁
                             SystemClock.sleep(LockerUtils.OPEN_LOCKER_INTEVAL);
                         }
@@ -311,7 +312,7 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
                         @Override
                         public void run() {
                             MainAppliction.getInstance().openDoor(locker);
-                            showTipsActivity("已打开" + (locker + 1) + "号柜门");
+                            showTipsActivity("已打开" + (locker + 1) + "号柜门",mCurrentOpenLockerBytes);
                         }
                     });
                 }

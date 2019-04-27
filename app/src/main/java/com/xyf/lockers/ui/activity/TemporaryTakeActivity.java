@@ -100,6 +100,7 @@ public class TemporaryTakeActivity extends BaseActivity implements ILivenessCall
             }
         }
     };
+    private byte[] mCurrentOpenLockerBytes;
 
     @Override
     protected int getLayout() {
@@ -242,7 +243,7 @@ public class TemporaryTakeActivity extends BaseActivity implements ILivenessCall
                 //说明facesdk的数据库里有数据,但是user数据库没有,说明user已被删除,没有存东西,不需要处理
                 ToastUtil.showMessage(" 您没有保存物品，请先保存物品");
                 Log.i(TAG, "onCallback: facesdk的数据库里有数据,但是user数据库没有,说明user已被删除");
-                showTipsActivity(getString(R.string.no_storage));
+                showTipsActivity(getString(R.string.no_storage),Color.RED);
             }
         } else {
             Log.i(TAG, "run: 未匹配到相似人脸");
@@ -265,8 +266,8 @@ public class TemporaryTakeActivity extends BaseActivity implements ILivenessCall
                     @Override
                     public void accept(Integer integer) throws Exception {
                         for (Integer index : storageList) {
-                            byte[] openSingleLockerBytes = LockerUtils.getOpenSingleLockerBytes(index);
-                            LockersCommHelperNew.get().controlSingleLock(openSingleLockerBytes[0], openSingleLockerBytes[1], openSingleLockerBytes[2], openSingleLockerBytes[3]);
+                            mCurrentOpenLockerBytes = LockerUtils.getOpenSingleLockerBytes(index);
+                            LockersCommHelperNew.get().controlSingleLock(mCurrentOpenLockerBytes[0], mCurrentOpenLockerBytes[1], mCurrentOpenLockerBytes[2], mCurrentOpenLockerBytes[3]);
                             //延迟开门,是因为如果同一时间开门,用户可能没有听到两个门的声音,将声音分开,以及电流不够同时开几把锁
                             SystemClock.sleep(LockerUtils.OPEN_LOCKER_INTEVAL);
                         }
@@ -303,7 +304,7 @@ public class TemporaryTakeActivity extends BaseActivity implements ILivenessCall
                         @Override
                         public void run() {
                             MainAppliction.getInstance().openDoor(locker);
-                            showTipsActivity("临时开柜:已打开" + (locker + 1) + "号柜门");
+                            showTipsActivity("临时开柜:已打开" + (locker + 1) + "号柜门",mCurrentOpenLockerBytes);
                         }
                     });
                 }

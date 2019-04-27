@@ -29,7 +29,7 @@ public class ShowTipsActivity extends BaseActivity {
             mTvTimer.setText("(" + time-- + "秒后自动关闭)");
             if (time < 0) {
                 Intent intent = new Intent(ShowTipsActivity.this, MainActivity.class);
-                if (mOpeningLockers != null) {
+                if (mOpeningLockers != null && mOpeningLockers.length == 4) {
                     intent.putExtra(MainActivity.CHECK_CLOSE, mOpeningLockers);
                 }
                 startActivity(intent);
