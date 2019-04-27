@@ -12,7 +12,6 @@ import android.util.Log;
 
 import com.baidu.idl.facesdk.FaceFeature;
 import com.baidu.idl.facesdk.FaceLive;
-import com.baidu.idl.facesdk.callback.Callback;
 import com.baidu.idl.facesdk.model.FaceInfo;
 import com.baidu.idl.facesdk.model.Feature;
 import com.xyf.lockers.api.FaceApi;
@@ -25,6 +24,7 @@ import com.xyf.lockers.model.LivenessModel;
 import com.xyf.lockers.utils.FileUtils;
 import com.xyf.lockers.utils.ImageUtils;
 import com.xyf.lockers.utils.SharedPreferenceUtil;
+import com.baidu.idl.facesdk.callback.Callback;
 
 import java.io.File;
 import java.text.DecimalFormat;
@@ -34,6 +34,7 @@ import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+
 
 import static com.xyf.lockers.manager.FaceLiveness.TaskType.TASK_TYPE_ONETON;
 

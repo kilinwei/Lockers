@@ -180,7 +180,9 @@ public class FaceSDKManager {
         float similariry;
         if (featureType == FaceFeature.FeatureType.FEATURE_VIS) {
             similariry = faceFeature.featureCompare(feature.getFeature(), curFeature);
-            if (similariry > GlobalSet.getFeatureRgbValue()) {
+//            if (similariry > GlobalSet.getFeatureRgbValue()) {
+            if (similariry > 70f) {
+                //大于70,认为是同一个人
                 liveModel.setFeatureScore(similariry);
                 featureLRUCache.put(feature.getUserName(), feature);
                 return true;
