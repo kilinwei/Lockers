@@ -186,6 +186,8 @@ public class FaceSDKManager {
                 liveModel.setFeatureScore(similariry);
                 featureLRUCache.put(feature.getUserName(), feature);
                 return true;
+            } else {
+                Log.i(TAG, "compare: 相似度: " + similariry);
             }
         } else if (featureType == FaceFeature.FeatureType.FEATURE_ID_PHOTO) {
             similariry = faceFeature.featureIDCompare(feature.getFeature(), curFeature);
