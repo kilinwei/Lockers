@@ -16,6 +16,9 @@ import butterknife.BindView;
 public class PasswordActivity extends BaseActivity {
     private static final String TAG = "PasswordActivity";
     private static final String PWD = "123456";
+    public static final String TARGET = "target";
+    public static final int ADMIN_ACTIVITY = 0;
+    public static final int STAORAGE_RECORD_ACTIVITY = 1;
     @BindView(R.id.pwd_view)
     PasswordView pwdView;
     @BindView(R.id.id_timer_close)
@@ -41,14 +44,20 @@ public class PasswordActivity extends BaseActivity {
 
     @Override
     protected void initEventAndData(Bundle savedInstanceState) {
-
+        Intent intent = getIntent();
+        final int target = intent.getIntExtra(TARGET, 0);
         handler.sendEmptyMessageDelayed(0, 500);
         pwdView.setOnFinishInput(new PasswordView.OnPasswordInputFinish() {
             @Override
             public void inputFinish(String password) {
                 if (PWD.equals(password)) {
-                    Intent intent = new Intent(PasswordActivity.this, AdminActivity.class);
-                    startActivity(intent);
+                    if (target == ADMIN_ACTIVITY) {
+                        Intent intent = new Intent(PasswordActivity.this, AdminActivity.class);
+                        startActivity(intent);
+                    } else {
+                        Intent intent = new Intent(PasswordActivity.this, StorageRecordActivity.class);
+                        startActivity(intent);
+                    }
                     finish();
                 } else {
                     pwdView.passwordError();

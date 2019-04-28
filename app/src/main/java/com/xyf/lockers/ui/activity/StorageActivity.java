@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 import com.baidu.idl.facesdk.model.Feature;
 import com.xyf.lockers.R;
+import com.xyf.lockers.app.Constants;
 import com.xyf.lockers.app.MainAppliction;
 import com.xyf.lockers.base.BaseActivity;
 import com.xyf.lockers.callback.IFaceRegistCalllBack;
@@ -32,6 +33,7 @@ import com.xyf.lockers.model.bean.UserDao;
 import com.xyf.lockers.utils.DensityUtil;
 import com.xyf.lockers.utils.LockerUtils;
 import com.xyf.lockers.utils.SharedPreferenceUtil;
+import com.xyf.lockers.utils.StorageDBManager;
 import com.xyf.lockers.utils.ToastUtil;
 import com.xyf.lockers.utils.UserDBManager;
 import com.xyf.lockers.view.BinocularView;
@@ -479,6 +481,8 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
             Log.i(TAG, "updateStorageStatus: 用户存的位置： " + Integer.toBinaryString(storageIndexs));
             mCurrentUser.setStorageIndexs(storageIndexs);
             UserDBManager.update(mCurrentUser);
+
+            StorageDBManager.inserStorage2DB(mCurrentUser.getUserName(), mCurrentUser.getCropImageName(), System.currentTimeMillis(), currentOpeningLocker + 1, Constants.STORAGE);
             //此时需要post一个定时任务,假如到时间用户未关门,那么闪灯
             mHandler.sendEmptyMessageDelayed(MSG_NOT_CLOSE_DOOR, CLOSE_DOOR_TIME_OUT);
         }

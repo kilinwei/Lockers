@@ -19,6 +19,9 @@ public interface Constants {
      * 超过这个分数,认定是同一个人
      */
     int PASS_SCORE = 80;
+    int STORAGE = 1;
+    int TEMPORARY_TAKE = 2;
+    int TAKE = 3;
 
     int[] OPEN_DOOR_AUDIOS = new int[]{
             R.raw.open_door_1,

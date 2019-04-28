@@ -6,7 +6,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.SystemClock;
 import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -29,6 +28,7 @@ import com.xyf.lockers.model.bean.User;
 import com.xyf.lockers.model.bean.UserDao;
 import com.xyf.lockers.utils.DensityUtil;
 import com.xyf.lockers.utils.LockerUtils;
+import com.xyf.lockers.utils.StorageDBManager;
 import com.xyf.lockers.utils.ToastUtil;
 import com.xyf.lockers.view.BinocularView;
 import com.xyf.lockers.view.MonocularView;
@@ -37,10 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
-import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
-import io.reactivex.schedulers.Schedulers;
 
 public class TemporaryTakeActivity extends BaseActivity implements ILivenessCallBack, OnSingleLockerStatusListener {
     // TODO: 2019/3/15  待写功能：判断用户取出所有物品之后，关闭本界面
@@ -63,9 +60,9 @@ public class TemporaryTakeActivity extends BaseActivity implements ILivenessCall
     private boolean mIsRecognizing;
     private Disposable mSubscribe;
     /**
-     * 当前开门的集合
+     * 当前开门的索引
      */
-    private List<Integer> mCurrentStorageList;
+    private int mCurrentOpenLockerIndex = -1;
     /**
      * 当前取物的用户
      */
@@ -229,21 +226,21 @@ public class TemporaryTakeActivity extends BaseActivity implements ILivenessCall
                         if (storageList != null && !storageList.isEmpty()) {
                             mCurrentUser = user;
                             mIsRecognizing = true;
-                            openLockers(storageList);
+                            openLockers(storageList.get(0));
                         }
                     } else {
                         //说明没有存物品,提醒用户没有存物品
                         ToastUtil.showMessage(" 说明没有存物品,提醒用户没有存物品");
                         Log.i(TAG, "onCallback: 说明没有存物品,提醒用户没有存物品");
 
-                        showTipsActivity(getString(R.string.no_storage),Color.RED);
+                        showTipsActivity(getString(R.string.no_storage), Color.RED);
                     }
                 }
             } else {
                 //说明facesdk的数据库里有数据,但是user数据库没有,说明user已被删除,没有存东西,不需要处理
                 ToastUtil.showMessage(" 您没有保存物品，请先保存物品");
                 Log.i(TAG, "onCallback: facesdk的数据库里有数据,但是user数据库没有,说明user已被删除");
-                showTipsActivity(getString(R.string.no_storage),Color.RED);
+                showTipsActivity(getString(R.string.no_storage), Color.RED);
             }
         } else {
             Log.i(TAG, "run: 未匹配到相似人脸");
@@ -259,20 +256,10 @@ public class TemporaryTakeActivity extends BaseActivity implements ILivenessCall
         }
     }
 
-    private synchronized void openLockers(final List<Integer> storageList) {
-        mCurrentStorageList = storageList;
-        mSubscribe = Observable.just(1).subscribeOn(Schedulers.io())
-                .subscribe(new Consumer<Integer>() {
-                    @Override
-                    public void accept(Integer integer) throws Exception {
-                        for (Integer index : storageList) {
-                            mCurrentOpenLockerBytes = LockerUtils.getOpenSingleLockerBytes(index);
-                            LockersCommHelperNew.get().controlSingleLock(mCurrentOpenLockerBytes[0], mCurrentOpenLockerBytes[1], mCurrentOpenLockerBytes[2], mCurrentOpenLockerBytes[3]);
-                            //延迟开门,是因为如果同一时间开门,用户可能没有听到两个门的声音,将声音分开,以及电流不够同时开几把锁
-                            SystemClock.sleep(LockerUtils.OPEN_LOCKER_INTEVAL);
-                        }
-                    }
-                });
+    private synchronized void openLockers(int storageIndex) {
+        mCurrentOpenLockerIndex = storageIndex;
+        mCurrentOpenLockerBytes = LockerUtils.getOpenSingleLockerBytes(storageIndex);
+        LockersCommHelperNew.get().controlSingleLock(mCurrentOpenLockerBytes[0], mCurrentOpenLockerBytes[1], mCurrentOpenLockerBytes[2], mCurrentOpenLockerBytes[3]);
     }
 
     @Override
@@ -288,7 +275,7 @@ public class TemporaryTakeActivity extends BaseActivity implements ILivenessCall
      */
     @Override
     public void onSingleLockerStatusResponse(byte[] bRec) {
-        if (mCurrentStorageList == null || mCurrentStorageList.isEmpty() || mCurrentUser == null) {
+        if (mCurrentOpenLockerIndex == -1 || mCurrentUser == null) {
             Log.e(TAG, "onSingleLockerStatusResponse: 门意外打开!!!!!!!!!!!!");
             return;
         }
@@ -298,15 +285,16 @@ public class TemporaryTakeActivity extends BaseActivity implements ILivenessCall
         if (lockers != null) {
             ToastUtil.showMessage("临时取出成功");
             for (final Integer locker : lockers) {
-                if (mCurrentStorageList != null && mCurrentStorageList.contains(locker)) {
-
+                if (mCurrentOpenLockerIndex == locker) {
+                    StorageDBManager.inserStorage2DB(mCurrentUser.getUserName(), mCurrentUser.getCropImageName(), System.currentTimeMillis(), mCurrentOpenLockerIndex + 1, Constants.TEMPORARY_TAKE);
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             MainAppliction.getInstance().openDoor(locker);
-                            showTipsActivity("临时开柜:已打开" + (locker + 1) + "号柜门",mCurrentOpenLockerBytes);
+                            showTipsActivity("临时开柜:已打开" + (locker + 1) + "号柜门", mCurrentOpenLockerBytes);
                         }
                     });
+                    break;
                 }
             }
             //此处和TakeActivity不一样的地方为,不需要更新用户数据,为临时开柜,只需要检测用户是否关门就行
@@ -326,7 +314,7 @@ public class TemporaryTakeActivity extends BaseActivity implements ILivenessCall
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                showTipsActivity(getString(R.string.seriaport_timeout),Color.RED);
+                showTipsActivity(getString(R.string.seriaport_timeout), Color.RED);
             }
         });
     }

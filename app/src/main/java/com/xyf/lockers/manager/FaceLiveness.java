@@ -12,6 +12,7 @@ import android.util.Log;
 
 import com.baidu.idl.facesdk.FaceFeature;
 import com.baidu.idl.facesdk.FaceLive;
+import com.baidu.idl.facesdk.callback.Callback;
 import com.baidu.idl.facesdk.model.FaceInfo;
 import com.baidu.idl.facesdk.model.Feature;
 import com.xyf.lockers.api.FaceApi;
@@ -24,7 +25,6 @@ import com.xyf.lockers.model.LivenessModel;
 import com.xyf.lockers.utils.FileUtils;
 import com.xyf.lockers.utils.ImageUtils;
 import com.xyf.lockers.utils.SharedPreferenceUtil;
-import com.baidu.idl.facesdk.callback.Callback;
 
 import java.io.File;
 import java.text.DecimalFormat;
@@ -34,7 +34,6 @@ import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
 
 import static com.xyf.lockers.manager.FaceLiveness.TaskType.TASK_TYPE_ONETON;
 
@@ -315,8 +314,28 @@ public class FaceLiveness {
 
         if (faceInfos != null && faceInfos.length > 0) {
             FaceInfo faceInfo = faceInfos[0];
-            float[] occlu = faceInfo.occlu;
-            Log.i(TAG, "onLivenessCheck: occlu: " + occlu.length);
+
+//            float[] bluriness = new float[1];
+//            int[] illum = new int[1];
+//            float[] occlusion = new float[7];
+//            int[] nOccluPart = new int[1];
+//            FaceSDKManager.getInstance().imgQuality(mRgbArray, height,
+//                    width, faceInfo.landmarks, bluriness, illum, occlusion, nOccluPart);
+//            StringBuilder info = new StringBuilder();
+//            info.append("face occlusion: ")
+//                    .append(" L eye:").append(occlusion[0])
+//                    .append(" R eye:").append(occlusion[1])
+//                    .append(" nose:").append(occlusion[2])
+//                    .append(" mouth:").append(occlusion[3])
+//                    .append(" L contour:").append(occlusion[4])
+//                    .append(" R contour:").append(occlusion[5])
+//                    .append(" chin contour:").append(occlusion[6]);
+//            info.append(" face blur: ").append(bluriness[0]);
+//            info.append(" face illum: ").append(illum[0]);
+//            ToastUtil.showMessage(info.toString());
+//            Log.i(TAG, info.toString());
+
+
             livenessModel.setLandmarks(faceInfo.landmarks);
             livenessModel.setFaceID(faceInfo.face_id);
 

@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
+import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 
@@ -48,6 +49,8 @@ public class MainActivity
     Button mBtnQuery;
     @BindView(R.id.fl_hide)
     FrameLayout mFlHide;
+    @BindView(R.id.fl_hide_right)
+    FrameLayout flHideRight;
     private List<Feature> mListFeatureInfo;
     private UserInfoManager.UserInfoListener mUserInfoListener;
     int i;
@@ -122,6 +125,16 @@ public class MainActivity
             @Override
             public boolean onLongClick(View v) {
                 Intent intent = new Intent(MainActivity.this, PasswordActivity.class);
+                intent.putExtra(PasswordActivity.TARGET,PasswordActivity.ADMIN_ACTIVITY);
+                startActivity(intent);
+                return false;
+            }
+        });
+        flHideRight.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Intent intent = new Intent(MainActivity.this, PasswordActivity.class);
+                intent.putExtra(PasswordActivity.TARGET,PasswordActivity.STAORAGE_RECORD_ACTIVITY);
                 startActivity(intent);
                 return false;
             }
@@ -190,6 +203,13 @@ public class MainActivity
     @Override
     public void onResponseTime() {
         Log.i(TAG, "onResponseTime: 检查门是否关闭,串口数据返回超时");
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // TODO: add setContentView(...) invocation
+        ButterKnife.bind(this);
     }
 
 

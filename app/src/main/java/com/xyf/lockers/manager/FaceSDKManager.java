@@ -84,6 +84,13 @@ public class FaceSDKManager {
                         ToastUtil.showMessage(code + "  " + response);
                     }
                 });
+        faceDetector.initQuality(context, "blur_2.0.2.binary",
+                "occlusion_anakin_2.0.2.bin", new FaceCallback() {
+                    @Override
+                    public void onResponse(int code, String response) {
+                        ToastUtil.showMessage(code + "  " + response);
+                    }
+                });
     }
 
     public FaceEnvironment getFaceEnvironmentConfig() {
@@ -100,6 +107,28 @@ public class FaceSDKManager {
         faceEnvironment.setIllumination(true);
         faceEnvironment.setDetectMethodType(FaceDetect.DetectType.DETECT_VIS);
         return faceEnvironment;
+    }
+
+    /**
+     * 单独图片质量检测方法（多人脸track 不做质量检测，可以通过该方法质量检测）
+     *
+     * @param imageData
+     * @param height
+     * @param width
+     * @param landmark
+     * @param bluriness
+     * @param illum
+     * @param occlusion
+     * @param nOccluPart
+     * @return
+     */
+    public int imgQuality(int[] imageData, int height, int width, int[] landmark,
+                          float[] bluriness, int[] illum, float[] occlusion, int[] nOccluPart) {
+        if (faceDetector != null) {
+            return faceDetector.imgQuality(imageData, height, width, landmark, bluriness, illum, occlusion, nOccluPart);
+        } else {
+            return 0;
+        }
     }
 
     public int setFeature() {
@@ -181,8 +210,8 @@ public class FaceSDKManager {
         if (featureType == FaceFeature.FeatureType.FEATURE_VIS) {
             similariry = faceFeature.featureCompare(feature.getFeature(), curFeature);
 //            if (similariry > GlobalSet.getFeatureRgbValue()) {
-            if (similariry > 70f) {
-                //大于70,认为是同一个人
+            if (similariry > 10f) {
+                //大于10,认为大概率是同一个人,不让注册了
                 liveModel.setFeatureScore(similariry);
                 featureLRUCache.put(feature.getUserName(), feature);
                 return true;

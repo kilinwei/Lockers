@@ -56,6 +56,29 @@ public class FaceDetector {
         }
     }
 
+    /**
+     * 单独图片质量检测方法（多人脸track 不做质量检测，可以通过该方法质量检测）
+     *
+     * @param imageData
+     * @param height
+     * @param width
+     * @param landmark
+     * @param bluriness
+     * @param illum
+     * @param occlusion
+     * @param nOccluPart
+     * @return
+     */
+    public int imgQuality(int[] imageData, int height, int width, int[] landmark,
+                          float[] bluriness, int[] illum, float[] occlusion, int[] nOccluPart) {
+        if (mFaceDetect == null) {
+            mFaceDetect = new FaceDetect();
+            return mFaceDetect.imgQuality(imageData, height, width, landmark, bluriness, illum, occlusion, nOccluPart);
+        } else {
+            return mFaceDetect.imgQuality(imageData, height, width, landmark, bluriness, illum, occlusion, nOccluPart);
+        }
+    }
+
     public void loadConfig(FaceEnvironment faceEnvironment) {
         mFaceDetect.loadConfig(faceEnvironment.getConfig());
     }

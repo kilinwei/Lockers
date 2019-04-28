@@ -21,6 +21,7 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature
         android:name="android.hardware.camera.autofocus"
@@ -43,6 +44,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
+        <activity
+            android:name=".ui.activity.StorageRecordActivity"
+            android:launchMode="singleTop" />
         <activity
             android:name=".ui.activity.ShowTipsActivity"
             android:launchMode="singleTop" />
@@ -82,7 +86,7 @@
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
-            android:theme="@style/FullScreenTheme"></activity>
+            android:theme="@style/FullScreenTheme" />
         <activity android:name=".ui.activity.LicenseActivity" />
         <activity android:name=".ui.activity.PassActivity" />
         <activity android:name=".ui.activity.UserActivity" />
