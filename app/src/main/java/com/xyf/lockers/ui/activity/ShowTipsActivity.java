@@ -16,6 +16,7 @@ import butterknife.BindView;
 public class ShowTipsActivity extends BaseActivity {
     private static final String TAG = "ShowTipsActivity";
     public static final String TIPS = "tips";
+    public static final String TEXT_COLOR = "text_color";
     @BindView(R.id.tv_timer)
     TextView mTvTimer;
     @BindView(R.id.tv_tips)
@@ -28,7 +29,7 @@ public class ShowTipsActivity extends BaseActivity {
             mTvTimer.setText("(" + time-- + "秒后自动关闭)");
             if (time < 0) {
                 Intent intent = new Intent(ShowTipsActivity.this, MainActivity.class);
-                if (mOpeningLockers != null) {
+                if (mOpeningLockers != null && mOpeningLockers.length == 4) {
                     intent.putExtra(MainActivity.CHECK_CLOSE, mOpeningLockers);
                 }
                 startActivity(intent);
@@ -39,6 +40,7 @@ public class ShowTipsActivity extends BaseActivity {
         }
     };
     private String mTips;
+    private int mColor;
     private byte[] mOpeningLockers;
 
     @Override
@@ -50,10 +52,13 @@ public class ShowTipsActivity extends BaseActivity {
     protected void initEventAndData(Bundle savedInstanceState) {
         Intent intent = getIntent();
         mTips = intent.getStringExtra(TIPS);
-        if ("您没有保存物品，请先保存物品".equals(mTips)) {
-            mTvTips.setTextColor(Color.RED);
-        }
+        mColor = intent.getIntExtra(TEXT_COLOR, 0);
         mOpeningLockers = intent.getByteArrayExtra(MainActivity.CHECK_CLOSE);
+        if (mColor == 0) {
+            mTvTips.setTextColor(Color.BLACK);
+        } else {
+            mTvTips.setTextColor(mColor);
+        }
         mTvTips.setText(mTips);
         handler.sendEmptyMessageDelayed(0, 500);
     }

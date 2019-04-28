@@ -3,6 +3,7 @@ package com.xyf.lockers.ui.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.text.TextUtils;
@@ -274,7 +275,7 @@ public class PassActivity extends BaseActivity implements ILivenessCallBack, Vie
                                     ToastUtil.showMessage(" 说明没有存物品,提醒用户没有存物品");
                                     Log.i(TAG, "onCallback: 说明没有存物品,提醒用户没有存物品");
                                     Intent intent = new Intent(PassActivity.this, ShowTipsActivity.class);
-                                    intent.putExtra(ShowTipsActivity.TIPS, "您没有保存物品，请先保存物品");
+                                    intent.putExtra(ShowTipsActivity.TIPS, getString(R.string.no_storage));
                                     startActivity(intent);
                                 }
                             }
@@ -357,6 +358,16 @@ public class PassActivity extends BaseActivity implements ILivenessCallBack, Vie
     public void disConnectDevice() {
         // TODO: 2019/3/10 串口未打开
         Log.e(TAG, "disConnectDevice: 串口未打开");
+    }
+
+    @Override
+    public void onResponseTime() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                showTipsActivity(getString(R.string.seriaport_timeout), Color.RED);
+            }
+        });
     }
 
     @Override

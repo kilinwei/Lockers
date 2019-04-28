@@ -139,6 +139,14 @@ public abstract class BaseActivity extends Activity {
         finish();
     }
 
+    protected void showTipsActivity(String tip, int color) {
+        Intent intent = new Intent(this, ShowTipsActivity.class);
+        intent.putExtra(ShowTipsActivity.TIPS, tip);
+        intent.putExtra(ShowTipsActivity.TEXT_COLOR, color);
+        startActivity(intent);
+        finish();
+    }
+
     protected void showTipsActivity(String tip, byte[] openingLockers) {
         Intent intent = new Intent(this, ShowTipsActivity.class);
         intent.putExtra(ShowTipsActivity.TIPS, tip);

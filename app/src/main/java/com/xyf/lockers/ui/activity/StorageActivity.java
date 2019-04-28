@@ -3,6 +3,7 @@ package com.xyf.lockers.ui.activity;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -384,7 +385,8 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
                                 // TODO: 2019/3/12  已存大于等于1个,提示用户需要先取出已存的东西
                                 Log.i(TAG, "onRegistCallBack: 识别到老用户,已存大于等于1个");
                                 ToastUtil.showMessage("您已保存过一个物品了");
-                                removeCameraView("您已保存过一个物品了");
+                                removeCameraView();
+                                showTipsActivity("您已保存过一个物品了", Color.RED);
                             }
                         } else {
                             //说明facesdk的数据库里有数据,但是user数据库没有.需要写入user数据库，再打开箱门，然后再把箱位记录到数据库中
@@ -403,7 +405,8 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
                 case 1: {
                     //注册超时
                     // TODO: 2019/3/10 注册超时
-                    removeCameraView("注册超时");
+                    removeCameraView();
+                    showTipsActivity("注册超时", Color.RED);
                     ToastUtil.showMessage("注册超时");
                     Log.i(TAG, "onRegistCallBack: 注册超时");
                 }
@@ -414,7 +417,7 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
         }
     };
 
-    private void removeCameraView(final String tips) {
+    private void removeCameraView() {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -427,8 +430,6 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
                     Log.i(TAG, "run: removeCameraView");
                     mCameraView.removeView(mMonocularView);
                 }
-
-                showTipsActivity(tips);
             }
         });
     }
@@ -445,7 +446,7 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
             // TODO: 2019/3/10 已存满
             Log.i(TAG, "openSingleLocker: 柜子已存满");
             ToastUtil.showMessage("柜子已存满");
-            showTipsActivity("柜子已存满");
+            showTipsActivity("柜子已存满", Color.RED);
             return;
         }
         mCurrentOpenLockerIndex = canOpenWayIndex;
@@ -485,16 +486,7 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
 
     @Override
     public void onSingleLockerStatusResponse(int way, int status) {
-//        if (status == 1) {
-//            //锁已打开,此时需要判断是否是我们打开的锁,以及录入user数据库中
-//            if (mCurrentOpenLockerIndex != -1 && mCurrentOpenLockerIndex == way) {
-//                updateStorageStatus(way);
-//            }
-//        } else {
-//            // TODO: 2019/3/15 锁已关闭
-//            mHandler.removeMessages(MSG_NOT_CLOSE_DOOR);
-//            LockersCommHelper.get().controlSingleLight(mCurrentOpenLockerIndex, 2);
-//        }
+
     }
 
     @Override
@@ -515,20 +507,31 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
                 if (mCurrentOpenLockerIndex != -1 && mCurrentOpenLockerIndex == openingLockesIndex) {
                     mHandler.removeMessages(MSG_REGISTER_TIME_OUT);
                     MainAppliction.getInstance().openDoor(mCurrentOpenLockerIndex);
-                    removeCameraView("已打开" + (mCurrentOpenLockerIndex + 1) + "号柜门");
+                    removeCameraView();
                     updateStorageStatus(openingLockesIndex);
+                    showTipsActivity("已打开" + (mCurrentOpenLockerIndex + 1) + "号柜门", mCurrentOpenLockerBytes);
+                    Log.i(TAG, "onSingleLockerStatusResponse: 当前开的柜门索引为:　" + mCurrentOpenLockerIndex);
+                    ToastUtil.showMessage("当前开的柜门索引为:　" + mCurrentOpenLockerIndex);
+                    Log.i(TAG, "onSingleLockerStatusResponse: 开了 " + openingLockesIndexs.size() + "个柜门");
+                    Log.i(TAG, "onSingleLockerStatusResponse: 当前用户开门的索引为 mCurrentOpenLockerIndex: " + mCurrentOpenLockerIndex + " 当前已开的所有门索引为 openingLockesIndexs: " + openingLockesIndexs);
                     break;
                 }
-                Log.i(TAG, "onSingleLockerStatusResponse: 当前开的柜门索引为:　" + openingLockesIndex);
-                ToastUtil.showMessage("当前开的柜门索引为:　" + openingLockesIndex);
             }
-            Log.i(TAG, "onSingleLockerStatusResponse: 当前用户开门的索引为 mCurrentOpenLockerIndex: " + mCurrentOpenLockerIndex + " 当前已开的所有门索引为 openingLockesIndexs: " + openingLockesIndexs);
-            Log.i(TAG, "onSingleLockerStatusResponse: 开了 " + openingLockesIndexs.size() + "个柜门");
         }
     }
 
     @Override
     public void disConnectDevice() {
 
+    }
+
+    @Override
+    public void onResponseTime() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                showTipsActivity(getString(R.string.seriaport_timeout), Color.RED);
+            }
+        });
     }
 }

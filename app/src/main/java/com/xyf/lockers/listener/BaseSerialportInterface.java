@@ -10,4 +10,9 @@ package com.xyf.lockers.listener;
  */
 public interface BaseSerialportInterface {
     void disConnectDevice();
+
+    /**
+     * 串口返回超时
+     */
+    void onResponseTime();
 }

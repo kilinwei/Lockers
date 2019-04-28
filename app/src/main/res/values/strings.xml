@@ -24,4 +24,6 @@
     <string name="import_fail">导入失败</string>
     <string name="face_manager">人脸库管理</string>
     <string name="db_import">数据库导入/导出</string>
+    <string name="seriaport_timeout">开门超时,请重试</string>
+    <string name="no_storage">您没有保存物品，请先保存物品</string>
 </resources>

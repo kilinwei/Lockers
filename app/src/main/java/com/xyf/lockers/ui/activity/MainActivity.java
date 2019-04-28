@@ -187,6 +187,11 @@ public class MainActivity
 
     }
 
+    @Override
+    public void onResponseTime() {
+        Log.i(TAG, "onResponseTime: 检查门是否关闭,串口数据返回超时");
+    }
+
 
     // 用于返回读取数据库的结果
     private class UserListener extends UserInfoManager.UserInfoListener {
