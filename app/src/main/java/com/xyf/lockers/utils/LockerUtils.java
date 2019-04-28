@@ -114,8 +114,8 @@ public class LockerUtils {
             bytes[1] = getSendDataConversion(way - 24);
             bytes[0] = 0x08;
         }
-        bytes[2] = 0;
-        bytes[3] = 0;
+        bytes[2] = (byte) 0xFF;
+        bytes[3] = (byte) 0xFF;
         return bytes;
     }
 

@@ -8,6 +8,7 @@ import com.baidu.idl.facesdk.FaceFeature;
 import com.baidu.idl.facesdk.model.Feature;
 import com.xyf.lockers.api.FaceApi;
 import com.xyf.lockers.api.LRUCache;
+import com.xyf.lockers.app.Constants;
 import com.xyf.lockers.callback.FaceCallback;
 import com.xyf.lockers.common.FaceEnvironment;
 import com.xyf.lockers.common.GlobalSet;
@@ -84,13 +85,13 @@ public class FaceSDKManager {
                         ToastUtil.showMessage(code + "  " + response);
                     }
                 });
-        faceDetector.initQuality(context, "blur_2.0.2.binary",
-                "occlusion_anakin_2.0.2.bin", new FaceCallback() {
-                    @Override
-                    public void onResponse(int code, String response) {
-                        ToastUtil.showMessage(code + "  " + response);
-                    }
-                });
+//        faceDetector.initQuality(context, "blur_2.0.0.binary",
+//                "occlusion_anakin_2.0.0.bin", new FaceCallback() {
+//                    @Override
+//                    public void onResponse(int code, String response) {
+//                        ToastUtil.showMessage(code + "  " + response);
+//                    }
+//                });
     }
 
     public FaceEnvironment getFaceEnvironmentConfig() {
@@ -149,7 +150,7 @@ public class FaceSDKManager {
         if (featureLRUCache.getAll().size() > 0) {
             for (Map.Entry<String, Feature> featureEntry : featureLRUCache.getAll()) {
                 Feature feature = featureEntry.getValue();
-                if (compare(featureType, curFeature, liveModel, feature)) {
+                if (compare(Constants.PASS_SCORE, featureType, curFeature, liveModel, feature)) {
                     return feature;
                 }
             }
@@ -184,7 +185,7 @@ public class FaceSDKManager {
         if (featureLRUCache.getAll().size() > 0) {
             for (Map.Entry<String, Feature> featureEntry : featureLRUCache.getAll()) {
                 Feature feature = featureEntry.getValue();
-                if (compare(featureType, curFeature, liveModel, feature)) {
+                if (compare(Constants.REGISTER_SCORE, featureType, curFeature, liveModel, feature)) {
                     liveModel.setFeature(feature);
                     return feature;
                 }
@@ -195,7 +196,7 @@ public class FaceSDKManager {
         if (allFeature != null) {
             Log.i(TAG, "isRegistered: " + allFeature.size());
             for (Feature feature : allFeature) {
-                if (compare(featureType, curFeature, liveModel, feature)) {
+                if (compare(Constants.REGISTER_SCORE, featureType, curFeature, liveModel, feature)) {
                     featureLRUCache.put(feature.getUserName(), feature);
                     liveModel.setFeature(feature);
                     return feature;
@@ -205,12 +206,12 @@ public class FaceSDKManager {
         return null;
     }
 
-    private boolean compare(FaceFeature.FeatureType featureType, byte[] curFeature, LivenessModel liveModel, Feature feature) {
+    private boolean compare(float f, FaceFeature.FeatureType featureType, byte[] curFeature, LivenessModel liveModel, Feature feature) {
         float similariry;
         if (featureType == FaceFeature.FeatureType.FEATURE_VIS) {
             similariry = faceFeature.featureCompare(feature.getFeature(), curFeature);
 //            if (similariry > GlobalSet.getFeatureRgbValue()) {
-            if (similariry > 10f) {
+            if (similariry > f) {
                 //大于10,认为大概率是同一个人,不让注册了
                 liveModel.setFeatureScore(similariry);
                 featureLRUCache.put(feature.getUserName(), feature);

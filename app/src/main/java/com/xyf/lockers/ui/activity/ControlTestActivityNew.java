@@ -66,7 +66,7 @@ public class ControlTestActivityNew
         switch (view.getId()) {
             case R.id.btn_open_locker:
                 if (TextUtils.isEmpty(circuitBoardStr) || TextUtils.isEmpty(lockerStr) || TextUtils.isEmpty(lightStr) || TextUtils.isEmpty(sonsorStr)) {
-                    ToastUtil.showMessage( "输入不能为空");
+                    ToastUtil.showMessage("输入不能为空");
                     return;
                 }
                 circuitBoard = Integer.parseInt(circuitBoardStr);
@@ -77,33 +77,24 @@ public class ControlTestActivityNew
                 lockerSend = LockerUtils.getSendDataConversion(locker);
                 lightSend = getSendData(light);
                 sonsorSend = getSendData(sonsor);
-                LockersCommHelperNew.get().controlSingleLock(circuitBoardSend, lockerSend, lightSend, sonsorSend);
+                LockersCommHelperNew.get().autoLightOpen(circuitBoardSend, lockerSend, lightSend, sonsorSend);
                 break;
             case R.id.btn_query_circuit_board:
                 LockersCommHelperNew.get().queryCircuiBboard();
                 break;
             case R.id.btn_query_all:
-                if (TextUtils.isEmpty(circuitBoardStr) || TextUtils.isEmpty(lockerStr) || TextUtils.isEmpty(lightStr) || TextUtils.isEmpty(sonsorStr)) {
-                    ToastUtil.showMessage( "输入不能为空");
+                if (TextUtils.isEmpty(circuitBoardStr) ) {
+                    ToastUtil.showMessage("板子地址输入不能为空");
                     return;
                 }
                 circuitBoard = Integer.parseInt(circuitBoardStr);
-                locker = Integer.parseInt(lockerStr);
-                light = Integer.parseInt(lightStr);
-                sonsor = Integer.parseInt(sonsorStr);
                 circuitBoardSend = getSendData(circuitBoard);
-                lockerSend = LockerUtils.getSendDataConversion(locker);
-                lightSend = getSendData(light);
-                sonsorSend = getSendData(sonsor);
-                Log.i(TAG, "onViewClicked: btn_query_circuit_board: circuitBoardSend: " + Integer.toHexString(circuitBoardSend)
-                        + " lockerSend: " + Integer.toHexString(lockerSend)
-                        + " lightSend: " + Integer.toHexString(lightSend)
-                        + " sonsorSend: " + Integer.toHexString(sonsorSend));
-                LockersCommHelperNew.get().queryAll(circuitBoardSend, lockerSend, lightSend, sonsorSend);
+                Log.i(TAG, "onViewClicked: btn_query_circuit_board: circuitBoardSend: " + Integer.toHexString(circuitBoardSend));
+                LockersCommHelperNew.get().queryAll(circuitBoardSend);
                 break;
             case R.id.btn_auto_light:
                 if (TextUtils.isEmpty(circuitBoardStr) || TextUtils.isEmpty(lockerStr) || TextUtils.isEmpty(lightStr) || TextUtils.isEmpty(sonsorStr)) {
-                    ToastUtil.showMessage( "输入不能为空");
+                    ToastUtil.showMessage("输入不能为空");
                     return;
                 }
                 circuitBoard = Integer.parseInt(circuitBoardStr);
@@ -118,7 +109,7 @@ public class ControlTestActivityNew
                         + " lockerSend: " + Integer.toHexString(lockerSend)
                         + " lightSend: " + Integer.toHexString(lightSend)
                         + " sonsorSend: " + Integer.toHexString(sonsorSend));
-                LockersCommHelperNew.get().autoLight(circuitBoardSend, lockerSend, lightSend, sonsorSend);
+                LockersCommHelperNew.get().autoLightOpen(circuitBoardSend, lockerSend, lightSend, sonsorSend);
                 break;
         }
     }

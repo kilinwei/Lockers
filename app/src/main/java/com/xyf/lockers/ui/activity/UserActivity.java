@@ -28,7 +28,6 @@ import com.xyf.lockers.manager.UserInfoManager;
 import com.xyf.lockers.utils.DensityUtil;
 import com.xyf.lockers.utils.FileUtils;
 import com.xyf.lockers.utils.ToastUtil;
-
 import com.xyf.lockers.view.CircleImageView;
 
 import java.util.List;

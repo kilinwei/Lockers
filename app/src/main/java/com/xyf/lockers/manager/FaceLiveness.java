@@ -15,6 +15,7 @@ import com.baidu.idl.facesdk.FaceLive;
 import com.baidu.idl.facesdk.callback.Callback;
 import com.baidu.idl.facesdk.model.FaceInfo;
 import com.baidu.idl.facesdk.model.Feature;
+import com.xyf.lockers.BuildConfig;
 import com.xyf.lockers.api.FaceApi;
 import com.xyf.lockers.callback.FaceCallback;
 import com.xyf.lockers.callback.IFaceDetectCallBack;
@@ -547,6 +548,8 @@ public class FaceLiveness {
                     final String uid = UUID.randomUUID().toString();
                     feature.setUserId(uid);
                     feature.setGroupId("0");
+
+
                     // TODO:增加图片
                     int imgWidth = livenessModel.getImageFrame().getWidth();
                     int imgHeight = livenessModel.getImageFrame().getHeight();
@@ -564,9 +567,13 @@ public class FaceLiveness {
 
                     if (facePicDir != null) {
                         File savePicPath = new File(facePicDir, picFile);
-                        if (FileUtils.saveFile(savePicPath, registBmp)) {
-                            Log.i(TAG, "图片保存成功: picFile: " + picFile);
-                            feature.setImageName(picFile);
+                        if (BuildConfig.DEBUG) {
+                            if (FileUtils.saveFile(savePicPath, registBmp)) {
+                                Log.i(TAG, "图片保存成功: picFile: " + picFile);
+                                feature.setImageName(picFile);
+                            }
+                        } else {
+                            feature.setImageName("");
                         }
                     }
 
@@ -587,9 +594,13 @@ public class FaceLiveness {
                     }
                     if (faceCropDir != null && cropBitmap != null) {
                         File saveCropPath = new File(faceCropDir, cropImgName);
-                        if (FileUtils.saveFile(saveCropPath, cropBitmap)) {
-                            Log.i(TAG, "抠图图片保存成功");
-                            feature.setCropImageName(cropImgName);
+                        if (BuildConfig.DEBUG) {
+                            if (FileUtils.saveFile(saveCropPath, cropBitmap)) {
+                                Log.i(TAG, "抠图图片保存成功");
+                                feature.setCropImageName(cropImgName);
+                            }
+                        } else {
+                            feature.setCropImageName("");
                         }
                     }
 

@@ -15,6 +15,7 @@ import com.xyf.lockers.base.BaseActivity;
 import com.xyf.lockers.model.bean.StorageBean;
 import com.xyf.lockers.utils.StorageDBManager;
 
+import java.util.Collections;
 import java.util.List;
 
 import butterknife.BindView;
@@ -31,7 +32,11 @@ public class StorageRecordActivity extends BaseActivity implements BaseQuickAdap
     @BindView(R.id.recyclerview_storage_record)
     RecyclerView recyclerviewStorageRecord;
     @BindView(R.id.btn_back)
-    Button btnBack;
+    Button mBtnBack;
+    @BindView(R.id.btn_delete)
+    Button mBtnDelete;
+    private List<StorageBean> mStorageBeans;
+    private StorageRecordAdapter mAdapter;
 
 
     @Override
@@ -45,18 +50,21 @@ public class StorageRecordActivity extends BaseActivity implements BaseQuickAdap
                 .map(new Function<Integer, List<StorageBean>>() {
                     @Override
                     public List<StorageBean> apply(Integer integer) throws Exception {
-                        return StorageDBManager.getAllStorageUser();
+                        List<StorageBean> allStorageRccord = StorageDBManager.getAllStorageRccord();
+                        Collections.reverse(allStorageRccord);
+                        return allStorageRccord;
                     }
                 }).observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<List<StorageBean>>() {
                     @Override
                     public void accept(List<StorageBean> storageBeans) throws Exception {
+                        mStorageBeans = storageBeans;
                         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(StorageRecordActivity.this);
                         linearLayoutManager.setOrientation(GridLayoutManager.VERTICAL);
                         recyclerviewStorageRecord.setLayoutManager(linearLayoutManager);
-                        StorageRecordAdapter adapter = new StorageRecordAdapter(R.layout.storage_record_item, storageBeans);
-                        recyclerviewStorageRecord.setAdapter(adapter);
-                        adapter.setOnItemChildClickListener(StorageRecordActivity.this);
+                        mAdapter = new StorageRecordAdapter(StorageRecordActivity.this, R.layout.storage_record_item, storageBeans);
+                        recyclerviewStorageRecord.setAdapter(mAdapter);
+                        mAdapter.setOnItemChildClickListener(StorageRecordActivity.this);
                     }
                 });
     }
@@ -66,9 +74,21 @@ public class StorageRecordActivity extends BaseActivity implements BaseQuickAdap
 
     }
 
-
-    @OnClick(R.id.btn_back)
-    public void onViewClicked() {
-        startActivity(new Intent(this, MainActivity.class));
+    @OnClick({R.id.btn_back, R.id.btn_delete})
+    public void onViewClicked(View view) {
+        switch (view.getId()) {
+            case R.id.btn_back:
+                startActivity(new Intent(this, MainActivity.class));
+                break;
+            case R.id.btn_delete:
+                if (mStorageBeans != null) {
+                    mStorageBeans.clear();
+                }
+                if (mAdapter != null) {
+                    mAdapter.notifyDataSetChanged();
+                }
+                StorageDBManager.deleteAll();
+                break;
+        }
     }
 }

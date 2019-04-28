@@ -44,7 +44,7 @@ public class TemporaryTakeActivity extends BaseActivity implements ILivenessCall
 
     private static final String TAG = "TemporaryTakeActivity";
     public static final int MSG_PASS_TIME_OUT = 0x04;
-    public static final int PASS_OUT_TIME = 10 * 1000;
+    public static final int PASS_OUT_TIME = 15 * 1000;
     @BindView(R.id.layout_camera)
     RelativeLayout mCameraView;
     @BindView(R.id.image_track)
@@ -258,8 +258,9 @@ public class TemporaryTakeActivity extends BaseActivity implements ILivenessCall
 
     private synchronized void openLockers(int storageIndex) {
         mCurrentOpenLockerIndex = storageIndex;
+        Log.i(TAG, "openSingleLocker: mCurrentOpenLockerIndex : " + mCurrentOpenLockerIndex);
         mCurrentOpenLockerBytes = LockerUtils.getOpenSingleLockerBytes(storageIndex);
-        LockersCommHelperNew.get().controlSingleLock(mCurrentOpenLockerBytes[0], mCurrentOpenLockerBytes[1], mCurrentOpenLockerBytes[2], mCurrentOpenLockerBytes[3]);
+        LockersCommHelperNew.get().autoLightOpen(mCurrentOpenLockerBytes[0], mCurrentOpenLockerBytes[1], mCurrentOpenLockerBytes[2], mCurrentOpenLockerBytes[3]);
     }
 
     @Override

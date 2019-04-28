@@ -242,12 +242,20 @@ public class LockersCommHelperNew {
                     handler.postDelayed(timeoutRunnable, RECEIVER_DATA_TIMEOUT);
                     break;
                 case LockersCmd.QUERY_ALL:
-                    if (mOnSingleLockerStatusListener != null) {
+                    if (mOnAllLockersStatusListener != null) {
                         mOnAllLockersStatusListener.onAllLockersStatusResponse(bRec);
                     }
                     reset();
                     break;
                 case LockersCmd.AUTO_LIGHT:
+                    int boardBinary2 = bRec[1];
+                    byte lockerBinary2 = bRec[2];
+                    ArrayList<Integer> lockers2 = LockerUtils.getOpeningLockesIndexs(boardBinary2, lockerBinary2);
+                    Log.i(TAG, "onDataReceived: 已打开的柜门: " + lockers2);
+                    if (mOnSingleLockerStatusListener != null) {
+                        mOnSingleLockerStatusListener.onSingleLockerStatusResponse(bRec);
+                    }
+                    reset();
                     reset();
                     break;
                 default:
@@ -279,19 +287,19 @@ public class LockersCommHelperNew {
     /**
      * 控制单路
      */
-    public void controlSingleLock(byte circuitBoard, byte locker, byte light, byte sensor) {
-        if (isOpenDev()) {
-            byte[] bytes = {0x5A, circuitBoard, locker, light, sensor};
-            String bcc = getBCC(bytes);
-            int b = Integer.parseInt(bcc, 16);
-            byte[] bytesSend = {0x5A, circuitBoard, locker, light, sensor, (byte) b};
-            Log.i(TAG, "开单个门 controlSingleLock: " + ProtConvert.ByteArrToHex(bytesSend));
-            ComSendBean comSendBean = new ComSendBean(LockersCmd.CONTROL_SINGLE_LOCKER, bytesSend);
-            dispatchQueueThread.addComSendBean(comSendBean);
-        } else {
-            Log.w(TAG, "controlSingleLock: 控制单路锁通断: 串口未连接");
-        }
-    }
+//    public void controlSingleLock(byte circuitBoard, byte locker, byte light, byte sensor) {
+//        if (isOpenDev()) {
+//            byte[] bytes = {0x5A, circuitBoard, locker, light, sensor};
+//            String bcc = getBCC(bytes);
+//            int b = Integer.parseInt(bcc, 16);
+//            byte[] bytesSend = {0x5A, circuitBoard, locker, light, sensor, (byte) b};
+//            Log.i(TAG, "开单个门 controlSingleLock: " + ProtConvert.ByteArrToHex(bytesSend));
+//            ComSendBean comSendBean = new ComSendBean(LockersCmd.CONTROL_SINGLE_LOCKER, bytesSend);
+//            dispatchQueueThread.addComSendBean(comSendBean);
+//        } else {
+//            Log.w(TAG, "controlSingleLock: 控制单路锁通断: 串口未连接");
+//        }
+//    }
 
     /**
      * 查板地址
@@ -306,14 +314,14 @@ public class LockersCommHelperNew {
     }
 
     /**
-     * 查询全部
+     * 根据板子地址查询全部
      */
-    public void queryAll(byte circuitBoard, byte locker, byte light, byte sensor) {
+    public void queryAll(byte circuitBoard) {
         if (isOpenDev()) {
-            byte[] bytes = {(byte) 0x9A, circuitBoard, locker, light, sensor};
+            byte[] bytes = {(byte) 0x9A, circuitBoard, (byte) 0XA1, (byte) 0XA1, (byte) 0XA1};
             String bcc = getBCC(bytes);
             int b = Integer.parseInt(bcc, 16);
-            ComSendBean comSendBean = new ComSendBean(LockersCmd.QUERY_ALL, new byte[]{(byte) 0x9A, circuitBoard, locker, light, sensor, (byte) b});
+            ComSendBean comSendBean = new ComSendBean(LockersCmd.QUERY_ALL, new byte[]{(byte) 0x9A, circuitBoard, (byte) 0XA1, (byte) 0XA1, (byte) 0XA1, (byte) b});
             dispatchQueueThread.addComSendBean(comSendBean);
         } else {
             Log.w(TAG, "queryAll: 查询全部: 串口未连接");
@@ -323,11 +331,13 @@ public class LockersCommHelperNew {
     /**
      * 开锁自动亮灯，关锁自动灭灯
      */
-    public void autoLight(byte circuitBoard, byte locker, byte light, byte sensor) {
+    public void autoLightOpen(byte circuitBoard, byte locker, byte light, byte sensor) {
         if (isOpenDev()) {
             byte[] bytes = {0x3A, circuitBoard, locker, light, sensor};
             String bcc = getBCC(bytes);
             int b = Integer.parseInt(bcc, 16);
+            byte[] bytesSend = {0x3A, circuitBoard, locker, light, sensor, (byte) b};
+            Log.i(TAG, "开单个门 controlSingleLock: " + ProtConvert.ByteArrToHex(bytesSend));
             ComSendBean comSendBean = new ComSendBean(LockersCmd.AUTO_LIGHT, new byte[]{(byte) 0x3A, circuitBoard, locker, light, sensor, (byte) b});
             dispatchQueueThread.addComSendBean(comSendBean);
         } else {

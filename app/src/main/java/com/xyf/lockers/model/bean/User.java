@@ -48,19 +48,19 @@ public class User {
      * 完整图片
      */
     @Property(nameInDb = "image_name")
-    private String imageName;
+    private String imageName = "";
 
 
     /**
      * 头像截图
      */
     @Property(nameInDb = "crop_image_name")
-    private String cropImageName;
+    private String cropImageName = "";
 
 
     @Generated(hash = 1785989590)
     public User(Long id, String userName, long firstTime, long lastTime,
-            int storageIndexs, String imageName, String cropImageName) {
+                int storageIndexs, String imageName, String cropImageName) {
         this.id = id;
         this.userName = userName;
         this.firstTime = firstTime;

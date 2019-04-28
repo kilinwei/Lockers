@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 
@@ -68,7 +67,7 @@ public class MainActivity
                     i++;
                     break;
                 case MSG_CHECK_CLOSE:
-                    LockersCommHelperNew.get().queryAll(mCurrentOpenLockerBytes[0], mCurrentOpenLockerBytes[1], mCurrentOpenLockerBytes[2], mCurrentOpenLockerBytes[3]);
+                    LockersCommHelperNew.get().queryAll(mCurrentOpenLockerBytes[0]);
                     Log.i(TAG, "handleMessage: 判断,如果此时用户未关门,控制闪灯");
                     break;
             }
@@ -88,7 +87,6 @@ public class MainActivity
     protected void onResume() {
         super.onResume();
         LockersCommHelperNew.get().setOnAllLockersStatusListener(this);
-        mHandler.removeCallbacksAndMessages(null);
     }
 
     @Override
@@ -147,7 +145,7 @@ public class MainActivity
         super.onNewIntent(intent);
         mCurrentOpenLockerBytes = intent.getByteArrayExtra(CHECK_CLOSE);
         if (mCurrentOpenLockerBytes != null && mCurrentOpenLockerBytes.length == 4) {
-            mHandler.sendEmptyMessageDelayed(0, 10 * 1000);
+            mHandler.sendEmptyMessageDelayed(MSG_CHECK_CLOSE, 10 * 1000);
         }
     }
 
@@ -191,7 +189,10 @@ public class MainActivity
         byte lockerBinary = bRec[2];
         ArrayList<Integer> openingLockesIndexs = LockerUtils.getOpeningLockesIndexs(boardBinary, lockerBinary);
         if (openingLockesIndexs != null && openingLockesIndexs.size() > 0) {
-            MainAppliction.getInstance().playShortMusic(R.raw.close_door);
+            MainAppliction.getInstance().playShortMusic(R.raw.close_door,"close_door.mp3");
+            mHandler.sendEmptyMessageDelayed(MSG_CHECK_CLOSE, 5 * 1000);
+        }else{
+            mHandler.removeMessages(MSG_CHECK_CLOSE);
         }
     }
 
@@ -203,13 +204,6 @@ public class MainActivity
     @Override
     public void onResponseTime() {
         Log.i(TAG, "onResponseTime: 检查门是否关闭,串口数据返回超时");
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        // TODO: add setContentView(...) invocation
-        ButterKnife.bind(this);
     }
 
 

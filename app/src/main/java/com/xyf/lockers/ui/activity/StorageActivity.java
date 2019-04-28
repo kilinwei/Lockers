@@ -50,8 +50,8 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
     private static final int MSG_REGISTER_TIME_OUT = 0x0;
     private static final int MSG_NOT_CLOSE_DOOR = 0x03;
     private static final int PASS_TIME = 800;
-    private static final int REGISTER_TIME_OUT = 10 * 1000;
-    private static final int CLOSE_DOOR_TIME_OUT = 10 * 1000;
+    private static final int REGISTER_TIME_OUT = 15 * 1000;
+    private static final int CLOSE_DOOR_TIME_OUT = 15 * 1000;
 
     @BindView(R.id.layout_camera)
     RelativeLayout mCameraView;
@@ -111,7 +111,7 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
 //                    LockersCommHelper.get().controlSingleLight(mCurrentOpenLockerIndex, 2);
                     if (mCurrentOpenLockerBytes != null) {
                         mCheckLockerClose = true;
-                        LockersCommHelperNew.get().queryAll(mCurrentOpenLockerBytes[0], mCurrentOpenLockerBytes[1], mCurrentOpenLockerBytes[2], mCurrentOpenLockerBytes[3]);
+                        LockersCommHelperNew.get().queryAll(mCurrentOpenLockerBytes[0]);
                         Log.i(TAG, "handleMessage: 判断,如果此时用户未关门,控制闪灯");
                     }
                     break;
@@ -453,8 +453,9 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
         }
         mCurrentOpenLockerIndex = canOpenWayIndex;
         LockersCommHelperNew.get().setOnSingleLockerStatusListener(this);
+        Log.i(TAG, "openSingleLocker: canOpenWayIndex : " + canOpenWayIndex);
         mCurrentOpenLockerBytes = LockerUtils.getOpenSingleLockerBytes(canOpenWayIndex);
-        LockersCommHelperNew.get().controlSingleLock(mCurrentOpenLockerBytes[0], mCurrentOpenLockerBytes[1], mCurrentOpenLockerBytes[2], mCurrentOpenLockerBytes[3]);
+        LockersCommHelperNew.get().autoLightOpen(mCurrentOpenLockerBytes[0], mCurrentOpenLockerBytes[1], mCurrentOpenLockerBytes[2], mCurrentOpenLockerBytes[3]);
     }
 
     /**
@@ -480,6 +481,7 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
             storageIndexs |= wayBinary;
             Log.i(TAG, "updateStorageStatus: 用户存的位置： " + Integer.toBinaryString(storageIndexs));
             mCurrentUser.setStorageIndexs(storageIndexs);
+            mCurrentUser.setLastTime(System.currentTimeMillis());
             UserDBManager.update(mCurrentUser);
 
             StorageDBManager.inserStorage2DB(mCurrentUser.getUserName(), mCurrentUser.getCropImageName(), System.currentTimeMillis(), currentOpeningLocker + 1, Constants.STORAGE);

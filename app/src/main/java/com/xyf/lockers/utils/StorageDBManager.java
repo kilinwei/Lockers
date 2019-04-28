@@ -31,7 +31,8 @@ public class StorageDBManager {
         storageBeanDao.insert(storageBean);
         return storageBean;
     }
-    public static StorageBean inserStorage2DB( StorageBean storageBean) {
+
+    public static StorageBean inserStorage2DB(StorageBean storageBean) {
         StorageBeanDao storageBeanDao = MainAppliction.getInstance().getDaoSession().getStorageBeanDao();
         storageBeanDao.insert(storageBean);
         return storageBean;
@@ -43,11 +44,16 @@ public class StorageDBManager {
         return storageBean;
     }
 
-    public static List<StorageBean> getAllStorageUser() {
+    public static List<StorageBean> getAllStorageRccord() {
 
         StorageBeanDao storageBeanDao = MainAppliction.getInstance().getDaoSession().getStorageBeanDao();
         List<StorageBean> storageBeans = storageBeanDao.loadAll();
         return storageBeans;
 
+    }
+
+    public static void deleteAll() {
+        StorageBeanDao storageBeanDao = MainAppliction.getInstance().getDaoSession().getStorageBeanDao();
+        storageBeanDao.deleteAll();
     }
 }

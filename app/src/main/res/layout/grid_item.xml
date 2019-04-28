@@ -9,39 +9,46 @@
               android:orientation="vertical">
 
     <TextView
+        android:gravity="center_horizontal"
         android:id="@+id/tv_num"
-        android:textSize="24sp"
         android:layout_width="wrap_content"
-        android:layout_height="30dp"/>
+        android:layout_height="30dp"
+        android:textSize="24sp"/>
 
     <TextView
+        android:gravity="center_horizontal"
         android:id="@+id/tv_storage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="tv_storage"/>
 
     <TextView
+        android:gravity="center_horizontal"
         android:id="@+id/tv_timeout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="tv_timeout"/>
 
     <Button
+        android:gravity="center_horizontal"
         android:id="@+id/btn_open_lock"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/b2w_text_color_selector"
         android:background="@drawable/small_btn_selector"
         android:text="开门"
+        android:textColor="@color/b2w_text_color_selector"
         android:textSize="30sp"/>
 
     <TextView
+        android:gravity="center_horizontal"
         android:id="@+id/tv_locker_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="tv_locker_status"/>
+        android:text="tv_locker_status"
+        android:visibility="gone"/>
 
     <TextView
+        android:gravity="center_horizontal"
         android:id="@+id/tv_light_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

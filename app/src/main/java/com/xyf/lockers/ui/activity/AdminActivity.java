@@ -29,6 +29,7 @@ import com.xyf.lockers.model.bean.GridBean;
 import com.xyf.lockers.model.bean.User;
 import com.xyf.lockers.utils.LockerUtils;
 import com.xyf.lockers.utils.SharedPreferenceUtil;
+import com.xyf.lockers.utils.StorageDBManager;
 import com.xyf.lockers.utils.ToastUtil;
 import com.xyf.lockers.utils.UserDBManager;
 
@@ -120,7 +121,7 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
                                 }
                             }
 
-                            for (int i = 1; i <= LockersCommHelper.LOCKER_COUNT; i++) {
+                            for (int i = 0; i < LockersCommHelper.LOCKER_COUNT; i++) {
                                 GridBean gridBean = new GridBean();
                                 User user = mCacheMap.get(i);
                                 if (user != null) {
@@ -164,7 +165,7 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
             GridBean gridBean = mGridBeans.get(position);
             // TODO: 2019/4/20 打开之后，把用户储存的信息去掉
             byte[] openSingleLockerBytes = LockerUtils.getOpenSingleLockerBytes(position);
-            LockersCommHelperNew.get().controlSingleLock(openSingleLockerBytes[0], openSingleLockerBytes[1], openSingleLockerBytes[2], openSingleLockerBytes[3]);
+            LockersCommHelperNew.get().autoLightOpen(openSingleLockerBytes[0], openSingleLockerBytes[1], openSingleLockerBytes[2], openSingleLockerBytes[3]);
             ToastUtil.showMessage("第" + (1 + position) + "柜子被打开");
             if (gridBean != null && gridBean.userID != -1) {
                 User user = UserDBManager.getUser(gridBean.userID);
@@ -231,7 +232,7 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
                                         return;
                                     }
                                     byte[] openSingleLockerBytes = LockerUtils.getOpenSingleLockerBytes(i);
-                                    LockersCommHelperNew.get().controlSingleLock(openSingleLockerBytes[0], openSingleLockerBytes[1], openSingleLockerBytes[2], openSingleLockerBytes[3]);
+                                    LockersCommHelperNew.get().autoLightOpen(openSingleLockerBytes[0], openSingleLockerBytes[1], openSingleLockerBytes[2], openSingleLockerBytes[3]);
                                     SystemClock.sleep(LockerUtils.OPEN_LOCKER_INTEVAL);
                                 }
                                 deleteAll();
@@ -267,6 +268,7 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
         for (User user : allStorageUser) {
             user.setStorageIndexs(0);
         }
+        StorageDBManager.deleteAll();
     }
 
     @Override

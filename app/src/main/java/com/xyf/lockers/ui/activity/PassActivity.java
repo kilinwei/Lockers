@@ -299,7 +299,7 @@ public class PassActivity extends BaseActivity implements ILivenessCallBack, Vie
                     public void accept(Integer integer) throws Exception {
                         for (Integer index : storageList) {
                             byte[] openSingleLockerBytes = LockerUtils.getOpenSingleLockerBytes(index);
-                            LockersCommHelperNew.get().controlSingleLock(openSingleLockerBytes[0], openSingleLockerBytes[1], openSingleLockerBytes[2], openSingleLockerBytes[3]);
+                            LockersCommHelperNew.get().autoLightOpen(openSingleLockerBytes[0], openSingleLockerBytes[1], openSingleLockerBytes[2], openSingleLockerBytes[3]);
                             //延迟开门,是因为如果同一时间开门,用户可能没有听到两个门的声音,将声音分开,以及电流不够同时开几把锁
                             SystemClock.sleep(LockerUtils.OPEN_LOCKER_INTEVAL);
                         }

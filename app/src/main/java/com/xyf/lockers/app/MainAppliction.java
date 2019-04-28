@@ -2,12 +2,9 @@ package com.xyf.lockers.app;
 
 import android.annotation.SuppressLint;
 import android.app.Application;
+import android.content.res.AssetFileDescriptor;
 import android.database.sqlite.SQLiteDatabase;
-import android.media.AudioAttributes;
-import android.media.AudioManager;
-import android.media.SoundPool;
-import android.os.Build;
-import android.support.annotation.RequiresApi;
+import android.media.MediaPlayer;
 
 import com.baidu.crabsdk.CrabSDK;
 import com.squareup.leakcanary.LeakCanary;
@@ -15,9 +12,7 @@ import com.tencent.bugly.Bugly;
 import com.xyf.lockers.model.bean.DaoMaster;
 import com.xyf.lockers.model.bean.DaoSession;
 
-import io.reactivex.Observable;
-import io.reactivex.functions.Consumer;
-import io.reactivex.schedulers.Schedulers;
+import java.io.IOException;
 
 public class MainAppliction extends Application {
 
@@ -25,6 +20,7 @@ public class MainAppliction extends Application {
     private static final String APP_ID = "d4d0ebc9af";//bugly ID
     private static MainAppliction instance;
     private DaoSession mDaoSession;
+    private MediaPlayer mMp;
 
     public static synchronized MainAppliction getInstance() {
         return instance;
@@ -53,37 +49,31 @@ public class MainAppliction extends Application {
     }
 
     @SuppressLint("CheckResult")
-    public void playShortMusic(final int music) {
+    public void playShortMusic(final int music, String name) {
 //        if (BuildConfig.DEBUG) {
 //            return;
 //        }
-        Observable.just(1).subscribeOn(Schedulers.io())
-                .subscribe(new Consumer<Integer>() {
-                    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-                    @Override
-                    public void accept(Integer integer) throws Exception {
-                        final SoundPool.Builder soundPollBuilder = new SoundPool.Builder();
-                        soundPollBuilder.setMaxStreams(1);
-                        AudioAttributes.Builder AudioAttributesBuilder = new AudioAttributes.Builder();
-                        AudioAttributesBuilder.setContentType(AudioAttributes.CONTENT_TYPE_MUSIC);
-                        AudioAttributesBuilder.setFlags(AudioAttributes.FLAG_AUDIBILITY_ENFORCED);
-                        AudioAttributesBuilder.setLegacyStreamType(AudioManager.STREAM_MUSIC);
-                        AudioAttributesBuilder.setUsage(AudioAttributes.USAGE_MEDIA);
-                        soundPollBuilder.setAudioAttributes(AudioAttributesBuilder.build());
-                        SoundPool soundPool = soundPollBuilder.build();
-                        soundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
-                            @Override
-                            public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
-                                soundPool.play(sampleId, 1f, 1f, 0, 0, 1);
-                            }
-                        });
-                        soundPool.load(getInstance(), music, 1);
-                    }
-                });
+        if (mMp == null) {
+            mMp = new MediaPlayer();
+        } else {
+            mMp.stop();
+            mMp.reset();
+        }
+        AssetFileDescriptor file = getResources().openRawResourceFd(music);
+        try {
+            mMp.setDataSource(file.getFileDescriptor(), file.getStartOffset(), file.getLength());
+            mMp.prepare();
+            file.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        mMp.setVolume(1f, 1f);
+        mMp.setLooping(false);
+        mMp.start();
     }
 
     public void openDoor(int index) {
-        playShortMusic(Constants.OPEN_DOOR_AUDIOS[index]);
+        playShortMusic(Constants.OPEN_DOOR_AUDIOS[index], Constants.names[index]);
     }
 
     private static void initBugly() {

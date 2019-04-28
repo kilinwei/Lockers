@@ -29,7 +29,7 @@ public class StorageBean {
      * 头像截图
      */
     @Property(nameInDb = "crop_image_name")
-    private String cropImageName;
+    private String cropImageName = "";
 
     @Property(nameInDb = "time")
     private long time;
@@ -44,7 +44,7 @@ public class StorageBean {
 
     @Generated(hash = 939470705)
     public StorageBean(Long id, String userName, String cropImageName, long time,
-            int lockerNum, int type) {
+                       int lockerNum, int type) {
         this.id = id;
         this.userName = userName;
         this.cropImageName = cropImageName;
