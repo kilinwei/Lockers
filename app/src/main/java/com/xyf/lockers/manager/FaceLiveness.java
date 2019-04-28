@@ -314,6 +314,8 @@ public class FaceLiveness {
 
         if (faceInfos != null && faceInfos.length > 0) {
             FaceInfo faceInfo = faceInfos[0];
+            float[] occlu = faceInfo.occlu;
+            Log.i(TAG, "onLivenessCheck: occlu: " + occlu.length);
             livenessModel.setLandmarks(faceInfo.landmarks);
             livenessModel.setFaceID(faceInfo.face_id);
 

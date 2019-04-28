@@ -109,8 +109,8 @@ public class LicenseActivity extends BaseActivity implements View.OnClickListene
         btOnLineActive.setOnTouchListener(this);
         deviceId = faceAuth.getDeviceId(this);
 //        etKey.setText(PreferencesUtil.getString("activate_on_key", ""));
-        etKey.setText("CJFM-H0NN-ZGNV-9R5W");//安卓板
-//        etKey.setText("8WPH-M8LT-YGUS-CGHL");//一加手机
+//        etKey.setText("CJFM-H0NN-ZGNV-9R5W");//安卓板
+        etKey.setText("8WPH-M8LT-YGUS-CGHL");//一加手机
         tvDevice.setText("设备指纹：" + deviceId);
         addLisenter();
 
