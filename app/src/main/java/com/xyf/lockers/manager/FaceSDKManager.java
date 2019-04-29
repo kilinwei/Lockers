@@ -85,8 +85,8 @@ public class FaceSDKManager {
                         ToastUtil.showMessage(code + "  " + response);
                     }
                 });
-//        faceDetector.initQuality(context, "blur_2.0.0.binary",
-//                "occlusion_anakin_2.0.0.bin", new FaceCallback() {
+//        faceDetector.initQuality(context, "blur_2.0.2.binary",
+//                "occlusion_anakin_2.0.2.bin", new FaceCallback() {
 //                    @Override
 //                    public void onResponse(int code, String response) {
 //                        ToastUtil.showMessage(code + "  " + response);
