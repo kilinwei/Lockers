@@ -115,6 +115,12 @@ public abstract class BaseActivity extends Activity {
         mUnBinder.unbind();
     }
 
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        hideBottomUIMenu();
+    }
+
     /**
      * 隐藏虚拟按键，并且全屏
      */
@@ -154,4 +160,6 @@ public abstract class BaseActivity extends Activity {
         startActivity(intent);
         finish();
     }
+
+
 }

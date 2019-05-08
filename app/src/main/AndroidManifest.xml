@@ -50,6 +50,15 @@
         <activity
             android:name=".ui.activity.ShowTipsActivity"
             android:launchMode="singleTop" />
+        <activity
+            android:name=".ui.activity.WordStorageActivity"
+            android:launchMode="singleTop" />
+        <activity
+            android:name=".ui.activity.WordTakeActivity"
+            android:launchMode="singleTop" />
+        <activity
+            android:name=".ui.activity.WordTemTakeActivity"
+            android:launchMode="singleTop" />
         <activity android:name=".ui.activity.AdminActivity" />
         <activity android:name=".ui.activity.TakeActivity" />
         <activity android:name=".ui.activity.TemporaryTakeActivity" />

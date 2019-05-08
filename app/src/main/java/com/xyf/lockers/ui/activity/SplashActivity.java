@@ -61,13 +61,15 @@ public class SplashActivity extends BaseActivity {
     }
 
     private void initLicence() {
-        if (GlobalSet.getLicenseStatus() == 2) {
-            String key = GlobalSet.getLicenseOnLineKey();
-            initLicenseOnLine(key);
-        } else {
-            startActivity(new Intent(this, LicenseActivity.class));
-            finish();
-        }
+//        if (GlobalSet.getLicenseStatus() == 2) {
+//            String key = GlobalSet.getLicenseOnLineKey();
+//            initLicenseOnLine(key);
+//        } else {
+//            startActivity(new Intent(this, LicenseActivity.class));
+//            finish();
+//        }
+        startActivity(new Intent(this, MainActivity.class));
+
     }
 
     // 在线鉴权
@@ -92,7 +94,7 @@ public class SplashActivity extends BaseActivity {
                     startActivity(new Intent(SplashActivity.this, MainActivity.class));
                     finish();
                 } else {
-                    ToastUtil.showMessage( code + "  " + response);
+                    ToastUtil.showMessage(code + "  " + response);
                 }
             }
         });

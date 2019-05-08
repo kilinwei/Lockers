@@ -149,7 +149,7 @@ public class PasswordView extends RelativeLayout {
             @Override
             public void afterTextChanged(Editable s) {
                 if (s.toString().length() == 1) {
-                    mTitleTv.setText("请输入密码");
+                    mTitleTv.setText("请输入您的储存密码");
                     mTitleTv.setTextColor(Color.parseColor("#ff000000"));
                 }
             }
@@ -204,6 +204,55 @@ public class PasswordView extends RelativeLayout {
             @Override
             public void run() {
                 mTitleTv.setText("密码输入错误");
+                mTitleTv.setTextColor(Color.parseColor("#ffb93221"));
+                for (int i = tvList.length - 1; i >= 0; i--) {
+                    tvList[i].setText("");
+                    tvList[i].setVisibility(View.VISIBLE);
+                    imgList[i].setVisibility(View.INVISIBLE);
+                }
+                currentIndex = -1;
+            }
+        }, 500);
+    }
+
+    public void inputAgin() {
+        postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mTitleTv.setText("请重复输入一次,以确保输入无误");
+                mTitleTv.setTextColor(Color.GREEN);
+                for (int i = tvList.length - 1; i >= 0; i--) {
+                    tvList[i].setText("");
+                    tvList[i].setVisibility(View.VISIBLE);
+                    imgList[i].setVisibility(View.INVISIBLE);
+                }
+                currentIndex = -1;
+            }
+        }, 500);
+    }
+
+    public void userHard() {
+        postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mTitleTv.setText("请使用更复杂的密码");
+                mTitleTv.setTextColor(Color.GREEN);
+                for (int i = tvList.length - 1; i >= 0; i--) {
+                    tvList[i].setText("");
+                    tvList[i].setVisibility(View.VISIBLE);
+                    imgList[i].setVisibility(View.INVISIBLE);
+                }
+                currentIndex = -1;
+            }
+        }, 500);
+    }
+
+
+    public void notSame() {
+        postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mTitleTv.setText("两次输入密码不一致,请重新输入");
                 mTitleTv.setTextColor(Color.parseColor("#ffb93221"));
                 for (int i = tvList.length - 1; i >= 0; i--) {
                     tvList[i].setText("");

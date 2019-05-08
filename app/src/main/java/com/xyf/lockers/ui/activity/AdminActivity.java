@@ -1,9 +1,9 @@
 package com.xyf.lockers.ui.activity;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -15,6 +15,7 @@ import android.widget.EditText;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.alibaba.fastjson.JSON;
 import com.baidu.idl.facesdk.model.Feature;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.tencent.bugly.beta.Beta;
@@ -26,6 +27,7 @@ import com.xyf.lockers.common.serialport.LockersCommHelperNew;
 import com.xyf.lockers.listener.OnSingleLockerStatusListener;
 import com.xyf.lockers.manager.UserInfoManager;
 import com.xyf.lockers.model.bean.GridBean;
+import com.xyf.lockers.model.bean.PasswordStorageBean;
 import com.xyf.lockers.model.bean.User;
 import com.xyf.lockers.utils.LockerUtils;
 import com.xyf.lockers.utils.SharedPreferenceUtil;
@@ -73,12 +75,15 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
     EditText mEditUpDown;
     EditText mEditRightLeftAngle;
     EditText mEditRotateAngle;
+    @BindView(R.id.btn_system_setting)
+    Button mBtnSystemSetting;
     private Map<Integer, User> mCacheMap;
     private Disposable mSubscribe;
     private List<Feature> mListFeatureInfo;
     private UserInfoManager.UserInfoListener mUserInfoListener;
     private MaterialDialog mShowAngleConfigDialog;
     private boolean visible;
+    private List<PasswordStorageBean> mAllBeans;
 
     @Override
     protected int getLayout() {
@@ -219,6 +224,7 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
             R.id.btn_back,
             R.id.btn_update,
             R.id.btn_config_angle,
+            R.id.btn_system_setting,
             R.id.btn_control_delete_all})
     public void onViewClicked(View view) {
         switch (view.getId()) {
@@ -249,7 +255,11 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
                 showAngleConfigDialog();
                 break;
             case R.id.btn_update:
-                Beta.checkUpgrade(true, false);
+                Beta.checkUpgrade(false, true);
+                break;
+            case R.id.btn_system_setting:
+                Intent intent = new Intent(Settings.ACTION_SETTINGS);
+                startActivity(intent); // 打开系统设置界面
                 break;
         }
     }
@@ -269,6 +279,14 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
             user.setStorageIndexs(0);
         }
         StorageDBManager.deleteAll();
+
+        String passwordStorageJson = SharedPreferenceUtil.getPasswordStorageJson();
+        mAllBeans = JSON.parseArray(passwordStorageJson, PasswordStorageBean.class);
+        for (PasswordStorageBean passwordStorageBean : mAllBeans) {
+            passwordStorageBean.password = "";
+            String newJson = JSON.toJSONString(mAllBeans);
+            SharedPreferenceUtil.setPasswordStorageJson(newJson);
+        }
     }
 
     @Override
@@ -288,12 +306,7 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
 
     @Override
     public void onResponseTime() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                showTipsActivity(getString(R.string.seriaport_timeout), Color.RED);
-            }
-        });
+        Log.i(TAG, "onResponseTime: ");
     }
 
 

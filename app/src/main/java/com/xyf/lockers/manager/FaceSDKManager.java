@@ -206,18 +206,17 @@ public class FaceSDKManager {
         return null;
     }
 
-    private boolean compare(float f, FaceFeature.FeatureType featureType, byte[] curFeature, LivenessModel liveModel, Feature feature) {
+    private boolean compare(float f, FaceFeature.FeatureType featureType, byte[] curFeature,
+                            LivenessModel liveModel, Feature feature) {
         float similariry;
         if (featureType == FaceFeature.FeatureType.FEATURE_VIS) {
             similariry = faceFeature.featureCompare(feature.getFeature(), curFeature);
-//            if (similariry > GlobalSet.getFeatureRgbValue()) {
+            Log.i(TAG, "compare: 相似度: " + similariry + "  阈值: " + f);
             if (similariry > f) {
-                //大于10,认为大概率是同一个人,不让注册了
                 liveModel.setFeatureScore(similariry);
                 featureLRUCache.put(feature.getUserName(), feature);
                 return true;
             } else {
-                Log.i(TAG, "compare: 相似度: " + similariry);
             }
         } else if (featureType == FaceFeature.FeatureType.FEATURE_ID_PHOTO) {
             similariry = faceFeature.featureIDCompare(feature.getFeature(), curFeature);

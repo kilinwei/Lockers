@@ -15,6 +15,7 @@ public interface Constants {
     String SP_UP_DOWN_ANGLE = "sp_up_down_angle";
     String SP_LEFT_RIGHT_ANGLE = "sp_left_right_angle";
     String SP_ROTATE_ANGLE = "sp_rotate_angle";
+    String SP_PASSWORD_JSON = "sp_password_json";
     /**
      * 通行策略的时候,超过这个分数,认定是同一个人
      */

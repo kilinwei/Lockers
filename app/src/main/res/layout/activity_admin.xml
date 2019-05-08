@@ -78,6 +78,20 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
 
+        <Button
+            android:paddingStart="5dp"
+            android:paddingEnd="5dp"
+            android:id="@+id/btn_system_setting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/small_btn_selector"
+            android:text="打开系统设置界面"
+            android:textColor="@color/b2w_text_color_selector"
+            android:textSize="20sp"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
     </LinearLayout>
 
     <android.support.v7.widget.RecyclerView

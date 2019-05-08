@@ -147,8 +147,10 @@ public class LockersCommHelperNew {
                     synchronized (lock) {
                         handler.postDelayed(timeoutRunnable, RECEIVER_DATA_TIMEOUT);
                         try {
-                            mSerialHelper.send(mCurrentSendData.getSendData());
-                            lock.wait();
+                            if (mCurrentSendData != null) {
+                                mSerialHelper.send(mCurrentSendData.getSendData());
+                                lock.wait();
+                            }
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
@@ -184,6 +186,16 @@ public class LockersCommHelperNew {
                 int cmd = mCurrentSendData.getCmd();
                 switch (cmd) {
                     case LockersCmd.CONTROL_SINGLE_LOCKER:
+                        //控制单路
+                        Log.i(TAG, "控制单路超时 cmd : " + cmd);
+                        if (mOnAllLockersStatusListener != null) {
+                            mOnAllLockersStatusListener.onResponseTime();
+                        }
+                        if (mOnSingleLockerStatusListener != null) {
+                            mOnSingleLockerStatusListener.onResponseTime();
+                        }
+                        break;
+                    case LockersCmd.AUTO_LIGHT:
                         //控制单路
                         Log.i(TAG, "控制单路超时 cmd : " + cmd);
                         if (mOnAllLockersStatusListener != null) {

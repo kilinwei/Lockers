@@ -22,6 +22,7 @@ import com.xyf.lockers.db.DBManager;
 import com.xyf.lockers.listener.OnAllLockersStatusListener;
 import com.xyf.lockers.manager.UserInfoManager;
 import com.xyf.lockers.utils.LockerUtils;
+import com.xyf.lockers.utils.SharedPreferenceUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,7 +69,7 @@ public class MainActivity
                     break;
                 case MSG_CHECK_CLOSE:
                     LockersCommHelperNew.get().queryAll(mCurrentOpenLockerBytes[0]);
-                    Log.i(TAG, "handleMessage: 判断,如果此时用户未关门,控制闪灯");
+//                    Log.i(TAG, "handleMessage: 判断,如果此时用户未关门,控制闪灯");
                     break;
             }
         }
@@ -131,9 +132,11 @@ public class MainActivity
         flHideRight.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                Intent intent = new Intent(MainActivity.this, PasswordActivity.class);
-                intent.putExtra(PasswordActivity.TARGET,PasswordActivity.STAORAGE_RECORD_ACTIVITY);
-                startActivity(intent);
+//                Intent intent = new Intent(MainActivity.this, PasswordActivity.class);
+//                intent.putExtra(PasswordActivity.TARGET,PasswordActivity.STAORAGE_RECORD_ACTIVITY);
+//                startActivity(intent);
+                String passwordStorageJson = SharedPreferenceUtil.getPasswordStorageJson();
+                Log.i(TAG, "onLongClick: "+ passwordStorageJson);
                 return false;
             }
         });
@@ -158,13 +161,13 @@ public class MainActivity
         Intent intent = null;
         switch (view.getId()) {
             case R.id.btn_storage:
-                intent = new Intent(this, StorageActivity.class);
+                intent = new Intent(this, WordStorageActivity.class);
                 break;
             case R.id.btn_take:
-                intent = new Intent(this, TakeActivity.class);
+                intent = new Intent(this, WordTakeActivity.class);
                 break;
             case R.id.btn_temporary_take:
-                intent = new Intent(this, TemporaryTakeActivity.class);
+                intent = new Intent(this, WordTemTakeActivity.class);
                 break;
             case R.id.btn_control_test:
                 intent = new Intent(this, ControlTestActivityNew.class);

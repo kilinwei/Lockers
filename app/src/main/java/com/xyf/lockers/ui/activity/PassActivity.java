@@ -365,7 +365,7 @@ public class PassActivity extends BaseActivity implements ILivenessCallBack, Vie
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                showTipsActivity(getString(R.string.seriaport_timeout), Color.RED);
+                showTipsActivity(getString(R.string.seriaport_take_timeout), Color.RED);
             }
         });
     }

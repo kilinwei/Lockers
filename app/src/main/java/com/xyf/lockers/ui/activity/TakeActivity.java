@@ -238,13 +238,21 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
                     }
                 }
             } else {
-                //说明facesdk的数据库里有数据,但是user数据库没有,说明user已被删除,没有存东西,不需要处理
+                //说明facesdk的数据库里有数据, 但是user数据库没有,说明user已被删除,没有存东西,不需要处理
                 ToastUtil.showMessage(getString(R.string.no_storage));
                 Log.i(TAG, "onCallback: 您没有保存物品，请先保存物品");
                 showTipsActivity(getString(R.string.no_storage), Color.RED);
             }
         } else {
             Log.d(TAG, "run: 未匹配到相似人脸");
+            if (mTvSimilarity != null) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mTvSimilarity.setText("未匹配到相似人脸");
+                    }
+                });
+            }
         }
     }
 
@@ -324,7 +332,7 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                showTipsActivity(getString(R.string.seriaport_timeout), Color.RED);
+                showTipsActivity(getString(R.string.seriaport_take_timeout), Color.RED);
             }
         });
     }

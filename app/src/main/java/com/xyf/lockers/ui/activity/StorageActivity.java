@@ -536,7 +536,7 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                showTipsActivity(getString(R.string.seriaport_timeout), Color.RED);
+                showTipsActivity(getString(R.string.seriaport_storage_timeout), Color.RED);
             }
         });
     }

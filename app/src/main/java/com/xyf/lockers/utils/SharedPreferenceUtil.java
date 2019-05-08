@@ -65,5 +65,15 @@ public class SharedPreferenceUtil {
                 .putInt(Constants.SP_ROTATE_ANGLE, angle)
                 .apply();
     }
+
+    public static String getPasswordStorageJson() {
+        return getAppSp().getString(Constants.SP_PASSWORD_JSON, "[{\"locker\":0,\"password\":\"\"},{\"locker\":1,\"password\":\"\"},{\"locker\":2,\"password\":\"\"},{\"locker\":3,\"password\":\"\"},{\"locker\":4,\"password\":\"\"},{\"locker\":5,\"password\":\"\"},{\"locker\":6,\"password\":\"\"},{\"locker\":7,\"password\":\"\"},{\"locker\":8,\"password\":\"\"},{\"locker\":9,\"password\":\"\"},{\"locker\":10,\"password\":\"\"},{\"locker\":11,\"password\":\"\"},{\"locker\":12,\"password\":\"\"},{\"locker\":13,\"password\":\"\"},{\"locker\":14,\"password\":\"\"},{\"locker\":15,\"password\":\"\"},{\"locker\":16,\"password\":\"\"},{\"locker\":17,\"password\":\"\"},{\"locker\":18,\"password\":\"\"},{\"locker\":19,\"password\":\"\"},{\"locker\":20,\"password\":\"\"},{\"locker\":21,\"password\":\"\"},{\"locker\":22,\"password\":\"\"},{\"locker\":23,\"password\":\"\"},{\"locker\":24,\"password\":\"\"},{\"locker\":25,\"password\":\"\"},{\"locker\":26,\"password\":\"\"},{\"locker\":27,\"password\":\"\"},{\"locker\":28,\"password\":\"\"},{\"locker\":29,\"password\":\"\"},{\"locker\":30,\"password\":\"\"},{\"locker\":31,\"password\":\"\"}]");
+    }
+
+    public static void setPasswordStorageJson(String json) {
+        getAppSp().edit()
+                .putString(Constants.SP_PASSWORD_JSON, json)
+                .apply();
+    }
 }
 

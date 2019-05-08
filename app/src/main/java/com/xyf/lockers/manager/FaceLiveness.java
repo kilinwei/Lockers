@@ -356,7 +356,7 @@ public class FaceLiveness {
             if (faceInfo.mCenter_x < 100) {
                 livenessCallBack.onTip(0, "请往右一点");
                 return false;
-            } else if (faceInfo.mCenter_x > 380) {
+            } else if (faceInfo.mCenter_x > 430) {
                 livenessCallBack.onTip(0, "请往左一点");
                 return false;
             } else if (faceInfo.mCenter_y < 200) {
@@ -457,6 +457,8 @@ public class FaceLiveness {
     }
 
     public boolean onFeatureCheck(LivenessModel livenessModel) {
+        float rgbLivenessScore = livenessModel.getRgbLivenessScore();
+        Log.i(TAG, "onFeatureCheck: RGB活体分数: "+ rgbLivenessScore);
         if ((GlobalSet.getLiveStatusValue() == GlobalSet.LIVE_STATUS.NO) ||
                 (GlobalSet.getLiveStatusValue() == GlobalSet.LIVE_STATUS.RGB
                         && livenessModel.getRgbLivenessScore() > GlobalSet.getLiveRgbValue()) ||
@@ -467,6 +469,7 @@ public class FaceLiveness {
                         && livenessModel.getRgbLivenessScore() > GlobalSet.getLiveRgbValue()
                         && livenessModel.getDepthLivenessScore() > GlobalSet.getLiveDepthValue())
         ) {
+            Log.i(TAG, "onFeatureCheck: 通过RGB活体的分数: "+ rgbLivenessScore);
             byte[] visFeature = new byte[512];
             long sTime = System.currentTimeMillis();
             float length = FaceSDKManager.getInstance().getFaceFeature().extractFeature(

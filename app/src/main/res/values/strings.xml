@@ -17,6 +17,137 @@
     <string name="batch_register">批量注册</string>
     <string name="db_import_output">导入/导出数据库</string>
     <string name="check_all">全选</string>
+    <string name="default_pass_json"> [
+    {
+        "locker": 0,
+        "password": ""
+    },
+    {
+        "locker": 1,
+        "password": ""
+    },
+    {
+        "locker": 2,
+        "password": ""
+    },
+    {
+        "locker": 3,
+        "password": ""
+    },
+    {
+        "locker": 4,
+        "password": ""
+    },
+    {
+        "locker": 5,
+        "password": ""
+    },
+    {
+        "locker": 6,
+        "password": ""
+    },
+    {
+        "locker": 7,
+        "password": ""
+    },
+    {
+        "locker": 8,
+        "password": ""
+    },
+    {
+        "locker": 9,
+        "password": ""
+    },
+    {
+        "locker": 10,
+        "password": ""
+    },
+    {
+        "locker": 11,
+        "password": ""
+    },
+    {
+        "locker": 12,
+        "password": ""
+    },
+    {
+        "locker": 13,
+        "password": ""
+    },
+    {
+        "locker": 14,
+        "password": ""
+    },
+    {
+        "locker": 15,
+        "password": ""
+    },
+    {
+        "locker": 16,
+        "password": ""
+    },
+    {
+        "locker": 17,
+        "password": ""
+    },
+    {
+        "locker": 18,
+        "password": ""
+    },
+    {
+        "locker": 19,
+        "password": ""
+    },
+    {
+        "locker": 20,
+        "password": ""
+    },
+    {
+        "locker": 11,
+        "password": ""
+    },
+    {
+        "locker": 22,
+        "password": ""
+    },
+    {
+        "locker": 23,
+        "password": ""
+    },
+    {
+        "locker": 24,
+        "password": ""
+    },
+    {
+        "locker": 25,
+        "password": ""
+    },
+    {
+        "locker": 26,
+        "password": ""
+    },
+    {
+        "locker": 27,
+        "password": ""
+    },
+    {
+        "locker": 28,
+        "password": ""
+    },
+    {
+        "locker": 29,
+        "password": ""
+    },
+    {
+        "locker": 30,
+        "password": ""
+    },
+    {
+        "locker": 31,
+        "password": ""
+    }
+]</string>
+
 
     <string name="import_achieve">导入完成</string>
     <string name="import_tatal">任务总数</string>
@@ -24,6 +155,8 @@
     <string name="import_fail">导入失败</string>
     <string name="face_manager">人脸库管理</string>
     <string name="db_import">数据库导入/导出</string>
-    <string name="seriaport_timeout">开门超时,请重试</string>
+    <string name="seriaport_storage_timeout">开门反馈超时,请重试,如果此时已开门,请不要存物品,请关上门重复一遍动作,谢谢</string>
+    <string name="seriaport_take_timeout">开门反馈超时,请重试,如果此时已开门,请不要取物品,请关上门重复一遍动作,谢谢</string>
+    <string name="seriaport_tem_timeout">开门超时,请重试,如果此时已开门,请取走物品即可,谢谢</string>
     <string name="no_storage">您没有保存物品，请先保存物品</string>
 </resources>

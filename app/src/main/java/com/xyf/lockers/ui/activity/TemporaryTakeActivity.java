@@ -315,7 +315,7 @@ public class TemporaryTakeActivity extends BaseActivity implements ILivenessCall
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                showTipsActivity(getString(R.string.seriaport_timeout), Color.RED);
+                showTipsActivity(getString(R.string.seriaport_tem_timeout), Color.RED);
             }
         });
     }
