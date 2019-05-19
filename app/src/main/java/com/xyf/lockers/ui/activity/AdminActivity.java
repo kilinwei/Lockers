@@ -203,7 +203,11 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
 
                                     DBManager.getInstance().deleteBaiduDB(user.getUserName());
                                     mDeleteFeatureDialog.dismiss();
-                                    mGridAdapter.notifyDataSetChanged();
+                                    if (position < mGridBeans.size()) {
+                                        GridBean bean = mGridBeans.get(position);
+                                        resetGridBean(bean);
+                                    }
+                                    mGridAdapter.notifyItemChanged(position);
                                 }
                             })
                             .onNegative(new MaterialDialog.SingleButtonCallback() {
@@ -280,6 +284,7 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
 
     private void deleteAll() {
         if (mListFeatureInfo == null) {
+            ToastUtil.showMessage("人脸数据为空,无需删除");
             return;
         }
         Log.i(TAG, "onViewClicked: 删除之前的百度人脸库数量: " + mListFeatureInfo.size());
@@ -312,12 +317,7 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
                         }
                         if (mGridBeans != null) {
                             for (GridBean gridBean : mGridBeans) {
-                                gridBean.isStorageTimeout = false;
-                                gridBean.userID = -1;
-                                gridBean.imagePath = "";
-                                gridBean.lastStorageTime = 0;
-                                gridBean.lightStatus = 0;
-                                gridBean.lockerStatus = 0;
+                                resetGridBean(gridBean);
                             }
                             mGridAdapter.notifyDataSetChanged();
                         }
@@ -334,9 +334,18 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
         mDeleteFeatureDialog.show();
     }
 
+    private void resetGridBean(GridBean gridBean) {
+        gridBean.isStorageTimeout = false;
+        gridBean.userID = -1;
+        gridBean.imagePath = "";
+        gridBean.lastStorageTime = 0;
+        gridBean.lightStatus = 0;
+        gridBean.lockerStatus = 0;
+    }
+
     private void openAll() {
         if (mListFeatureInfo == null) {
-            return;
+            mListFeatureInfo = new ArrayList<>();
         }
         Log.i(TAG, "onViewClicked: 删除之前的百度人脸库数量: " + mListFeatureInfo.size());
         mDeleteFeatureDialog = new MaterialDialog.Builder(this)
@@ -368,12 +377,7 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
                         }
                         if (mGridBeans != null) {
                             for (GridBean gridBean : mGridBeans) {
-                                gridBean.isStorageTimeout = false;
-                                gridBean.userID = -1;
-                                gridBean.imagePath = "";
-                                gridBean.lastStorageTime = 0;
-                                gridBean.lightStatus = 0;
-                                gridBean.lockerStatus = 0;
+                                resetGridBean(gridBean);
                             }
                             mGridAdapter.notifyDataSetChanged();
                         }

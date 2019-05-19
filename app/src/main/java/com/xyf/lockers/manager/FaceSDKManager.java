@@ -31,6 +31,12 @@ public class FaceSDKManager {
 
     private LRUCache<String, Feature> featureLRUCache = new LRUCache<>(1000);
 
+    public void setAllFeature(List<Feature> allFeature) {
+        mAllFeature = allFeature;
+    }
+
+    private List<Feature> mAllFeature;
+
     private FaceSDKManager() {
         faceDetector = new FaceDetector();
         faceFeature = new FaceFeatures();
@@ -191,11 +197,13 @@ public class FaceSDKManager {
                 }
             }
         }
-
-        List<Feature> allFeature = DBManager.getInstance().queryFeature();
-        if (allFeature != null) {
-            Log.i(TAG, "isRegistered: " + allFeature.size());
-            for (Feature feature : allFeature) {
+        if (mAllFeature == null) {
+            //每次注册都要清空一次
+            mAllFeature = DBManager.getInstance().queryFeature();
+        }
+        if (mAllFeature != null) {
+            Log.i(TAG, "isRegistered: " + mAllFeature.size());
+            for (Feature feature : mAllFeature) {
                 if (compare(Constants.REGISTER_SCORE, featureType, curFeature, liveModel, feature)) {
                     featureLRUCache.put(feature.getUserName(), feature);
                     liveModel.setFeature(feature);

@@ -141,6 +141,7 @@ public class StorageActivity extends BaseActivity implements ILivenessCallBack, 
         mNickName = String.valueOf(System.currentTimeMillis() / 1000);
         Log.i(TAG, "run: mNickName: " + mNickName);
         FaceSDKManager.getInstance().getFaceLiveness().setRegistNickName(mNickName);
+        FaceSDKManager.getInstance().setAllFeature(null);
     }
 
 
