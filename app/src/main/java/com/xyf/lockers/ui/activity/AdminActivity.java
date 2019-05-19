@@ -203,7 +203,7 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
 
                                     DBManager.getInstance().deleteBaiduDB(user.getUserName());
                                     mDeleteFeatureDialog.dismiss();
-                                    mGridAdapter.notifyItemChanged(position);
+                                    mGridAdapter.notifyDataSetChanged();
                                 }
                             })
                             .onNegative(new MaterialDialog.SingleButtonCallback() {
@@ -257,21 +257,7 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btn_open_all:
-                mSubscribe = Observable.just(1).subscribeOn(Schedulers.io())
-                        .subscribe(new Consumer<Integer>() {
-                            @Override
-                            public void accept(Integer integer) throws Exception {
-                                for (int i = 0; i < 32; i++) {
-                                    if (!visible) {
-                                        return;
-                                    }
-                                    byte[] openSingleLockerBytes = LockerUtils.getOpenSingleLockerBytes(i);
-                                    LockersCommHelperNew.get().autoLightOpen(openSingleLockerBytes[0], openSingleLockerBytes[1], openSingleLockerBytes[2], openSingleLockerBytes[3]);
-                                    SystemClock.sleep(LockerUtils.OPEN_LOCKER_INTEVAL);
-                                }
-                                deleteAll();
-                            }
-                        });
+                openAll();
                 break;
             case R.id.btn_back:
                 startActivity(new Intent(this, MainActivity.class));
@@ -293,6 +279,62 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
     }
 
     private void deleteAll() {
+        if (mListFeatureInfo == null) {
+            return;
+        }
+        Log.i(TAG, "onViewClicked: 删除之前的百度人脸库数量: " + mListFeatureInfo.size());
+        mDeleteFeatureDialog = new MaterialDialog.Builder(this)
+                .title("删除警告")
+                .content("  将删除对应柜门的用户储存数据,对应用户的人脸将不能打开柜门,请确认是否删除?")
+                .positiveText(R.string.ok)
+                .negativeText(R.string.no)
+                .autoDismiss(false)
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull final MaterialDialog dialog, @NonNull DialogAction which) {
+                        for (Feature feature : mListFeatureInfo) {
+                            feature.setChecked(true);
+                        }
+                        UserInfoManager.getInstance().batchRemoveFeatureInfo(mListFeatureInfo, mUserInfoListener, mListFeatureInfo.size());
+                        SharedPreferenceUtil.setAllLockersStatus(0);
+                        List<User> allStorageUser = UserDBManager.getAllStorageUser();
+                        for (User user : allStorageUser) {
+                            user.setStorageIndexs(0);
+                        }
+                        StorageDBManager.deleteAll();
+
+                        String passwordStorageJson = SharedPreferenceUtil.getPasswordStorageJson();
+                        mAllBeans = JSON.parseArray(passwordStorageJson, PasswordStorageBean.class);
+                        for (PasswordStorageBean passwordStorageBean : mAllBeans) {
+                            passwordStorageBean.password = "";
+                            String newJson = JSON.toJSONString(mAllBeans);
+                            SharedPreferenceUtil.setPasswordStorageJson(newJson);
+                        }
+                        if (mGridBeans != null) {
+                            for (GridBean gridBean : mGridBeans) {
+                                gridBean.isStorageTimeout = false;
+                                gridBean.userID = -1;
+                                gridBean.imagePath = "";
+                                gridBean.lastStorageTime = 0;
+                                gridBean.lightStatus = 0;
+                                gridBean.lockerStatus = 0;
+                            }
+                            mGridAdapter.notifyDataSetChanged();
+                        }
+                        mDeleteFeatureDialog.dismiss();
+                    }
+                })
+                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        mDeleteFeatureDialog.dismiss();
+                    }
+                })
+                .build();
+        mDeleteFeatureDialog.show();
+    }
+
+    private void openAll() {
         if (mListFeatureInfo == null) {
             return;
         }
@@ -335,6 +377,21 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
                             }
                             mGridAdapter.notifyDataSetChanged();
                         }
+                        mSubscribe = Observable.just(1).subscribeOn(Schedulers.io())
+                                .subscribe(new Consumer<Integer>() {
+                                    @Override
+                                    public void accept(Integer integer) throws Exception {
+                                        for (int i = 0; i < 32; i++) {
+                                            if (!visible) {
+                                                return;
+                                            }
+                                            byte[] openSingleLockerBytes = LockerUtils.getOpenSingleLockerBytes(i);
+                                            LockersCommHelperNew.get().autoLightOpen(openSingleLockerBytes[0], openSingleLockerBytes[1], openSingleLockerBytes[2], openSingleLockerBytes[3]);
+                                            SystemClock.sleep(LockerUtils.OPEN_LOCKER_INTEVAL);
+                                        }
+                                        deleteAll();
+                                    }
+                                });
                         mDeleteFeatureDialog.dismiss();
                     }
                 })
