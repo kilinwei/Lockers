@@ -77,6 +77,6 @@ public class MainAppliction extends Application {
     }
 
     private static void initBugly() {
-        Bugly.init(getInstance(), APP_ID, true);
+        Bugly.init(getInstance(), APP_ID, false);
     }
 }

@@ -3,6 +3,7 @@ package com.xyf.lockers.ui.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.ImageView;
@@ -10,6 +11,7 @@ import android.widget.Toast;
 
 import com.baidu.idl.facesdk.FaceAuth;
 import com.baidu.idl.facesdk.callback.AuthCallback;
+import com.baidu.idl.facesdk.utils.PreferencesUtil;
 import com.xyf.lockers.R;
 import com.xyf.lockers.base.BaseActivity;
 import com.xyf.lockers.common.GlobalSet;
@@ -61,15 +63,14 @@ public class SplashActivity extends BaseActivity {
     }
 
     private void initLicence() {
-//        if (GlobalSet.getLicenseStatus() == 2) {
-//            String key = GlobalSet.getLicenseOnLineKey();
-//            initLicenseOnLine(key);
-//        } else {
-//            startActivity(new Intent(this, LicenseActivity.class));
-//            finish();
-//        }
-        startActivity(new Intent(this, MainActivity.class));
-
+        if (GlobalSet.getLicenseStatus() == 2) {
+            String key = GlobalSet.getLicenseOnLineKey();
+            initLicenseOnLine(key);
+        } else {
+            startActivity(new Intent(this, LicenseActivity.class));
+            finish();
+        }
+        Log.i(TAG, "initLicence: 序列号: "+ PreferencesUtil.getString("activate_on_key", ""));
     }
 
     // 在线鉴权

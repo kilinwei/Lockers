@@ -159,4 +159,6 @@
     <string name="seriaport_take_timeout">开门反馈超时,请重试,如果此时已开门,请不要取物品,请关上门重复一遍动作,谢谢</string>
     <string name="seriaport_tem_timeout">开门超时,请重试,如果此时已开门,请取走物品即可,谢谢</string>
     <string name="no_storage">您没有保存物品，请先保存物品</string>
+    <string name="ok">确认</string>
+    <string name="no">取消</string>
 </resources>

@@ -92,6 +92,7 @@ public class UserInfoManager {
 
     }
 
+
     public static class UserInfoListener {
         public void featureQuerySuccess(List<Feature> listFeatureInfo) {
 

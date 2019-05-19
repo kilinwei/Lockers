@@ -72,6 +72,10 @@ public class LRUCache <K, V> {
         map.clear();
     }
 
+    public synchronized void remove(K key) {
+        map.remove(key);
+    }
+
     /**
      * Returns the number of used entries in the cache.
      *

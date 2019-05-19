@@ -59,7 +59,9 @@ public class StorageRecordAdapter extends BaseQuickAdapter<StorageBean, BaseView
             imageView.setVisibility(View.VISIBLE);
             Glide.with(mContext).load(imgPath).into(imageView);
         } else {
-            imageView.setVisibility(View.GONE);
+            imageView.setVisibility(View.VISIBLE);
+            Glide.with(mContext).load(imgPath).into(imageView);
+//            imageView.setVisibility(View.GONE);//todo 如果要隐藏图片,那么在这里隐藏
         }
         TextView tvType = helper.getView(R.id.tv_open_type);
         tvType.setText(openType);

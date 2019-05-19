@@ -24,6 +24,7 @@ import com.xyf.lockers.adapter.GridAdapter;
 import com.xyf.lockers.base.BaseActivity;
 import com.xyf.lockers.common.serialport.LockersCommHelper;
 import com.xyf.lockers.common.serialport.LockersCommHelperNew;
+import com.xyf.lockers.db.DBManager;
 import com.xyf.lockers.listener.OnSingleLockerStatusListener;
 import com.xyf.lockers.manager.UserInfoManager;
 import com.xyf.lockers.model.bean.GridBean;
@@ -84,6 +85,8 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
     private MaterialDialog mShowAngleConfigDialog;
     private boolean visible;
     private List<PasswordStorageBean> mAllBeans;
+    private MaterialDialog mDeleteFeatureDialog;
+    private GridAdapter mGridAdapter;
 
     @Override
     protected int getLayout() {
@@ -109,8 +112,7 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
                         List<GridBean> gridBeanList = new ArrayList<>();
                         List<User> allStorageUser = UserDBManager.getAllStorageUser();
                         if (allStorageUser != null) {
-                            // TODO: 2019/4/9 just for  test
-//                        if (allStorageUser != null && allStorageUser.isEmpty()) {//测试用,上面的才是生产用的
+//                        if (allStorageUser != null && allStorageUser.isEmpty()) {//测试用,上面的才是生产用的 // TODO: 2019/4/9 just for  test
                             mCacheMap = new HashMap<>();
                             for (User user : allStorageUser) {
                                 int storageIndex = user.getStorageIndexs();
@@ -154,41 +156,64 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
                         GridLayoutManager gridLayoutManager = new GridLayoutManager(AdminActivity.this, 8);
                         gridLayoutManager.setOrientation(GridLayoutManager.VERTICAL);
                         recyclerviewGrid.setLayoutManager(gridLayoutManager);
-                        GridAdapter gridAdapter = new GridAdapter(R.layout.grid_item, mGridBeans);
+                        mGridAdapter = new GridAdapter(R.layout.grid_item, mGridBeans);
                         // TODO: 2019/4/9 just for  test
 //                        GridAdapter gridAdapter = new GridAdapter(R.layout.grid_item, list);
-                        recyclerviewGrid.setAdapter(gridAdapter);
-                        gridAdapter.setOnItemChildClickListener(AdminActivity.this);
+                        recyclerviewGrid.setAdapter(mGridAdapter);
+                        mGridAdapter.setOnItemChildClickListener(AdminActivity.this);
 
                     }
                 });
     }
 
     @Override
-    public void onItemChildClick(BaseQuickAdapter adapter, View view, int position) {
+    public void onItemChildClick(final BaseQuickAdapter adapter, View view, final int position) {
         if (mGridBeans != null) {
             GridBean gridBean = mGridBeans.get(position);
-            // TODO: 2019/4/20 打开之后，把用户储存的信息去掉
-            byte[] openSingleLockerBytes = LockerUtils.getOpenSingleLockerBytes(position);
-            LockersCommHelperNew.get().autoLightOpen(openSingleLockerBytes[0], openSingleLockerBytes[1], openSingleLockerBytes[2], openSingleLockerBytes[3]);
-            ToastUtil.showMessage("第" + (1 + position) + "柜子被打开");
             if (gridBean != null && gridBean.userID != -1) {
-                User user = UserDBManager.getUser(gridBean.userID);
+                final User user = UserDBManager.getUser(gridBean.userID);
                 if (user != null) {
-                    int storageIndexs = user.getStorageIndexs();
-                    //获取当前打开的箱位
-                    int wayBinary = 1 << position;
-                    //二进制取反,比如00001000变成111110111
-                    int i = ~wayBinary;
-                    //将指定位数的1抹去
-                    storageIndexs &= i;
-                    user.setStorageIndexs(storageIndexs);
-                    //更新数据库信息
-                    UserDBManager.update(user);
-                    int allLockersStatus = SharedPreferenceUtil.getAllLockersStatus();
-                    //用原来以保存的箱位或上现保存的箱位,然后记录所有已存东西的箱位索引
-                    allLockersStatus &= i;
-                    SharedPreferenceUtil.setAllLockersStatus(allLockersStatus);
+                    mDeleteFeatureDialog = new MaterialDialog.Builder(this)
+                            .title("删除警告")
+                            .content("  确认打开柜门,将删除对应柜门的用户储存数据,对应用户的人脸将不能打开柜门,请确认是否打开柜门?")
+                            .positiveText(R.string.ok)
+                            .negativeText(R.string.no)
+                            .autoDismiss(false)
+                            .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                @Override
+                                public void onClick(@NonNull final MaterialDialog dialog, @NonNull DialogAction which) {
+                                    // TODO: 2019/4/20 打开之后，把用户储存的信息去掉
+                                    byte[] openSingleLockerBytes = LockerUtils.getOpenSingleLockerBytes(position);
+                                    LockersCommHelperNew.get().autoLightOpen(openSingleLockerBytes[0], openSingleLockerBytes[1], openSingleLockerBytes[2], openSingleLockerBytes[3]);
+                                    ToastUtil.showMessage("第" + (1 + position) + "柜子被打开");
+                                    int storageIndexs = user.getStorageIndexs();
+                                    //获取当前打开的箱位
+                                    int wayBinary = 1 << position;
+                                    //二进制取反,比如00001000变成111110111
+                                    int i = ~wayBinary;
+                                    //将指定位数的1抹去
+                                    storageIndexs &= i;
+                                    user.setStorageIndexs(storageIndexs);
+                                    //更新数据库信息
+                                    UserDBManager.update(user);
+                                    int allLockersStatus = SharedPreferenceUtil.getAllLockersStatus();
+                                    //用原来以保存的箱位或上现保存的箱位,然后记录所有已存东西的箱位索引
+                                    allLockersStatus &= i;
+                                    SharedPreferenceUtil.setAllLockersStatus(allLockersStatus);
+
+                                    DBManager.getInstance().deleteBaiduDB(user.getUserName());
+                                    mDeleteFeatureDialog.dismiss();
+                                    mGridAdapter.notifyItemChanged(position);
+                                }
+                            })
+                            .onNegative(new MaterialDialog.SingleButtonCallback() {
+                                @Override
+                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                    mDeleteFeatureDialog.dismiss();
+                                }
+                            })
+                            .build();
+                    mDeleteFeatureDialog.show();
                 }
             }
         }
@@ -215,6 +240,9 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
         }
         if (mShowAngleConfigDialog != null && mShowAngleConfigDialog.isShowing()) {
             mShowAngleConfigDialog.dismiss();
+        }
+        if (mDeleteFeatureDialog != null && mDeleteFeatureDialog.isShowing()) {
+            mDeleteFeatureDialog.dismiss();
         }
         LockersCommHelperNew.get().setOnSingleLockerStatusListener(null);
     }
@@ -269,24 +297,55 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
             return;
         }
         Log.i(TAG, "onViewClicked: 删除之前的百度人脸库数量: " + mListFeatureInfo.size());
-        for (Feature feature : mListFeatureInfo) {
-            feature.setChecked(true);
-        }
-        UserInfoManager.getInstance().batchRemoveFeatureInfo(mListFeatureInfo, mUserInfoListener, mListFeatureInfo.size());
-        SharedPreferenceUtil.setAllLockersStatus(0);
-        List<User> allStorageUser = UserDBManager.getAllStorageUser();
-        for (User user : allStorageUser) {
-            user.setStorageIndexs(0);
-        }
-        StorageDBManager.deleteAll();
+        mDeleteFeatureDialog = new MaterialDialog.Builder(this)
+                .title("删除警告")
+                .content("  确认打开柜门,将删除对应柜门的用户储存数据,对应用户的人脸将不能打开柜门,请确认是否打开柜门?")
+                .positiveText(R.string.ok)
+                .negativeText(R.string.no)
+                .autoDismiss(false)
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull final MaterialDialog dialog, @NonNull DialogAction which) {
+                        for (Feature feature : mListFeatureInfo) {
+                            feature.setChecked(true);
+                        }
+                        UserInfoManager.getInstance().batchRemoveFeatureInfo(mListFeatureInfo, mUserInfoListener, mListFeatureInfo.size());
+                        SharedPreferenceUtil.setAllLockersStatus(0);
+                        List<User> allStorageUser = UserDBManager.getAllStorageUser();
+                        for (User user : allStorageUser) {
+                            user.setStorageIndexs(0);
+                        }
+                        StorageDBManager.deleteAll();
 
-        String passwordStorageJson = SharedPreferenceUtil.getPasswordStorageJson();
-        mAllBeans = JSON.parseArray(passwordStorageJson, PasswordStorageBean.class);
-        for (PasswordStorageBean passwordStorageBean : mAllBeans) {
-            passwordStorageBean.password = "";
-            String newJson = JSON.toJSONString(mAllBeans);
-            SharedPreferenceUtil.setPasswordStorageJson(newJson);
-        }
+                        String passwordStorageJson = SharedPreferenceUtil.getPasswordStorageJson();
+                        mAllBeans = JSON.parseArray(passwordStorageJson, PasswordStorageBean.class);
+                        for (PasswordStorageBean passwordStorageBean : mAllBeans) {
+                            passwordStorageBean.password = "";
+                            String newJson = JSON.toJSONString(mAllBeans);
+                            SharedPreferenceUtil.setPasswordStorageJson(newJson);
+                        }
+                        if (mGridBeans != null) {
+                            for (GridBean gridBean : mGridBeans) {
+                                gridBean.isStorageTimeout = false;
+                                gridBean.userID = -1;
+                                gridBean.imagePath = "";
+                                gridBean.lastStorageTime = 0;
+                                gridBean.lightStatus = 0;
+                                gridBean.lockerStatus = 0;
+                            }
+                            mGridAdapter.notifyDataSetChanged();
+                        }
+                        mDeleteFeatureDialog.dismiss();
+                    }
+                })
+                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        mDeleteFeatureDialog.dismiss();
+                    }
+                })
+                .build();
+        mDeleteFeatureDialog.show();
     }
 
     @Override

@@ -6,9 +6,13 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.baidu.idl.facesdk.model.Feature;
+import com.xyf.lockers.api.FaceApi;
+import com.xyf.lockers.manager.FaceSDKManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,6 +67,7 @@ public class DBManager {
 
     /**
      * 打开数据库
+     *
      * @return SQLiteDatabase
      */
     public synchronized SQLiteDatabase openDatabase() {
@@ -292,6 +297,32 @@ public class DBManager {
         }
         return success;
     }
+
+
+    /**
+     * 从百度的数据库中删除用户
+     *
+     * @param userName
+     */
+    public void deleteBaiduDB(@NonNull String userName) {
+        Feature feature = FaceSDKManager.getInstance().getFeatureLRUCache().get(userName);
+        if (feature != null) {
+            boolean b = FaceApi.getInstance().featureDelete(feature);
+            String deleteResult = b ? "成功" : "失败";
+            Log.i(TAG, "onSingleLockerStatusResponse: 百度人脸数据库删除" + deleteResult + " 人脸userName: " + feature.getUserName());
+            FaceSDKManager.getInstance().getFeatureLRUCache().remove(userName);
+        } else {
+            List<Feature> features = DBManager.getInstance().queryFeatureByName(userName);
+            for (Feature f : features) {
+                if (userName.equals(f.getUserName())) {
+                    boolean b = FaceApi.getInstance().featureDelete(f);
+                    String deleteResult = b ? "成功" : "失败";
+                    Log.i(TAG, "onSingleLockerStatusResponse: 百度人脸数据库删除" + deleteResult + " 人脸userName: " + f.getUserName());
+                }
+            }
+        }
+    }
+
 
     private void beginTransaction(SQLiteDatabase mDatabase) {
         if (allowTransaction) {

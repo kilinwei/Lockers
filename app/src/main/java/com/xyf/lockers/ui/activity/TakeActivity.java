@@ -20,6 +20,7 @@ import com.xyf.lockers.base.BaseActivity;
 import com.xyf.lockers.callback.ILivenessCallBack;
 import com.xyf.lockers.common.GlobalSet;
 import com.xyf.lockers.common.serialport.LockersCommHelperNew;
+import com.xyf.lockers.db.DBManager;
 import com.xyf.lockers.listener.OnSingleLockerStatusListener;
 import com.xyf.lockers.manager.FaceLiveness;
 import com.xyf.lockers.manager.FaceSDKManager;
@@ -306,6 +307,7 @@ public class TakeActivity extends BaseActivity implements ILivenessCallBack, OnS
                     UserDBManager.update(mCurrentUser);
 
                     StorageDBManager.inserStorage2DB(mCurrentUser.getUserName(), mCurrentUser.getCropImageName(), System.currentTimeMillis(), mCurrentOpenLockerIndex + 1, Constants.TAKE);
+                    DBManager.getInstance().deleteBaiduDB(mCurrentUser.getUserName());
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
