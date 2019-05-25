@@ -33,9 +33,9 @@ public class GridAdapter extends BaseQuickAdapter<GridBean, BaseViewHolder> {
                     .setText(R.id.tv_num, "主控");
             Button view = helper.getView(R.id.btn_open_lock);
             if (view != null) {
-                view.setVisibility(View.INVISIBLE);
-                tvLastTime.setVisibility(View.INVISIBLE);
-                tvTimeout.setVisibility(View.INVISIBLE);
+                view.setVisibility(View.GONE);
+                tvLastTime.setVisibility(View.GONE);
+                tvTimeout.setVisibility(View.GONE);
             }
         } else {
             // TODO: 2019/4/23 各种状态
@@ -46,7 +46,7 @@ public class GridAdapter extends BaseQuickAdapter<GridBean, BaseViewHolder> {
 
             if (item.lastStorageTime == 0) {
                 tvLastTime.setText("未使用");
-                tvTimeout.setVisibility(View.INVISIBLE);
+                tvTimeout.setVisibility(View.GONE);
             }
 //                .setText(R.id.tv_lock_status, "门已关闭")
 //                .setText(R.id.tv_light_status, "灯的状态闪烁");

@@ -519,7 +519,7 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull final MaterialDialog dialog, @NonNull DialogAction which) {
-                        int cameraAngle = (int) cameraAngleSpinner.getSelectedItem();
+                        int cameraAngle = Integer.parseInt((String) cameraAngleSpinner.getSelectedItem());
                         PreferencesUtil.putInt(TYPE_PREVIEW_ANGLE, cameraAngle);
                         dialog.dismiss();
                     }
@@ -535,14 +535,14 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
         // 设置的角度
         int previewAngle = PreferencesUtil.getInt(TYPE_PREVIEW_ANGLE, TYPE_TPREVIEW_NINETY_ANGLE);
         setSpinnerItemSelectedByValue(cameraAngleSpinner, previewAngle);
-        mShowAngleConfigDialog.show();
+        mShowCameraAngleConfigDialog.show();
     }
 
     private void setSpinnerItemSelectedByValue(Spinner spinner, int value) {
         SpinnerAdapter apsAdapter = spinner.getAdapter(); //得到SpinnerAdapter对象
         int k = apsAdapter.getCount();
         for (int i = 0; i < k; i++) {
-            if (value == (int) apsAdapter.getItem(i)) {
+            if (value == Integer.parseInt((String) apsAdapter.getItem(i)) ) {
                 spinner.setSelection(i, true);// 默认选中项
                 break;
             }

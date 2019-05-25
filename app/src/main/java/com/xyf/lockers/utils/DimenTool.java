@@ -28,7 +28,9 @@ public class DimenTool {
         File file = new File("./app/src/main/res/values/dimens.xml");
 
         BufferedReader reader = null;
+        StringBuilder sw160 = new StringBuilder();
         StringBuilder sw240 = new StringBuilder();
+        StringBuilder sw320 = new StringBuilder();
         StringBuilder sw480 = new StringBuilder();
         StringBuilder sw600 = new StringBuilder();
 
@@ -66,17 +68,22 @@ public class DimenTool {
                                     tempString.indexOf("</dimen>") - 2));
 
                     //根据不同的尺寸，计算新的值，拼接新的字符串，并且结尾处换行。
-                    sw240.append(start).append(num * 0.75).append(end).append("\r\n");
 
-                    sw480.append(start).append(num * 1.5).append(end).append("\r\n");
+                    sw160.append(start).append(num).append(end).append("\r\n");
 
-                    sw600.append(start).append(num * 1.87).append(end).append("\r\n");
+                    sw240.append(start).append(num * 0.75 * 0.5).append(end).append("\r\n");
 
-                    sw720.append(start).append(num * 2.25).append(end).append("\r\n");
+                    sw320.append(start).append(num * 1 * 0.5).append(end).append("\r\n");
 
-                    sw800.append(start).append(num * 2.5).append(end).append("\r\n");
+                    sw480.append(start).append(num * 1.5 * 0.5).append(end).append("\r\n");
 
-                    w820.append(start).append(num * 2.56).append(end).append("\r\n");
+                    sw600.append(start).append(num * 1.87 * 0.5).append(end).append("\r\n");
+
+                    sw720.append(start).append(num * 2.25 * 0.5).append(end).append("\r\n");
+
+                    sw800.append(start).append(num * 2.5 * 0.5).append(end).append("\r\n");
+
+                    w820.append(start).append(num * 2.56 * 0.5).append(end).append("\r\n");
 
 
                 } else {
@@ -119,29 +126,37 @@ public class DimenTool {
 
             System.out.println(sw800);
 
-            String sw240file = "./app/src/main/res/values-sw240dp-land/dimens.xml";
+            String sw160file = "./app/src/main/res/values-sw160dp/dimens.xml";
 
-            String sw480file = "./app/src/main/res/values-sw480dp-land/dimens.xml";
+            String sw240file = "./app/src/main/res/values-sw240dp/dimens.xml";
 
-            String sw600file = "./app/src/main/res/values-sw600dp-land/dimens.xml";
+            String sw320file = "./app/src/main/res/values-sw320dp/dimens.xml";
 
-            String sw720file = "./app/src/main/res/values-sw720dp-land/dimens.xml";
+            String sw480file = "./app/src/main/res/values-sw480dp/dimens.xml";
 
-            String sw800file = "./app/src/main/res/values-sw800dp-land/dimens.xml";
+            String sw600file = "./app/src/main/res/values-sw600dp/dimens.xml";
 
-            String w820file = "./app/src/main/res/values-w820dp/dimens.xml";
+            String sw720file = "./app/src/main/res/values-sw720dp/dimens.xml";
+
+            String sw800file = "./app/src/main/res/values-sw800dp/dimens.xml";
+
+            String w820file = "./app/src/main/res/values-sw820dp/dimens.xml";
             //将新的内容，写入到指定的文件中去
+            writeFile(sw160file, sw160.toString());
+
             writeFile(sw240file, sw240.toString());
+
+            writeFile(sw320file, sw320.toString());
 
             writeFile(sw480file, sw480.toString());
 
-//            writeFile(sw600file, sw600.toString());
-//
-//            writeFile(sw720file, sw720.toString());
-//
-//            writeFile(sw800file, sw800.toString());
-//
-//            writeFile(w820file, w820.toString());
+            writeFile(sw600file, sw600.toString());
+
+            writeFile(sw720file, sw720.toString());
+
+            writeFile(sw800file, sw800.toString());
+
+            writeFile(w820file, w820.toString());
 
         } catch (IOException e) {
 
@@ -194,7 +209,7 @@ public class DimenTool {
     }
 
     public static void main(String[] args) {
-
+        gen();
     }
 
     public static void test() {

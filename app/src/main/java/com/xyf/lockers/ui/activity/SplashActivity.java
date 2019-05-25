@@ -67,6 +67,7 @@ public class SplashActivity extends BaseActivity {
             String key = GlobalSet.getLicenseOnLineKey();
             initLicenseOnLine(key);
         } else {
+//            startActivity(new Intent(this, MainActivity.class));
             startActivity(new Intent(this, LicenseActivity.class));
             finish();
         }

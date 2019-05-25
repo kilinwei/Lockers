@@ -4,27 +4,33 @@
               xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              android:layout_marginTop="@dimen/dp_20"
+              android:layout_marginTop="@dimen/dp_24"
+              android:layout_marginStart="@dimen/dp_3"
+              android:layout_marginEnd="@dimen/dp_3"
               android:gravity="center_horizontal"
               android:orientation="vertical">
 
     <TextView
-        android:gravity="center_horizontal"
+        android:textColor="@color/black"
+        android:gravity="center"
+        android:textStyle="bold"
         android:id="@+id/tv_num"
         android:layout_width="wrap_content"
         android:layout_height="@dimen/dp_30"
-        android:textSize="@dimen/dp_24"/>
+        android:textSize="@dimen/dp_25"/>
 
     <TextView
+        android:textSize="@dimen/dp_22"
         android:visibility="visible"
-        android:gravity="center_horizontal"
+        android:gravity="center"
         android:id="@+id/tv_storage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="tv_storage"/>
 
     <TextView
-        android:gravity="center_horizontal"
+        android:textSize="@dimen/dp_22"
+        android:gravity="center"
         android:visibility="gone"
         android:id="@+id/tv_timeout"
         android:layout_width="wrap_content"
@@ -32,7 +38,7 @@
         android:text="tv_timeout"/>
 
     <Button
-        android:gravity="center_horizontal"
+        android:gravity="center"
         android:id="@+id/btn_open_lock"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -42,7 +48,8 @@
         android:textSize="@dimen/dp_30"/>
 
     <TextView
-        android:gravity="center_horizontal"
+        android:textSize="@dimen/dp_22"
+        android:gravity="center"
         android:id="@+id/tv_locker_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -50,7 +57,8 @@
         android:visibility="gone"/>
 
     <TextView
-        android:gravity="center_horizontal"
+        android:textSize="@dimen/dp_22"
+        android:gravity="center"
         android:id="@+id/tv_light_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
