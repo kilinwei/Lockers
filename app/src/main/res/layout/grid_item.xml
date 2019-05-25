@@ -4,7 +4,7 @@
               xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              android:layout_marginTop="20dp"
+              android:layout_marginTop="@dimen/dp_20"
               android:gravity="center_horizontal"
               android:orientation="vertical">
 
@@ -12,8 +12,8 @@
         android:gravity="center_horizontal"
         android:id="@+id/tv_num"
         android:layout_width="wrap_content"
-        android:layout_height="30dp"
-        android:textSize="24sp"/>
+        android:layout_height="@dimen/dp_30"
+        android:textSize="@dimen/dp_24"/>
 
     <TextView
         android:visibility="visible"
@@ -39,7 +39,7 @@
         android:background="@drawable/small_btn_selector"
         android:text="开门"
         android:textColor="@color/b2w_text_color_selector"
-        android:textSize="30sp"/>
+        android:textSize="@dimen/dp_30"/>
 
     <TextView
         android:gravity="center_horizontal"

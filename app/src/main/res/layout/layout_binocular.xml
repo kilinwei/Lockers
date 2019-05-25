@@ -12,18 +12,18 @@
     
     <ImageView
         android:id="@+id/btn_go_left"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="@dimen/dp_50"
+        android:layout_height="@dimen/dp_50"
         android:layout_centerVertical="true"
-        android:layout_marginLeft="20dp"
+        android:layout_marginLeft="@dimen/dp_20"
         android:background="@mipmap/ic_go_left" />
 
     <ImageView
         android:id="@+id/btn_go_right"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="@dimen/dp_50"
+        android:layout_height="@dimen/dp_50"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:layout_marginRight="20dp"
+        android:layout_marginRight="@dimen/dp_20"
         android:background="@mipmap/ic_go_right" />
 </RelativeLayout>

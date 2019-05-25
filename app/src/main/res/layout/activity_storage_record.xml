@@ -5,7 +5,7 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:orientation="vertical"
-              android:padding="20dp"
+              android:padding="@dimen/dp_20"
               tools:context=".ui.activity.StorageRecordActivity">
 
     <LinearLayout
@@ -16,25 +16,25 @@
             android:id="@+id/btn_back"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="10dp"
+            android:layout_marginEnd="@dimen/dp_10"
             android:background="@drawable/small_btn_selector"
-            android:paddingEnd="5dp"
-            android:paddingStart="5dp"
+            android:paddingEnd="@dimen/dp_5"
+            android:paddingStart="@dimen/dp_5"
             android:text="返回首页"
             android:textColor="@color/b2w_text_color_selector"
-            android:textSize="20sp"/>
+            android:textSize="@dimen/dp_20"/>
 
         <Button
             android:id="@+id/btn_delete"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="10dp"
+            android:layout_marginEnd="@dimen/dp_10"
             android:background="@drawable/small_btn_selector"
-            android:paddingEnd="5dp"
-            android:paddingStart="5dp"
+            android:paddingEnd="@dimen/dp_5"
+            android:paddingStart="@dimen/dp_5"
             android:text="清空日志记录"
             android:textColor="@color/b2w_text_color_selector"
-            android:textSize="20sp"/>
+            android:textSize="@dimen/dp_20"/>
     </LinearLayout>
 
 

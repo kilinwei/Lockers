@@ -16,12 +16,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="30dp"
+            android:layout_marginTop="@dimen/dp_30"
             android:gravity="center"
-            android:paddingStart="20dp"
-            android:paddingEnd="20dp"
+            android:paddingStart="@dimen/dp_20"
+            android:paddingEnd="@dimen/dp_20"
             android:textColor="@color/red"
-            android:textSize="30sp" />
+            android:textSize="@dimen/dp_30" />
 
         <RelativeLayout
             android:id="@+id/layout_camera"
@@ -35,8 +35,8 @@
 
         <ImageView
             android:id="@+id/image_track"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="@dimen/dp_100"
+            android:layout_height="@dimen/dp_100"
             android:layout_alignParentRight="true"
             android:visibility="gone" />
     </RelativeLayout>

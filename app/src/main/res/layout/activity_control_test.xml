@@ -10,7 +10,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp">
+        android:layout_marginBottom="@dimen/dp_10">
 
         <TextView
             android:layout_width="wrap_content"
@@ -31,7 +31,7 @@
     </LinearLayout>
 
     <LinearLayout
-        android:layout_marginBottom="10dp"
+        android:layout_marginBottom="@dimen/dp_10"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
@@ -45,13 +45,13 @@
             android:id="@+id/tv_lock_status"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="20dp"
-            android:layout_marginStart="10dp"
+            android:layout_marginEnd="@dimen/dp_20"
+            android:layout_marginStart="@dimen/dp_10"
             android:text="锁状态 %s"/>
 
         <EditText
             android:id="@+id/edit_lock"
-            android:layout_width="100dp"
+            android:layout_width="@dimen/dp_100"
             android:layout_height="wrap_content"
             android:inputType="number"/>
 
@@ -63,7 +63,7 @@
     </LinearLayout>
 
     <LinearLayout
-        android:layout_marginBottom="10dp"
+        android:layout_marginBottom="@dimen/dp_10"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -93,7 +93,7 @@
     </LinearLayout>
 
     <LinearLayout
-        android:layout_marginBottom="10dp"
+        android:layout_marginBottom="@dimen/dp_10"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -104,7 +104,7 @@
 
         <EditText
             android:id="@+id/edit_light"
-            android:layout_width="100dp"
+            android:layout_width="@dimen/dp_100"
             android:layout_height="wrap_content"
             android:inputType="number"/>
 
@@ -122,7 +122,7 @@
     </LinearLayout>
 
     <LinearLayout
-        android:layout_marginBottom="10dp"
+        android:layout_marginBottom="@dimen/dp_10"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 

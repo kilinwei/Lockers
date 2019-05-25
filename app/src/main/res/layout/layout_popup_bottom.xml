@@ -7,11 +7,11 @@
 
     <ImageButton
         android:id="@+id/close_pwd_btn"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:layout_width="@dimen/dp_100"
+        android:layout_height="@dimen/dp_100"
         android:layout_alignParentRight="true"
-        android:layout_marginRight="20dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginRight="@dimen/dp_20"
+        android:layout_marginTop="@dimen/dp_20"
         android:background="@android:color/transparent"
         android:src="@drawable/pwd_close_selector"/>
 
@@ -20,16 +20,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="60dp"
+        android:layout_marginTop="@dimen/dp_60"
         android:text="请输入密码"
         android:textColor="@android:color/black"
-        android:textSize="32sp"/>
+        android:textSize="@dimen/dp_32"/>
     <!-- 6位密码框布局，需要一个圆角边框的shape作为layout的背景 -->
     <LinearLayout
-        android:layout_width="600dp"
-        android:layout_height="60dp"
+        android:layout_width="@dimen/dp_600"
+        android:layout_height="@dimen/dp_60"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="160dp"
+        android:layout_marginTop="@dimen/dp_160"
         android:background="@drawable/psw_input_area_bg"
         android:orientation="horizontal">
 
@@ -46,13 +46,13 @@
                 android:inputType="numberPassword"
                 android:text=""
                 android:textColor="#000000"
-                android:textSize="36sp"/>
+                android:textSize="@dimen/dp_36"/>
 
 
             <ImageView
                 android:id="@+id/img_pass1"
-                android:layout_width="14dp"
-                android:layout_height="14dp"
+                android:layout_width="@dimen/dp_14"
+                android:layout_height="@dimen/dp_14"
                 android:layout_gravity="center"
                 android:src="@drawable/img_psw_bg"
                 android:visibility="invisible"/>
@@ -60,11 +60,11 @@
         </FrameLayout>
 
         <View
-            android:layout_width="0.66dp"
-            android:layout_height="30dp"
+            android:layout_width="1px"
+            android:layout_height="@dimen/dp_30"
             android:layout_gravity="center_vertical"
-            android:layout_marginBottom="0.66dp"
-            android:layout_marginTop="0.66dp"
+            android:layout_marginBottom="1px"
+            android:layout_marginTop="1px"
             android:background="#bdbdbd"/>
 
         <FrameLayout
@@ -80,13 +80,13 @@
                 android:inputType="numberPassword"
                 android:text=""
                 android:textColor="#000000"
-                android:textSize="36sp"/>
+                android:textSize="@dimen/dp_36"/>
 
 
             <ImageView
                 android:id="@+id/img_pass2"
-                android:layout_width="14dp"
-                android:layout_height="14dp"
+                android:layout_width="@dimen/dp_14"
+                android:layout_height="@dimen/dp_14"
                 android:layout_gravity="center"
                 android:src="@drawable/img_psw_bg"
                 android:visibility="invisible"/>
@@ -96,7 +96,7 @@
 
         <View
             android:layout_width="0.66dp"
-            android:layout_height="30dp"
+            android:layout_height="@dimen/dp_30"
             android:layout_gravity="center_vertical"
             android:layout_marginBottom="0.66dp"
             android:layout_marginTop="0.66dp"
@@ -116,13 +116,13 @@
                 android:inputType="numberPassword"
                 android:text=""
                 android:textColor="#000000"
-                android:textSize="36sp"/>
+                android:textSize="@dimen/dp_36"/>
 
 
             <ImageView
                 android:id="@+id/img_pass3"
-                android:layout_width="14dp"
-                android:layout_height="14dp"
+                android:layout_width="@dimen/dp_14"
+                android:layout_height="@dimen/dp_14"
                 android:layout_gravity="center"
                 android:src="@drawable/img_psw_bg"
                 android:visibility="invisible"/>
@@ -131,7 +131,7 @@
 
         <View
             android:layout_width="0.66dp"
-            android:layout_height="30dp"
+            android:layout_height="@dimen/dp_30"
             android:layout_gravity="center_vertical"
             android:layout_marginBottom="0.66dp"
             android:layout_marginTop="0.66dp"
@@ -151,13 +151,13 @@
                 android:inputType="numberPassword"
                 android:text=""
                 android:textColor="#000000"
-                android:textSize="36sp"/>
+                android:textSize="@dimen/dp_36"/>
 
 
             <ImageView
                 android:id="@+id/img_pass4"
-                android:layout_width="14dp"
-                android:layout_height="14dp"
+                android:layout_width="@dimen/dp_14"
+                android:layout_height="@dimen/dp_14"
                 android:layout_gravity="center"
                 android:src="@drawable/img_psw_bg"
                 android:visibility="invisible"/>
@@ -166,7 +166,7 @@
 
         <View
             android:layout_width="0.66dp"
-            android:layout_height="30dp"
+            android:layout_height="@dimen/dp_30"
             android:layout_gravity="center_vertical"
             android:layout_marginBottom="0.66dp"
             android:layout_marginTop="0.66dp"
@@ -181,18 +181,18 @@
             <TextView
                 android:id="@+id/tv_pass5"
                 android:layout_width="match_parent"
-                android:layout_height="46dp"
+                android:layout_height="@dimen/dp_46"
                 android:gravity="center"
                 android:inputType="numberPassword"
                 android:text=""
                 android:textColor="#000000"
-                android:textSize="36sp"/>
+                android:textSize="@dimen/dp_36"/>
 
 
             <ImageView
                 android:id="@+id/img_pass5"
-                android:layout_width="14dp"
-                android:layout_height="14dp"
+                android:layout_width="@dimen/dp_14"
+                android:layout_height="@dimen/dp_14"
                 android:layout_gravity="center"
                 android:src="@drawable/img_psw_bg"
                 android:visibility="invisible"/>
@@ -201,7 +201,7 @@
 
         <View
             android:layout_width="0.66dp"
-            android:layout_height="30dp"
+            android:layout_height="@dimen/dp_30"
             android:layout_gravity="center_vertical"
             android:layout_marginBottom="0.66dp"
             android:layout_marginTop="0.66dp"
@@ -221,13 +221,13 @@
                 android:inputType="numberPassword"
                 android:text=""
                 android:textColor="#000000"
-                android:textSize="36sp"/>
+                android:textSize="@dimen/dp_36"/>
 
 
             <ImageView
                 android:id="@+id/img_pass6"
-                android:layout_width="14dp"
-                android:layout_height="14dp"
+                android:layout_width="@dimen/dp_14"
+                android:layout_height="@dimen/dp_14"
                 android:layout_gravity="center"
                 android:src="@drawable/img_psw_bg"
                 android:visibility="invisible"/>
@@ -239,7 +239,7 @@
     <com.xyf.lockers.view.VirtualKeyboardView
         android:id="@+id/virtualKeyboardView"
         android:layout_width="match_parent"
-        android:layout_height="800dp"
+        android:layout_height="@dimen/dp_800"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"

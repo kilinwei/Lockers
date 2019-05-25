@@ -5,7 +5,7 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:orientation="vertical"
-              android:padding="30dp"
+              android:padding="@dimen/dp_30"
               tools:context=".ui.activity.AdminActivity">
 
     <LinearLayout
@@ -13,82 +13,82 @@
         android:layout_height="wrap_content">
 
         <Button
-            android:paddingStart="5dp"
-            android:paddingEnd="5dp"
+            android:paddingStart="@dimen/dp_5"
+            android:paddingEnd="@dimen/dp_5"
             android:id="@+id/btn_back"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="10dp"
+            android:layout_marginEnd="@dimen/dp_10"
             android:background="@drawable/small_btn_selector"
             android:text="返回首页"
             android:textColor="@color/b2w_text_color_selector"
-            android:textSize="20sp"/>
+            android:textSize="@dimen/dp_20"/>
 
         <Button
-            android:paddingStart="5dp"
-            android:paddingEnd="5dp"
+            android:paddingStart="@dimen/dp_5"
+            android:paddingEnd="@dimen/dp_5"
             android:id="@+id/btn_open_all"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="10dp"
+            android:layout_marginEnd="@dimen/dp_10"
             android:background="@drawable/small_btn_selector"
             android:text="打开所有柜门"
             android:textColor="@color/b2w_text_color_selector"
-            android:textSize="20sp"/>
+            android:textSize="@dimen/dp_20"/>
 
         <Button
-            android:paddingStart="5dp"
-            android:paddingEnd="5dp"
+            android:paddingStart="@dimen/dp_5"
+            android:paddingEnd="@dimen/dp_5"
             android:id="@+id/btn_control_delete_all"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="10dp"
+            android:layout_marginEnd="@dimen/dp_10"
             android:background="@drawable/small_btn_selector"
             android:text="全部删除"
             android:textColor="@color/b2w_text_color_selector"
-            android:textSize="20sp"
+            android:textSize="@dimen/dp_20"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
 
         <Button
-            android:paddingStart="5dp"
-            android:paddingEnd="5dp"
+            android:paddingStart="@dimen/dp_5"
+            android:paddingEnd="@dimen/dp_5"
             android:id="@+id/btn_config_angle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="10dp"
+            android:layout_marginEnd="@dimen/dp_10"
             android:background="@drawable/small_btn_selector"
             android:text="配置识别角度限制"
             android:textColor="@color/b2w_text_color_selector"
-            android:textSize="20sp"
+            android:textSize="@dimen/dp_20"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
 
         <Button
-            android:paddingStart="5dp"
-            android:paddingEnd="5dp"
+            android:paddingStart="@dimen/dp_5"
+            android:paddingEnd="@dimen/dp_5"
             android:id="@+id/btn_update"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="10dp"
+            android:layout_marginEnd="@dimen/dp_10"
             android:background="@drawable/small_btn_selector"
             android:text="检测更新"
             android:textColor="@color/b2w_text_color_selector"
-            android:textSize="20sp"
+            android:textSize="@dimen/dp_20"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
 
         <Button
-            android:paddingStart="5dp"
-            android:paddingEnd="5dp"
+            android:paddingStart="@dimen/dp_5"
+            android:paddingEnd="@dimen/dp_5"
             android:id="@+id/btn_system_setting"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="10dp"
+            android:layout_marginEnd="@dimen/dp_10"
             android:background="@drawable/small_btn_selector"
             android:text="打开系统设置界面"
             android:textColor="@color/b2w_text_color_selector"
-            android:textSize="20sp"
+            android:textSize="@dimen/dp_20"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
 
