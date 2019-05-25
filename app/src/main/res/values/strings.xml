@@ -161,4 +161,11 @@
     <string name="no_storage">您没有保存物品，请先保存物品</string>
     <string name="ok">确认</string>
     <string name="no">取消</string>
+
+    <string-array name="camera_angle_array">
+        <item>0</item>
+        <item>90</item>
+        <item>180</item>
+        <item>270</item>
+    </string-array>
 </resources>

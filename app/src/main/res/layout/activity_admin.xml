@@ -1,96 +1,111 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical"
-              android:padding="@dimen/dp_30"
-              tools:context=".ui.activity.AdminActivity">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="@dimen/dp_30"
+    tools:context=".ui.activity.AdminActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <Button
-            android:paddingStart="@dimen/dp_5"
-            android:paddingEnd="@dimen/dp_5"
             android:id="@+id/btn_back"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/dp_10"
             android:background="@drawable/small_btn_selector"
-            android:text="返回首页"
-            android:textColor="@color/b2w_text_color_selector"
-            android:textSize="@dimen/dp_20"/>
-
-        <Button
             android:paddingStart="@dimen/dp_5"
             android:paddingEnd="@dimen/dp_5"
+            android:text="返回首页"
+            android:textColor="@color/b2w_text_color_selector"
+            android:textSize="@dimen/dp_20" />
+
+        <Button
             android:id="@+id/btn_open_all"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/dp_10"
             android:background="@drawable/small_btn_selector"
-            android:text="打开所有柜门"
-            android:textColor="@color/b2w_text_color_selector"
-            android:textSize="@dimen/dp_20"/>
-
-        <Button
             android:paddingStart="@dimen/dp_5"
             android:paddingEnd="@dimen/dp_5"
+            android:text="打开所有柜门"
+            android:textColor="@color/b2w_text_color_selector"
+            android:textSize="@dimen/dp_20" />
+
+        <Button
             android:id="@+id/btn_control_delete_all"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/dp_10"
             android:background="@drawable/small_btn_selector"
+            android:paddingStart="@dimen/dp_5"
+            android:paddingEnd="@dimen/dp_5"
             android:text="全部删除"
             android:textColor="@color/b2w_text_color_selector"
             android:textSize="@dimen/dp_20"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <Button
-            android:paddingStart="@dimen/dp_5"
-            android:paddingEnd="@dimen/dp_5"
             android:id="@+id/btn_config_angle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/dp_10"
             android:background="@drawable/small_btn_selector"
+            android:paddingStart="@dimen/dp_5"
+            android:paddingEnd="@dimen/dp_5"
             android:text="配置识别角度限制"
             android:textColor="@color/b2w_text_color_selector"
             android:textSize="@dimen/dp_20"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" />
+
 
         <Button
+            android:id="@+id/btn_config_camera_angle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/dp_10"
+            android:background="@drawable/small_btn_selector"
             android:paddingStart="@dimen/dp_5"
             android:paddingEnd="@dimen/dp_5"
+            android:text="调转摄像头角度"
+            android:textColor="@color/b2w_text_color_selector"
+            android:textSize="@dimen/dp_20"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
             android:id="@+id/btn_update"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/dp_10"
             android:background="@drawable/small_btn_selector"
+            android:paddingStart="@dimen/dp_5"
+            android:paddingEnd="@dimen/dp_5"
             android:text="检测更新"
             android:textColor="@color/b2w_text_color_selector"
             android:textSize="@dimen/dp_20"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <Button
-            android:paddingStart="@dimen/dp_5"
-            android:paddingEnd="@dimen/dp_5"
             android:id="@+id/btn_system_setting"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/dp_10"
             android:background="@drawable/small_btn_selector"
+            android:paddingStart="@dimen/dp_5"
+            android:paddingEnd="@dimen/dp_5"
             android:text="打开系统设置界面"
             android:textColor="@color/b2w_text_color_selector"
             android:textSize="@dimen/dp_20"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
     </LinearLayout>
 

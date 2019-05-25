@@ -12,11 +12,14 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.alibaba.fastjson.JSON;
 import com.baidu.idl.facesdk.model.Feature;
+import com.baidu.idl.facesdk.utils.PreferencesUtil;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.tencent.bugly.beta.Beta;
 import com.xyf.lockers.R;
@@ -50,6 +53,9 @@ import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
+import static com.xyf.lockers.common.GlobalSet.TYPE_PREVIEW_ANGLE;
+import static com.xyf.lockers.common.GlobalSet.TYPE_TPREVIEW_NINETY_ANGLE;
+
 /**
  * 显示所有柜门状态，以及每个柜门是否有存东西，显示用户头像，显示最后保存时间，是否超过三天储存时间
  * 显示所有门的状态，灯的状态
@@ -70,6 +76,8 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
     Button mBtnBack;
     @BindView(R.id.btn_config_angle)
     Button mBtnConfigAngle;
+    @BindView(R.id.btn_config_camera_angle)
+    Button mBtnConfigCameraAngle;
     @BindView(R.id.btn_update)
     Button mBtnUpdate;
 
@@ -87,6 +95,8 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
     private List<PasswordStorageBean> mAllBeans;
     private MaterialDialog mDeleteFeatureDialog;
     private GridAdapter mGridAdapter;
+    private MaterialDialog mShowCameraAngleConfigDialog;
+    private Spinner cameraAngleSpinner;
 
     @Override
     protected int getLayout() {
@@ -245,6 +255,9 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
         if (mShowAngleConfigDialog != null && mShowAngleConfigDialog.isShowing()) {
             mShowAngleConfigDialog.dismiss();
         }
+        if (mShowCameraAngleConfigDialog != null && mShowCameraAngleConfigDialog.isShowing()) {
+            mShowCameraAngleConfigDialog.dismiss();
+        }
         if (mDeleteFeatureDialog != null && mDeleteFeatureDialog.isShowing()) {
             mDeleteFeatureDialog.dismiss();
         }
@@ -257,6 +270,7 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
             R.id.btn_update,
             R.id.btn_config_angle,
             R.id.btn_system_setting,
+            R.id.btn_config_camera_angle,
             R.id.btn_control_delete_all})
     public void onViewClicked(View view) {
         switch (view.getId()) {
@@ -270,7 +284,10 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
                 deleteAll();
                 break;
             case R.id.btn_config_angle:
-                showAngleConfigDialog();
+                showFaceAngleConfigDialog();
+                break;
+            case R.id.btn_config_camera_angle:
+                showCameraAngleConfigDialog();
                 break;
             case R.id.btn_update:
                 Beta.checkUpgrade(false, true);
@@ -281,6 +298,7 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
                 break;
         }
     }
+
 
     private void deleteAll() {
         if (mListFeatureInfo == null) {
@@ -491,7 +509,47 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
         }
     }
 
-    private void showAngleConfigDialog() {
+    private void showCameraAngleConfigDialog() {
+        mShowCameraAngleConfigDialog = new MaterialDialog.Builder(this)
+                .title("摄像头角度配置")
+                .customView(R.layout.dialog_camera_angle, true)
+                .positiveText(android.R.string.ok)
+                .negativeText(android.R.string.no)
+                .autoDismiss(false)
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull final MaterialDialog dialog, @NonNull DialogAction which) {
+                        int cameraAngle = (int) cameraAngleSpinner.getSelectedItem();
+                        PreferencesUtil.putInt(TYPE_PREVIEW_ANGLE, cameraAngle);
+                        dialog.dismiss();
+                    }
+                })
+                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        dialog.dismiss();
+                    }
+                })
+                .build();
+        cameraAngleSpinner = (Spinner) mShowCameraAngleConfigDialog.findViewById(R.id.spacer_camera_angle);
+        // 设置的角度
+        int previewAngle = PreferencesUtil.getInt(TYPE_PREVIEW_ANGLE, TYPE_TPREVIEW_NINETY_ANGLE);
+        setSpinnerItemSelectedByValue(cameraAngleSpinner, previewAngle);
+        mShowAngleConfigDialog.show();
+    }
+
+    private void setSpinnerItemSelectedByValue(Spinner spinner, int value) {
+        SpinnerAdapter apsAdapter = spinner.getAdapter(); //得到SpinnerAdapter对象
+        int k = apsAdapter.getCount();
+        for (int i = 0; i < k; i++) {
+            if (value == (int) apsAdapter.getItem(i)) {
+                spinner.setSelection(i, true);// 默认选中项
+                break;
+            }
+        }
+    }
+
+    private void showFaceAngleConfigDialog() {
         mShowAngleConfigDialog = new MaterialDialog.Builder(this)
                 .title("人脸角度限制")
                 .customView(R.layout.angle_config, true)
@@ -530,4 +588,5 @@ public class AdminActivity extends BaseActivity implements BaseQuickAdapter.OnIt
         mEditRotateAngle.setText(String.valueOf(SharedPreferenceUtil.getRotateAngle()));
         mShowAngleConfigDialog.show();
     }
+
 }
