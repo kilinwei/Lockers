@@ -38,6 +38,12 @@ public class StorageDBManager {
         return storageBean;
     }
 
+    public static StorageBean update(StorageBean storageBean) {
+        StorageBeanDao storageBeanDao = MainAppliction.getInstance().getDaoSession().getStorageBeanDao();
+        storageBeanDao.update(storageBean);
+        return storageBean;
+    }
+
     public static StorageBean getStorageBean(long id) {
         StorageBeanDao storageBeanDao = MainAppliction.getInstance().getDaoSession().getStorageBeanDao();
         StorageBean storageBean = storageBeanDao.loadByRowId(id);
