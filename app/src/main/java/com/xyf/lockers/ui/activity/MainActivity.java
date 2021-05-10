@@ -161,13 +161,13 @@ public class MainActivity
         Intent intent = null;
         switch (view.getId()) {
             case R.id.btn_storage:
-                intent = new Intent(this, WordStorageActivity.class);
+                intent = new Intent(this, StorageActivity.class);
                 break;
             case R.id.btn_take:
-                intent = new Intent(this, WordTakeActivity.class);
+                intent = new Intent(this, TakeActivity.class);
                 break;
             case R.id.btn_temporary_take:
-                intent = new Intent(this, WordTemTakeActivity.class);
+                intent = new Intent(this, StorageActivity.class);
                 break;
             case R.id.btn_control_test:
                 intent = new Intent(this, ControlTestActivityNew.class);
